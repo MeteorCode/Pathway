@@ -1,0 +1,26 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "src/com/meteorcode/pathway",
+			"name": "Core"
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "Gradle Build",
+			"cmd":["gradle", "dist"],
+			"selector": "source.java",
+		},
+		{
+			"name": "Gradle Test",
+			"cmd":["gradle", "test"],
+		},
+		{
+			"name": "Gradle JavaDoc",
+			"cmd":["gradle", "javadoc"],
+		},
+	]
+}

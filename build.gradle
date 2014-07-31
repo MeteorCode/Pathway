@@ -1,0 +1,153 @@
+/////////////////////////////////////////////////////////////////////////////
+// buildfile for
+// THE SPACESHIP GAME
+//
+// (c) 2014 MeteorCode Laboratories
+/////////////////////////////////////////////////////////////////////////////
+
+version = "1.0"
+
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "idea"
+apply plugin: "java"
+apply plugin: "scala"
+apply plugin: "jacoco"
+
+buildscript {
+    repositories {
+        maven {
+            url 'https://github.com/steffenschaefer/gwt-gradle-plugin/raw/maven-repo/'
+        }
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+
+    dependencies {
+        classpath 'org.beanshell:bsh:2+'
+        classpath fileTree(dir: 'corelib', include: '*.jar')
+    }
+}
+
+
+repositories {
+    mavenLocal();
+    mavenCentral()
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+// define a configuration for scala compiler plugins
+// the transitive=false means that the plugin won't show up
+// as a dependency in the final output
+configurations {
+    scalaCompilerPlugins { transitive = false }
+}
+
+dependencies {
+
+    compile "org.scala-lang:scala-library:2.11.0"
+    compile "org.beanshell:bsh:2+"
+    compile fileTree(dir: 'corelib', include: '*.jar')
+
+    // right now, the only scalac plugin we are using is genjavadoc
+    scalaCompilerPlugins  group: 'com.typesafe.genjavadoc', name: 'genjavadoc-plugin_2.11.1', version:'0.8'
+
+    testCompile "junit:junit:4+"
+    testCompile "org.mockito:mockito-all:1.9.5"
+    testCompile "org.powermock:powermock-mockito-release-full:1.5.4+"
+    testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '2.2.0'
+}
+
+def jacocoExcludes = [ // stuff that should not have a JaCoCo test report generated
+                    '**/test/**', '**/*Test*', '**/*$*',
+                    'com/meteorcode/spaceshipgame/desktop/*',
+                    'com/meteorcode/spaceshipgame/SpaceshipGame.class'
+                     ]
+
+
+/////////////////////////////////////////////////////////////////////////
+// Patch the stock Gradle :javadoc task to run genjavadoc and generate
+// javadoc pages for Scala classes.
+/////////////////////////////////////////////////////////////////////////
+javadoc {
+    description "Generates JavaDoc for all Java and Scala classes"
+
+    // this string contains the plugin paths that get passed to the compiler
+    def pluginPaths = configurations.scalaCompilerPlugins.files.collect { "\"-Xplugin:${it.path}\"" }
+
+    compileScala {
+        scalaCompileOptions.additionalParameters = pluginPaths + "\"-P:genjavadoc:out=$buildDir/genjavadoc\""
+    }
+
+    // tell JavaDoc to include the genjavadoc-created files in its' fileset.
+    source = fileTree(dir: "src", include: '**/*.java', exclude: '**/test/**') + fileTree("$buildDir/genjavadoc")
+    options.addStringOption("quiet")
+}
+
+test {
+     jacoco {
+          excludes = jacocoExcludes
+     }
+}
+
+jacocoTestReport {
+    doFirst {
+        classDirectories = fileTree(dir: "${buildDir}/classes/main/").exclude(jacocoExcludes)
+    }
+}
+
+ext {
+    assetsDir = new File("assets");
+    appName = "Pathway"
+}
+
+task dist(type: Jar) {
+    dependsOn classes
+    dependsOn test
+    description "Bundle Pathway library jarfile for distribution."
+
+    from files(sourceSets.main.output.classesDir)
+    from files(sourceSets.main.output.resourcesDir)
+    from {configurations.compile.collect {zipTree(it)}}
+    from files(project.assetsDir);
+}
+
+tasks.withType(ScalaCompile) {
+    // Fast Scala Compiler is disabled because Jenkins can't handle it :(
+    //scalaCompileOptions.useCompileDaemon = true
+}
+
+sourceCompatibility = 1.7
+
+
+sourceSets {
+    main {
+        scala {
+          srcDirs = ["src"]
+          exclude "**/test/**"
+        }
+    }
+    test {
+        scala {
+          srcDirs = ["src"]
+        }
+    }
+}
+
+jar {
+    dependsOn test
+}
+
+tasks.eclipse.dependsOn cleanEclipse
+
+eclipse {
+    project {
+    	name = appName
+    }
+
+	classpath {
+		defaultOutputDir = file('build-eclipse')
+		downloadSources = true
+		downloadJavadoc = true
+	}
+}
