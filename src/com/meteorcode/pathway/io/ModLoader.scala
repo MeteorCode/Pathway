@@ -37,12 +37,11 @@ object ModLoader {
   /**
    * Loads all mods in the target directory.
    */
-  def loadDir(modsDir: String) = {
-    val directory = ResourceManager.read(modsDir)
+  def loadDir(directory: FileHandle) = {
     if (directory.exists) { // if the directory doesn't exist, throw an IOException
       if (directory.isDirectory()) { // if the mods directory isn't a directory, throw an IOException
         directory.list(".jar").foreach { loadMod } // otherwise, get all the jarfiles from the directory and load them
-      } else throw new IOException("Could not load mods directory " + modsDir + ", was not a directory.")
-    } else throw new IOException("Could not load mods directory " + modsDir + ", did not exist.")
+      } else throw new IOException("Could not load mods directory " + directory + ", was not a directory.")
+    } else throw new IOException("Could not load mods directory " + directory + ", did not exist.")
   }
 }
