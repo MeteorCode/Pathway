@@ -6,6 +6,8 @@ package com.meteorcode.pathway.test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -103,9 +105,10 @@ public class ScriptContainerTest {
 	 * 
 	 * @throws ScriptException
 	 * @throws EvalError
+	 * @throws IOException 
 	 */
 	@Test
-	public void testEvalFileHandle() throws ScriptException, EvalError {
+	public void testEvalFileHandle() throws ScriptException, EvalError, IOException {
 		when(fakeFileHandle.readString()).thenReturn(
 				"I am a test script from a fake file");
 		when(fakeInterpreter.eval("I am a test script from a fake file"))
@@ -123,9 +126,10 @@ public class ScriptContainerTest {
 	 * and
 	 * {@link com.meteorcode.spaceshipgame.script.BeanshellScriptContainer#eval(java.lang.String)}
 	 * .
+	 * @throws IOException 
 	 * */
 	@Test()
-	public void testEvalErrorHandling() throws EvalError {
+	public void testEvalErrorHandling() throws EvalError, IOException {
 		when(fakeFileHandle.readString()).thenReturn(
 				"I am a test script from a fake file");
 		when(fakeInterpreter.eval("I am a test script from a fake file"))
