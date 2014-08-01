@@ -24,14 +24,6 @@ import scala.collection.immutable.{
  * A Context in which Event stacks are evaluated.
  * </p>
  *
- * <p>
- * The EventStack is backed by a {@link java.util.Deque Deque} rather than a
- * {@link java.util.Stack Stack}, primarily so that we can make shallow copies
- * for the {@link com.meteorcode.spaceshipgame.model.Context#viewEventStack()
- * viewEventStack() method}; however, Context only exposes Stack operations in
- * its' public methods.
- * </p>
- *
  * @author Hawk Weisman <hawk.weisman@gmail.com>
  *
  */
