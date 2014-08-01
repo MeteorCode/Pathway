@@ -5,6 +5,7 @@ import java.io.{
   OutputStream,
   BufferedInputStream,
   FileInputStream,
+  FileOutputStream,
   IOException
 }
 import java.util.{
@@ -13,6 +14,9 @@ import java.util.{
 }
 import java.nio.charset.Charset
 import java.nio.file.{ Files, Paths }
+import java.util.zip.ZipInputStream
+import java.util.jar.JarInputStream
+import java.util.Collections
 
 /**
  * <p>An abstraction wrapping a file in the filesystem.</p>
@@ -34,9 +38,7 @@ import java.nio.file.{ Files, Paths }
  */
 trait FileHandle {
   protected val path: String
-  protected val manager: ResourceManager
   protected val in: InputStream
-  protected val out: OutputStream
   
   /** Returns true if the file exists. */
   def exists(): Boolean
@@ -44,10 +46,17 @@ trait FileHandle {
   /** Returns true if this file is a directory. */
   def isDirectory(): Boolean
   
-  /** Returns the paths to the children of this directory. */
+  /** 
+   *  <p>Returns a list containing FileHandles to the contents of FileHandle .</p>
+   *  <p> Returns an empty list if this file is not a directory or does not have contents.</p>
+   */
   def list: List[FileHandle]
   
-  /** Returns the paths to the children of this directory with the specified suffix. */
+  /**
+   *  <p>Returns a list containing FileHandles to the contents of this FileHandle with the specified suffix.</p>
+   *  <p> Returns an empty list if this file is not a directory or does not have contents.</p>
+   *  @param suffix
+   */
   def list(suffix: String): java.util.List[FileHandle]
   
   /** Returns a stream for reading this file as bytes. 
@@ -81,23 +90,77 @@ trait FileHandle {
   }
 
 }
-case class DesktopFileHandle(path: String, manager: ResourceManager, in: InputStream, out: OutputStream) extends FileHandle {
+case class DesktopFileHandle(path: String, in: InputStream, protected val out: OutputStream) extends FileHandle {
   val file = new File(path)
 
   def exists: Boolean = file exists
   def isDirectory: Boolean = file isDirectory
 
   def list: List[FileHandle] = {
-    var result = new ArrayList[FileHandle]
-    for (path <- file.list) { result add manager.read(path) }
-    return result
+    if (isDirectory) {
+      var result = new java.util.ArrayList[FileHandle]
+      for (item <- file.list) { 
+        item.split('.').drop(1).lastOption match {
+          case Some("jar") => result add new JarFileHandle(item, new JarInputStream(new FileInputStream(item)))
+          case Some("zip") => result add new ZipFileHandle(item, new ZipInputStream(new FileInputStream(item)))
+          case Some(_) => result add new DesktopFileHandle(item, new FileInputStream(item), new FileOutputStream(item))
+          case None if new File(item) isDirectory => result add new DesktopFileHandle(item, null, null)
+          case None if new File(item) isFile => result add new DesktopFileHandle(item, new FileInputStream(item), new FileOutputStream(item))
+        }
+      }
+      result
+    } else Collections.emptyList()
   }
 
   def list(suffix: String): java.util.List[FileHandle] = {
-    var result = new java.util.ArrayList[FileHandle]
-    for (path <- file.list() if path endsWith (suffix)) { result add manager.read(path) }
-    return result
+    if (isDirectory) {
+      var result = new java.util.ArrayList[FileHandle]
+      for (item <- file.list if item endsWith (suffix)) { 
+        suffix match {
+          case ".jar" => result add new JarFileHandle(item, new JarInputStream(new FileInputStream(item)))
+          case ".zip" => result add new ZipFileHandle(item, new ZipInputStream(new FileInputStream(item)))
+          case "" if new File(item) isDirectory => result add new DesktopFileHandle(item, null, null)
+          case "" if new File(item) isFile => result add new DesktopFileHandle(item, new FileInputStream(item), new FileOutputStream(item))
+          case _ => result add new DesktopFileHandle(item, new FileInputStream(item), new FileOutputStream(item))
+        }
+      }
+      result
+    } else Collections.emptyList()
   }
+}
+
+// TODO: Implement these
+case class ZipFileHandle (path: String, in: ZipInputStream) extends FileHandle {
+  def exists(): Boolean = ??? //TODO: Implement
+  def isDirectory(): Boolean = ??? //TODO: Implement
+  def list(suffix: String): List[FileHandle] = ??? //TODO: Implement
+  def list: List[FileHandle] = ??? //TODO: Implement
+}
+
+case class JarFileHandle (path: String, in: JarInputStream) extends FileHandle {
+  def exists(): Boolean = ??? //TODO: Implement
+  def isDirectory(): Boolean = ??? //TODO: Implement
+  def list(suffix: String): List[FileHandle] = ??? //TODO: Implement
+  def list: List[FileHandle] = ??? //TODO: Implement
+}
+
+case class AndroidFileHandle (path: String, in: InputStream, protected val out: OutputStream) extends FileHandle {
+  def exists(): Boolean = ??? //TODO: Implement
+  def isDirectory(): Boolean = ??? //TODO: Implement
+  def list(suffix: String): List[FileHandle] = ??? //TODO: Implement
+  def list: List[FileHandle] = ??? //TODO: Implement
+}
 
 
+object FileHandle {
+  val platform = System getProperties
+  
+  def apply(path: String): FileHandle = platform.getProperty("os.name") match {
+    case "Linux" => platform.getProperty("java.vendor") match {
+      case "The Android Project" => new AndroidFileHandle(path, null, null)
+      case _ => new DesktopFileHandle(path, null, null) // TODO: make sure the initial path is a directory
+    }
+    case "MacOSX" => new DesktopFileHandle(path, null, null) // TODO: make sure the initial path is a directory
+    // TODO: Special-case for Windows
+  }
 }

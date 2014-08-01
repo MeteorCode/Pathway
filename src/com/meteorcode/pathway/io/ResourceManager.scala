@@ -2,10 +2,7 @@ package com.meteorcode.pathway.io
 
 import com.meteorcode.pathway.io.FileHandle
 
-class ResourceManager (assetsDir: String) {
-  
-  def read (path: String): FileHandle = {
-    //TODO: Stub
-    return new DesktopFileHandle(path)
-  }
+class ResourceManager (private val assetsDir: FileHandle) {
+  def this() = this(FileHandle("assets"))
+  // TODO: traverse the tree from the initial FileHandle down and call list(), building the tree?
 }
