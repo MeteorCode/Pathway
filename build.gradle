@@ -58,11 +58,8 @@ dependencies {
     testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '2.2.0'
 }
 
-def jacocoExcludes = [ // stuff that should not have a JaCoCo test report generated
-                    '**/test/**', '**/*Test*', '**/*$*',
-                    'com/meteorcode/spaceshipgame/desktop/*',
-                    'com/meteorcode/spaceshipgame/SpaceshipGame.class'
-                     ]
+// stuff that should not have a JaCoCo test report generated
+def jacocoExcludes = [ '**/test/**', '**/*Test*', '**/*$*' ]
 
 
 /////////////////////////////////////////////////////////////////////////
