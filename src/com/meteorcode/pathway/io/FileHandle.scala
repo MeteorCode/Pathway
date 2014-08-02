@@ -316,24 +316,3 @@ class JarEntryFileHandle (private val entry: JarEntry, private val parent: JarFi
 
   def write(append: Boolean) = null
 }
-
-class AndroidFileHandle (pathTo: String, inStream: InputStream, outStream: OutputStream) extends FileHandle {
-  def exists(): Boolean = ??? //TODO: Implement
-  def isDirectory(): Boolean = ??? //TODO: Implement
-  def list(suffix: String): List[FileHandle] = ??? //TODO: Implement
-  def list: List[FileHandle] = ??? //TODO: Implement
-}
-
-
-object FileHandle {
-  val platform = System getProperties
-
-  def apply(path: String): FileHandle = platform.getProperty("os.name") match {
-    case "Linux" => platform.getProperty("java.vendor") match {
-      case "The Android Project" => new AndroidFileHandle(path, null, null)
-      case _ => new DesktopFileHandle(path, null, null) // TODO: make sure the initial path is a directory
-    }
-    case "MacOSX" => new DesktopFileHandle(path, null, null) // TODO: make sure the initial path is a directory
-    // TODO: Special-case for Windows
-  }
-}
