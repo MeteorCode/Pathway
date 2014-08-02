@@ -14,7 +14,6 @@ import java.util.{
   ArrayList
 }
 import java.nio.charset.Charset
-import java.nio.file.{ Files, Paths }
 import java.util.zip.ZipInputStream
 import java.util.jar.JarInputStream
 import java.util.Collections
