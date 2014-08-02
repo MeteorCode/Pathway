@@ -18,6 +18,8 @@ import java.util.zip.ZipInputStream
 import java.util.jar.JarInputStream
 import java.util.Collections
 
+import scala.io.Source
+
 /**
  * <p>An abstraction wrapping a file in the filesystem.</p>
  *
@@ -92,7 +94,7 @@ abstract class FileHandle (
   def readString(charset: Charset): String = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
-    new String(Files.readAllBytes(Paths.get(path)), charset)
+    Source.fromInputStream(in).mkString
   }
 
   /** Returns an {@link java.io.OutputStream OutputStream} for writing to this file.
