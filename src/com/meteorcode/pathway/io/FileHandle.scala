@@ -14,11 +14,11 @@ import java.util.{
   ArrayList
 }
 import java.nio.charset.Charset
-
 import java.util.zip.{
   ZipFile,
   ZipEntry,
-  ZipInputStream
+  ZipInputStream,
+  ZipException
 }
 import java.util.jar.{
   JarFile,
@@ -26,7 +26,6 @@ import java.util.jar.{
   JarInputStream
 }
 import java.util.Collections
-
 import scala.io.Source
 import scala.collection.JavaConversions._
 
@@ -218,8 +217,10 @@ class ZipFileHandle (pathTo: String) extends FileHandle {
   }
 
   @throws(classOf[IOException])
-  def list(suffix: String): List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
   def write(append: Boolean) = null
+  
+  @throws(classOf[IOException])
+  def read = null
 
 }
 
@@ -230,10 +231,17 @@ class ZipEntryFileHandle (private val entry: ZipEntry, private val parent: ZipFi
   def isDirectory = entry isDirectory
   def path = pathTo + entry.getName//TODO: coerce paths into Unix paths.
 
+  @throws(classOf[IOException])
   def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
-    else parent.getInputStream(entry)
+    else try {
+      parent.getInputStream(entry)
+    } catch {
+      case ze: ZipException => throw new IOException("Could not read file " + path + " a ZipException occured", ze)
+      case ise: IllegalStateException => throw new IOException("Could not read file " + path + " appears to have been closed", ise)
+      case up: IOException => throw up //haha!
+    }
   }
 
   def list: List[FileHandle] = {
@@ -253,8 +261,10 @@ class ZipEntryFileHandle (private val entry: ZipEntry, private val parent: ZipFi
       }
     } else Collections.emptyList()
   }
-
+  
+  @throws(classOf[IOException])
   def write(append: Boolean) = null
+ 
 }
 
 class JarFileHandle (pathTo: String) extends FileHandle {
@@ -281,8 +291,8 @@ class JarFileHandle (pathTo: String) extends FileHandle {
   }
 
   @throws(classOf[IOException])
-  def list(suffix: String): List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
   def write(append: Boolean) = null
+  def read = null
 }
 
 class JarEntryFileHandle (private val entry: JarEntry, private val parent: JarFile, private val pathTo: String) extends FileHandle {
@@ -294,7 +304,14 @@ class JarEntryFileHandle (private val entry: JarEntry, private val parent: JarFi
   def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
-    else parent.getInputStream(entry)
+    else try {
+      parent.getInputStream(entry)
+    } catch {
+      case ze: ZipException => throw new IOException("Could not read file " + path + ", a ZipException occured", ze)
+      case se: SecurityException => throw new IOException("Could not read file " + path + ", a Jar entry was improperly signed", se)
+      case ise: IllegalStateException => throw new IOException("Could not read file " + path + " appears to have been closed", ise)
+      case up: IOException => throw up //haha!
+    }
   }
 
   def list: List[FileHandle] = {
