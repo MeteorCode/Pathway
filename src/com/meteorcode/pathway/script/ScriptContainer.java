@@ -1,5 +1,7 @@
 package com.meteorcode.pathway.script;
 
+import java.io.IOException;
+
 import com.meteorcode.pathway.io.FileHandle;
 
 /**
@@ -53,8 +55,10 @@ public abstract class ScriptContainer {
 	 *         result.
 	 * @throws ScriptException
 	 *             if an error takes place during script execution.
+	 * @throws IOException 
+	 * 				if an error takes place while accessing the script's file.
 	 */
-	public abstract Object eval(FileHandle file) throws ScriptException;
+	public abstract Object eval(FileHandle file) throws ScriptException, IOException;
 
 	/**
 	 * Evaluates a literal expression or multiple expressions and returns the

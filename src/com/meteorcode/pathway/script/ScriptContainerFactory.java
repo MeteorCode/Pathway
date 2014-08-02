@@ -1,5 +1,7 @@
 package com.meteorcode.pathway.script;
 
+import java.io.IOException;
+
 import bsh.EvalError;
 import bsh.Interpreter;
 import bsh.InterpreterError;
@@ -110,7 +112,7 @@ public class ScriptContainerFactory {
 		 * </p>
 		 * 
 		 * @param file
-		 *            a {@link com.badlogic.gdx.files.FileHandle FileHandle}
+		 *            a {@link com.meteorcode.io.FileHandle FileHandle}
 		 *            containing the script to execute.
 		 * @return The object result of the evaluation, or null if there was no
 		 *         result.
@@ -118,10 +120,12 @@ public class ScriptContainerFactory {
 		 *             if an error takes place during script execution. The
 		 *             ScriptException wraps the native exceptions thrown by
 		 *             Beanshell.
+		 * @throws IOException 
+		 * 				if an error takes place while accessing the FileHandle.
 		 * @see com.meteorcode.pathway.script.ScriptContainer#eval(FileHandle)
 		 */
 		@Override
-		public Object eval(FileHandle file) throws ScriptException {
+		public Object eval(FileHandle file) throws ScriptException, IOException {
 			try {
 				String script = file.readString();
 				return i.eval(script);
