@@ -1,12 +1,13 @@
+/*
 package com.meteorcode.pathway.sparkstest;
 
 import com.meteorcode.pathway.model.Context;
 import com.meteorcode.pathway.model.Event;
 import com.meteorcode.pathway.model.GameObject;
 
-import processing.core.PApplet;
+//import processing.core.PApplet;
 
-public class ProcellingView extends PApplet {
+public class ProcellingView  extends PApplet {
 	Context model;
 	Event base;
 	
@@ -48,10 +49,11 @@ public class ProcellingView extends PApplet {
 
 	/**
 	 * Default SerialVersionUID so Eclipse will stop whining.
-	 */
+	 *//*
 	private static final long serialVersionUID = 1L;
 	
 	public static void main(String[] args) {
 		PApplet.main(new String[] {"com.meteorcode.spaceshipgame.sparkstest.ProcellingView"});
 	}
 }
+*/
