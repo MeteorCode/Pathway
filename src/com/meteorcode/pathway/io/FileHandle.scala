@@ -11,7 +11,8 @@ import java.io.{
 }
 import java.util.{
   List,
-  ArrayList
+  ArrayList,
+  Arrays
 }
 import java.nio.charset.Charset
 import java.util.zip.{
@@ -185,15 +186,9 @@ object FileHandle {
 
     def list: List[FileHandle] = {
       if (isDirectory) {
-        var result = new java.util.ArrayList[FileHandle]
-        for (item <- file.list) {
-          item.split('.').drop(1).last match {
-            case "jar" => result add new JarFileHandle(item)
-            case "zip" => result add new ZipFileHandle(item)
-            case _ => result add new DesktopFileHandle(item)
-          }
+        for (item <- Arrays.asList(file.list)) { // This is necessary so that yield() returns a List
+          yield FileHandle(item)
         }
-        result
       } else Collections.emptyList()
     }
 
