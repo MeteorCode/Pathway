@@ -137,6 +137,8 @@ abstract class FileHandle {
     */
    @throws(classOf[IOException])
    def writeString (string: String, charset: Charset, append: Boolean): Unit = if (writeable) { write(append).write(string.getBytes(charset)) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
+
+   def override toString = path
 }
 
 object FileHandle {
