@@ -186,8 +186,8 @@ object FileHandle {
 
     def list: List[FileHandle] = {
       if (isDirectory) {
-        for (item <- Arrays.asList(file.list)) { // This is necessary so that yield() returns a List
-          yield FileHandle(item)
+        for (item <- file.list().toList) yield { // This is necessary so that yield() returns a List
+          FileHandle(item)
         }
       } else Collections.emptyList()
     }
