@@ -16,20 +16,20 @@ public class SimpleIOIntegrationTest {
 
 	@Test
 	public void testUnzippedFileHandle() throws IOException {
-        underTest = FileHandle.handle("testAssets/test1.txt");
+        underTest = FileHandle.handle("src/test/resources/test1.txt");
         assertEquals("hi!", underTest.readString());
 	}
 
     @Test
     public void testZippedFileHandle() throws IOException {
-        underTest = FileHandle.handle("testAssets/zippedtest.zip");
+        underTest = FileHandle.handle("src/test/resources/zippedtest.zip");
         assertTrue(underTest.isDirectory());
         assertEquals(underTest.list().get(0).readString(), "also hi!");
     }
 
     @Test
     public void testDirFileHandle() throws IOException{
-        underTest = FileHandle.handle("testAssets/testDir");
+        underTest = FileHandle.handle("src/test/resources/testDir");
         assertTrue(underTest.isDirectory());
         assertEquals("yet again hi", underTest.list().get(0).readString());
         assertEquals("still hi", underTest.list().get(1).readString());
