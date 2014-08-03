@@ -134,6 +134,17 @@ abstract class FileHandle {
    def writeString (string: String, charset: Charset, append: Boolean): Unit = if (writeable) { write(append).write(string.getBytes(charset)) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
 }
 
+/**
+ * <p>A FileHandle into a regular file.</p>
+ * <p>DON'T MAKE THESE - if you want to handle a file, please get it from an instance of {@link com.meteorcode.pathway.io.ResourceManager ResourceManager}.
+ * The FileHandle system is supposed to allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only works
+ * if you treat all files you have to access as instances of {@link com.meteorcode.pathwaawy.io.FileHandle FileHandle}. If you ever refer to files as
+ * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
+ * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
+ *
+ * @param pathTo the path to the file
+ * @author Hawk Weisman
+ */
 class DesktopFileHandle (pathTo: String) extends FileHandle {
   protected val file = new File(pathTo)
 
@@ -165,6 +176,17 @@ class DesktopFileHandle (pathTo: String) extends FileHandle {
   def write(append: Boolean) = if (writeable) { new FileOutputStream(file, append) } else null
 }
 
+/**
+ * <p>A FileHandle into the top level of a Zip archive (treated as a directory).</p>
+ * <p>DON'T MAKE THESE - if you want to handle a file, please get it from an instance of {@link com.meteorcode.pathway.io.ResourceManager ResourceManager}.
+ * The FileHandle system is supposed to allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only works
+ * if you treat all files you have to access as instances of {@link com.meteorcode.pathwaawy.io.FileHandle FileHandle}. If you ever refer to files as
+ * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
+ * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
+ *
+ * @param pathTo the path to the file
+ * @author Hawk Weisman
+ */
 class ZipFileHandle (pathTo: String) extends FileHandle {
   /*
   Let's take a moment to discuss how Java's Zip API is Not My Favourite Thing.
@@ -218,12 +240,29 @@ class ZipFileHandle (pathTo: String) extends FileHandle {
 
   @throws(classOf[IOException])
   def write(append: Boolean) = null
-  
+
   @throws(classOf[IOException])
   def read = null
 
 }
 
+/**
+ * <p>A FileHandle into a file or directory within a zip archive.</p>
+ * <p>DON'T MAKE THESE - if you want to handle a file, please get it from an instance of {@link com.meteorcode.pathway.io.ResourceManager ResourceManager}.
+ * The FileHandle system is supposed to allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only works
+ * if you treat all files you have to access as instances of {@link com.meteorcode.pathwaawy.io.FileHandle FileHandle}. If you ever refer to files as
+ * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
+ * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
+ *
+ * @param entry
+ *              the {@link java.util.zip.ZipEntry ZipEntry} representing the file
+ * @poram parent
+ *              a reference to the the {@link java.util.zip.ZipFile ZipFile} containing the ZipEntry - this is necessary so that we can do things
+ *              like list the children of a directory in a Zip archive.
+ * @param path
+ *             the path to the top-level ZipFile that contains the thing this handle is to
+ * @author Hawk Weisman
+ */
 class ZipEntryFileHandle (private val entry: ZipEntry, private val parent: ZipFile, private val pathTo: String) extends FileHandle {
   def writeable = false // Zip files cannot be written to :c
   def exists = true // if this ZipEntry was found in the ZipFile, it is Real And Has Been Proven To Exist
@@ -261,10 +300,10 @@ class ZipEntryFileHandle (private val entry: ZipEntry, private val parent: ZipFi
       }
     } else Collections.emptyList()
   }
-  
+
   @throws(classOf[IOException])
   def write(append: Boolean) = null
- 
+
 }
 
 class JarFileHandle (pathTo: String) extends FileHandle {
@@ -310,7 +349,7 @@ class JarEntryFileHandle (private val entry: JarEntry, private val parent: JarFi
       case ze: ZipException => throw new IOException("Could not read file " + path + ", a ZipException occured", ze)
       case se: SecurityException => throw new IOException("Could not read file " + path + ", a Jar entry was improperly signed", se)
       case ise: IllegalStateException => throw new IOException("Could not read file " + path + " appears to have been closed", ise)
-      case up: IOException => throw up //haha!
+      case up: IOException => throw up //because you've spent too long dealing with java.util.zip and you hate everything.
     }
   }
 
