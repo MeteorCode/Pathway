@@ -82,6 +82,7 @@ test {
      jacoco {
           excludes = jacocoExcludes
      }
+     classpath = project.sourceSets.test.runtimeClasspath + files("testAssets")
 }
 
 jacocoTestReport {
