@@ -11,7 +11,6 @@ import org.junit.runners.Suite;
 	EventTests.class,
 	ModelTests.class,
 	ConcurrentCachingTest.class,
-    SimpleIOIntegrationTest.class
 
 })
 
