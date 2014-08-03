@@ -189,7 +189,7 @@ object FileHandle {
     def list: List[FileHandle] = {
       if (isDirectory) {
         for (item <- file.list().toList) yield { // This is necessary so that yield() returns a List
-          FileHandle(item)
+          FileHandle(path + "/" + item)
         }
       } else Collections.emptyList()
     }
