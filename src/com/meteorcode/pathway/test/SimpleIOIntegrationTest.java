@@ -32,8 +32,8 @@ public class SimpleIOIntegrationTest {
     public void testDirFileHandle() throws IOException{
         underTest = FileHandle.handle("testAssets/testDir");
         assertTrue(underTest.isDirectory());
-        assertTrue((underTest.list().get(1).path() == "testAssets/testDir/test3.txt") || (underTest.list().get(1).path() == "testAssets/testDir/test4.txt"));
-        assertTrue((underTest.list().get(0).path() == "testAssets/testDir/test3.txt") || (underTest.list().get(0).path() == "testAssets/testDir/test4.txt"));
+        assertEquals("yet again hi", underTest.list().get(0).readString());
+        assertEquals("still hi", underTest.list().get(1).readString());
     }
 
 }
