@@ -144,11 +144,11 @@ object FileHandle {
    * The Correct Way to get new FileHandles for a specified path
    * @param path the path you want a FileHandle into
    */
-  def apply(path: String) = path.split('.').drop(1).last match {
+  def apply(path: String) = path.split('.').drop(1).lastOption match {
     // TODO: Special-case files within archives, this placeholder pattern match will have a Hard Time
     // if you try to get a handle into a file within an archive directly instead of requesting the top-level archive
-    case "jar" => new JarFileHandle(path)
-    case "zip" => new ZipFileHandle(path)
+    case Some("jar") => new JarFileHandle(path)
+    case Some("zip") => new ZipFileHandle(path)
     case _ => new DesktopFileHandle(path)
   }
 
