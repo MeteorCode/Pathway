@@ -11,7 +11,7 @@ import org.junit.runners.Suite;
 	EventTests.class,
 	ModelTests.class,
 	ConcurrentCachingTest.class,
-    // SimpleIOIntegrationTest.class //THIS TEST FAILS ON JENKINS - Run it locally if you want to confirm that it works.
+    SimpleIOIntegrationTest.class //THIS TEST FAILS ON JENKINS - Run it locally if you want to confirm that it works.
 
 })
 

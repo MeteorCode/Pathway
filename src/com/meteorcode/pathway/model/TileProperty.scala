@@ -4,8 +4,8 @@ package com.meteorcode.pathway.model
 	/**
 	 * Constructor for a TileProperty with a known drawID.
 	 *
-	 * @param drawID
-	 *            the Property's drawID
+	 * @param initDrawID
+	 *            the Property's initial drawID
 	 * @param context
 	 *            the script context within which this Property may eval()
 	 *            scripts. This should be the script context of whomever owns
@@ -23,8 +23,8 @@ abstract class TileProperty(location:Tile, initDrawID: Integer, initParent: Cont
 	 * The drawID should be assigned by the Grand Source of All DrawIDs.
 	 * </p>
 	 *
-	 * @param drawID
-	 *            the Property's drawID
+	 * @param initDrawID
+	 *            the Property's initial drawID
 	 * @param context
 	 *            the script context within which this Property may eval()
 	 *            scripts. This should be the script context of whomever owns

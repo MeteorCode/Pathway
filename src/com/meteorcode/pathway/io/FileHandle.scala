@@ -47,7 +47,7 @@ import scala.collection.JavaConversions._
  * so reading and writing to a file should be consistent across operating systems, filesystem locations, and file types.</p>
  *
  * <p>DO NOT use the FileHandle() constructor if you want a FileHandle into a file. Instead, get it from
- * {@link com.meteorcode.pathway.io.FileHandle#apply apply(path)}  (call FileHandle(path)) from Scala, or
+ * {@link com.meteorcode.pathway.io.FileHandle apply(path)}  (call FileHandle(path)) from Scala, or
  * {@link com.meteorcode.pathway.io.FileHandle#handle handle(path)} from Java. Calling new FileHandle() will NOT give you what you want.</p>
  *
  * @author Hawk Weisman
@@ -155,7 +155,7 @@ object FileHandle {
   }
 
   /**
-   * <p>Alternate (wrapper) version of {@link com.meteorcode.pathway.io.FileHandle#apply() apply()} for Java callers who can't call apply() as a constructor.</p>
+   * <p>Alternate (wrapper) version of {@link com.meteorcode.pathway.io.FileHandle apply()} for Java callers who can't call apply() as a constructor.</p>
    * <p>Java programmers should treat FileHandle.handle(path) as equivalent to FileHandleFactory.getNewInstance(path).</p>
    * @param path the path to the thing you want a handle into
    */
@@ -165,7 +165,7 @@ object FileHandle {
    * <p>A FileHandle into a regular file.</p>
    * <p>DON'T MAKE THESE - if you want to handle a file, please get it from an instance of {@link com.meteorcode.pathway.io.ResourceManager ResourceManager}.
    * The FileHandle system is supposed to allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only works
-   * if you treat all files you have to access as instances of {@link com.meteorcode.pathwaawy.io.FileHandle FileHandle}. If you ever refer to files as
+   * if you treat all files you have to access as instances of {@link com.meteorcode.pathway.io.FileHandle FileHandle}. If you ever refer to files as
    * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
    * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
    *
@@ -201,7 +201,7 @@ object FileHandle {
    * <p>A FileHandle into the top level of a Zip archive (treated as a directory).</p>
    * <p>DON'T MAKE THESE - if you want to handle a file, please get it from an instance of {@link com.meteorcode.pathway.io.ResourceManager ResourceManager}.
    * The FileHandle system is supposed to allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only works
-   * if you treat all files you have to access as instances of {@link com.meteorcode.pathwaawy.io.FileHandle FileHandle}. If you ever refer to files as
+   * if you treat all files you have to access as instances of {@link com.meteorcode.pathway.io.FileHandle FileHandle}. If you ever refer to files as
    * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
    * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
    *
@@ -269,15 +269,15 @@ object FileHandle {
 
   /**
    * <p>A FileHandle into a file or directory within a zip archive.</p>
-   * <p>DON'T MAKE THESE - if you want to handle a file, please get it from {@link com.meteorcode.pathway.io.FileHandle#apply apply()}.
+   * <p>DON'T MAKE THESE - if you want to handle a file, please get it from {@link com.meteorcode.pathway.io.FileHandle apply()}.
    * The FileHandle system is supposed to allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only works
-   * if you treat all files you have to access as instances of {@link com.meteorcode.pathwaawy.io.FileHandle FileHandle}. If you ever refer to files as
+   * if you treat all files you have to access as instances of {@link com.meteorcode.pathway.io.FileHandle FileHandle}. If you ever refer to files as
    * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
    * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
    *
    * @param entry
    *              the {@link java.util.zip.ZipEntry ZipEntry} representing the file
-   * @poram parent
+   * @param parent
    *              a reference to the the {@link java.util.zip.ZipFile ZipFile} containing the ZipEntry - this is necessary so that we can do things
    *              like list the children of a directory in a Zip archive.
    * @param path

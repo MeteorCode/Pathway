@@ -18,7 +18,7 @@ public class ConcurrentCache<T> {
 
 	/**
 	 * Constructor for a RingBuffer of arbitrary size
-	 * 
+	 *
 	 * @param size
 	 *            the maximum size of the RingBuffer
 	 * @throws IllegalArgumentException
@@ -38,7 +38,7 @@ public class ConcurrentCache<T> {
 	/**
 	 * Insert an object into the RingBuffer at the next available position. If
 	 * the buffer is full, the oldest object in the buffer will be replaced.
-	 * 
+	 *
 	 * @param object
 	 *            the object to be inserted into the buffer.
 	 */
@@ -46,10 +46,10 @@ public class ConcurrentCache<T> {
 		int myI;
 		synchronized(lock) {
 			myI = cursor;
-			
+
 			//handle small fills
 			if(fill < buffer.length) fill ++;
-			
+
 			cursor = (cursor + 1) % buffer.length;
 			buffer[myI] = object;
 		}
@@ -57,7 +57,7 @@ public class ConcurrentCache<T> {
 
 	/**
 	 * Unwinds the cache, returning a copy of it's contents.
-	 * @return
+	 * @return a new List<T> containing the state of the cache's contents
 	 */
 	public List<T> unwind() {
 		List<T> result = new ArrayList<T>();
@@ -73,7 +73,7 @@ public class ConcurrentCache<T> {
 				}
 			}
 		}
-		
+
 		return result;
 	}
 }

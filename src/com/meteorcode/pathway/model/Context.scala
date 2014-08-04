@@ -50,8 +50,8 @@ class Context(name: String) {
   }
   def removeGameObject(g: GameObject) = gameObjects -= g
   def addGameObject(g: GameObject) = gameObjects += g
-  def subscribe(p: Property) = properties += p 
-  def unsubscribe(p: Property) = properties -= p 
+  def subscribe(p: Property) = properties += p
+  def unsubscribe(p: Property) = properties -= p
 
   /**
    * Evals a BeanShell expression against this Context's ScriptContainer
@@ -59,7 +59,7 @@ class Context(name: String) {
    */
   @throws(classOf[ScriptException])
   def eval(script: String) = beanshell.eval(script)
-  
+
   /**
    * Evals a file against this Context's ScriptContainer
    * @throws ScriptException
@@ -88,10 +88,10 @@ class Context(name: String) {
   }
 
   /**
-   * <p>Pops off the top {@link com.meteorcode.spaceshipgame.model.Event} in the stack, 
+   * <p>Pops off the top {@link com.meteorcode.pathway.model.Event} in the stack,
    * notifies any subscribed Properties, and then evaluates that Event.</p>
-   * <p>Each Property is given the opportunity to {@link com.meteorcode.spaceshipgame.model.Event#invalidate()} 
-   * the Event when they are notified. If no Property invalidates the Event, it will be evaluated immediately 
+   * <p>Each Property is given the opportunity to {@link com.meteorcode.pathway.model.Event#invalidate()}
+   * the Event when they are notified. If no Property invalidates the Event, it will be evaluated immediately
    * after all Properties are notified.</p>
    * @throws ScriptException if the Context's associated ScriptContainer encounters an error when evaluating the Event.
    */

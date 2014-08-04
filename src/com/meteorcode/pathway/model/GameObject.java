@@ -4,9 +4,9 @@ import com.meteorcode.pathway.model.Context;
 
 /**
  * An object within the game.
- * 
+ *
  * @author Hawk Weisman <hawk.weisman@gmail.com>
- * 
+ *
  */
 public abstract class GameObject {
 	private long gameID;
@@ -14,7 +14,7 @@ public abstract class GameObject {
 
 	/**
 	 * Constructor for a GameObject with a specified gameID.
-	 * 
+	 *
 	 * @param gameID
 	 *            a gameID for this Object.
 	 */
@@ -49,13 +49,13 @@ public abstract class GameObject {
 	}
 
 	/**
-	 * Move the GameObject from the currently-occupied Context to a new Context.
-	 * 
+	 * <p>Move the GameObject from the currently-occupied Context to a new Context.</p>
+	 * <p>Note that this assumes a GameObject may only occupy one Context at a
+	 * time. I'm assuming that this is correct behaviour, let me know if it
+	 * needs to be modified.</p>
+	 *
 	 * @param newContext
 	 *            the Context this GameObject is entering
-	 * @note that this assumes a GameObject may only occupy one Context at a
-	 *       time. I'm assuming that this is correct behaviour, let me know if
-	 *       it needs to be modified.
 	 */
 	public void changeContext(Context newContext) {
 		if (parent != null) {

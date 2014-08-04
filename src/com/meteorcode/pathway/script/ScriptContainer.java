@@ -11,9 +11,9 @@ import com.meteorcode.pathway.io.FileHandle;
  * **GLOBAL** level inside this container. That can be good and it can be bad.
  * Either way, that's how this design is. In order to separate scripts' scopes,
  * it should be necessary to create multiple script containers.
- * 
+ *
  * @author xyzzy
- * 
+ *
  */
 public abstract class ScriptContainer {
 
@@ -26,7 +26,7 @@ public abstract class ScriptContainer {
 
 	/**
 	 * Init an new ScriptContainer and link in a ScriptEnvironment.
-	 * 
+	 *
 	 * @param environment
 	 *            the ScriptEnvironment to link in.
 	 * @throws ScriptException
@@ -47,15 +47,15 @@ public abstract class ScriptContainer {
 	 * ScriptException, with the exception's cause being the actual exception
 	 * thrown by the script.
 	 * </p>
-	 * 
+	 *
 	 * @param file
-	 *            a {@link com.badlogic.gdx.files.FileHandle FileHandle}
+	 *            a {@link com.meteorcode.pathway.io.FileHandle}
 	 *            containing the script to execute.
 	 * @return The object result of the evaluation, or null if there was no
 	 *         result.
 	 * @throws ScriptException
 	 *             if an error takes place during script execution.
-	 * @throws IOException 
+	 * @throws IOException
 	 * 				if an error takes place while accessing the script's file.
 	 */
 	public abstract Object eval(FileHandle file) throws ScriptException, IOException;
@@ -71,7 +71,7 @@ public abstract class ScriptContainer {
 	 * ScriptException, with the exception's cause being the actual exception
 	 * thrown by the script.
 	 * </p>
-	 * 
+	 *
 	 * @param script
 	 *            The string of literal text to interpret as a script.
 	 * @return The object result of the evaluation, or null if there was no
@@ -83,7 +83,7 @@ public abstract class ScriptContainer {
 
 	/**
 	 * Put data into the scripting environment globally.
-	 * 
+	 *
 	 * @param scriptName
 	 *            The name of the variable exposed to scripts
 	 * @param object
@@ -99,7 +99,7 @@ public abstract class ScriptContainer {
 	 * <p>
 	 * The variable name of the unbound object will now test `[name] == void`.
 	 * </p>
-	 * 
+	 *
 	 * @param scriptName
 	 *            the name of the variable to unbind
 	 * @throws ScriptException
@@ -110,7 +110,7 @@ public abstract class ScriptContainer {
 	 * <p>
 	 * Accesses the contents of a variable in the script environment.
 	 * </p>
-	 * 
+	 *
 	 * @param variable
 	 *            the name of the script variable to access
 	 * @return the contents of the variable if it exists, null if the variable

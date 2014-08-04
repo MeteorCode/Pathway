@@ -17,13 +17,13 @@ abstract class Property (initDrawID: Integer, initParent: Context){
   def eval(script: String) = parent.eval(script)
 
  /**
-  * Move the Property from the currently-occupied Context to a new Context.
-  * 
+  * <p>Move the Property from the currently-occupied Context to a new Context.</p>
+  * <p>Note that this assumes a Property may only occupy one Context at a
+  * time. I'm assuming that this is correct behaviour, let me know if it
+  * needs to be modified.</p>
+  *
   * @param newContext
   *            the Context this Property is entering
-  * @note that this assumes a Property may only occupy one Context at a
-  *       time. I'm assuming that this is correct behaviour, let me know if
-  *       it needs to be modified.
   */
   def changeContext(newContext: Context) {
     if (parent != null)
@@ -38,6 +38,6 @@ abstract class Property (initDrawID: Integer, initParent: Context){
    * @param event the Event object
    */
   def onEvent(event: Event, publishedBy: Context): Boolean
-  // This method is triggered when the Property is evented. 
+  // This method is triggered when the Property is evented.
   // This will be filled in by the script that creates the Property.
 }

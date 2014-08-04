@@ -58,7 +58,7 @@ public class Tile {
 
 	/**
 	 * Adds a property to this tile's properties.
-	 * @param the new property
+	 * @param newProp the new property
 	 */
 	public void addProperty (TileProperty newProp) {
 		properties.add(newProp);
@@ -84,7 +84,7 @@ public class Tile {
 
 	/**
 	 * Adds a property to this tile's EngineeringProperties.
-	 * @param the new property
+	 * @param newProp the new property
 	 */
 	public void addEngineeringProperty (TileProperty newProp) {
 		engineeringProperties.add(newProp);

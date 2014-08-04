@@ -1,4 +1,4 @@
-/*
+
 //////////////////////////////////////////////////
 // THIS TEST FAILS ON JENKINS                   //
 // Un-comment it and run it locally to confirm  //
@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * Non-comprehensive test case to assert that the IO package does the Right Thing
  * THIS IS NOT A UNIT TEST - io classes should be unit tested for coverage as well.
- *//*
+ */
 public class SimpleIOIntegrationTest {
     private FileHandle underTest;
 
@@ -42,4 +42,3 @@ public class SimpleIOIntegrationTest {
     }
 
 }
-*/
