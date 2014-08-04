@@ -126,6 +126,9 @@ sourceSets {
         scala {
           srcDirs = ["src"]
         }
+        resources {
+        	srcDirs = ["testres"]
+        }
     }
 }
 
