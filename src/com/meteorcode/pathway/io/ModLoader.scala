@@ -14,7 +14,7 @@ import java.util.zip.ZipEntry
  *
  */
 object ModLoader {
-  private val beanshell: ScriptContainer = new ScriptContainerFactory getNewInstance ()
+  private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()
   //beanshell injectObject("gdx",gdx)
 
   private def loadMod(mod: FileHandle) = {
@@ -22,7 +22,7 @@ object ModLoader {
     def next() {
       val entry = stream.getNextEntry
       entry.getName match {
-        case "init.java" =>           
+        case "init.java" =>
           val buffer = new Array[Byte](entry.getSize.asInstanceOf[Integer])
           stream.read(buffer,0,buffer.length)
           beanshell.eval(Source.fromRawBytes(buffer).mkString)
@@ -31,7 +31,7 @@ object ModLoader {
       }
     }
     next
-    stream close
+    stream.close
   }
 
   /**

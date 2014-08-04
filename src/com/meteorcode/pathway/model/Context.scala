@@ -32,7 +32,7 @@ class Context(name: String) {
   protected var eventStack = Stack[Event]()
   protected var gameObjects = HashSet[GameObject]()
   protected var properties = HashSet[Property]()
-  private var beanshell: ScriptContainer = new ScriptContainerFactory getNewInstance
+  private var beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()
   // TODO: This should really be requested from a global
   // ScriptContainerFactory instance, but since that's not available, I'm
   // doing it like this so that the class will run and be testable.
@@ -100,12 +100,12 @@ class Context(name: String) {
     if (!eventStack.isEmpty()) {
       val e = eventStack.top
       // publish top event to all subscribed Properties
-      for (p <- properties if e isValid)
+      for (p <- properties if e.isValid)
         if(!p.onEvent(e, this)) return
       // if no Property invalidated the top event, then we can evaluate it.
       if (e == eventStack.top) {
-        if (eventStack.top isValid) {
-          eventStack.pop evalEvent
+        if (eventStack.top.isValid) {
+          eventStack.pop.evalEvent
         } else {
           eventStack.pop
         }

@@ -175,9 +175,9 @@ object FileHandle {
   private class DesktopFileHandle (pathTo: String) extends FileHandle {
     protected val file = new File(pathTo)
 
-    def path = file getPath //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
-    def exists: Boolean = file exists
-    def isDirectory: Boolean = file isDirectory
+    def path = file.getPath //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
+    def exists: Boolean = file.exists
+    def isDirectory: Boolean = file.isDirectory
     def writeable: Boolean = exists && file.canWrite
 
     def read: InputStream = {
@@ -237,8 +237,8 @@ object FileHandle {
     private val file = new File(pathTo)
     private val zipfile = new ZipFile(file)
 
-    def path = file getPath
-    def exists: Boolean = file exists
+    def path = file.getPath
+    def exists: Boolean = file.exists
     def isDirectory: Boolean = true // Remember, we are pretending that zips are directories
     def writeable = false // Zips can never be written to (at least by java.util.zip)
 
@@ -251,7 +251,7 @@ object FileHandle {
         // Enumeration<T> class which appears to be a dumb knockoff of Iterator created
         // specifically for use in ZipFile just to make it EVEN WORSE
         // I HATE JAVA
-       while (entries hasMoreElements) result.add( new ZipEntryFileHandle(entries.nextElement(), zipfile, path) )
+       while (entries.hasMoreElements) result.add( new ZipEntryFileHandle(entries.nextElement(), zipfile, path) )
        result
       } catch {
         // Don't close my ZipFile while I'm getting its' entries! Geez!
@@ -288,7 +288,7 @@ object FileHandle {
     def writeable = false // Zip files cannot be written to :c
     def exists = true // if this ZipEntry was found in the ZipFile, it is Real And Has Been Proven To Exist
                       // (this is okay because ZipEntries are apparently un-deleteable; HAVE I MENTIONED HOW MUCH I HATE java.util.zip LATELY?)
-    def isDirectory = entry isDirectory
+    def isDirectory = entry.isDirectory
     def path = pathTo + entry.getName//TODO: coerce paths into Unix paths.
 
     @throws(classOf[IOException])
@@ -309,9 +309,9 @@ object FileHandle {
         var result = new ArrayList[FileHandle]
         try {
           val entries = parent.entries
-          while (entries hasMoreElements) {
+          while (entries.hasMoreElements) {
             val e = entries.nextElement
-            if (e.getName.split("/").dropRight(1).equals(entry getName))
+            if (e.getName.split("/").dropRight(1).equals(entry.getName))
               result.add( new ZipEntryFileHandle(e, parent, pathTo) )
           }
          result
@@ -332,8 +332,8 @@ object FileHandle {
     private val file = new File(pathTo)
     private val jarfile = new JarFile(file)
 
-    def path = file getPath
-    def exists: Boolean = file exists
+    def path = file.getPath
+    def exists: Boolean = file.exists
     def isDirectory: Boolean = true
     def writeable = false
 
@@ -343,7 +343,7 @@ object FileHandle {
       try {
         val entries = jarfile.entries
 
-       while (entries hasMoreElements) result.add( new JarEntryFileHandle(entries.nextElement(), jarfile, path) )
+       while (entries.hasMoreElements) result.add( new JarEntryFileHandle(entries.nextElement(), jarfile, path) )
        result
       } catch {
         case e: IllegalStateException => throw new IOException ("Could not list JarFile entries, file " + path + " appears to have been closed.", e)
@@ -358,7 +358,7 @@ object FileHandle {
   private class JarEntryFileHandle (private val entry: JarEntry, private val parent: JarFile, private val pathTo: String) extends FileHandle {
     def writeable = false
     def exists = true
-    def isDirectory = entry isDirectory
+    def isDirectory = entry.isDirectory
     def path = pathTo + entry.getName//TODO: coerce paths into Unix paths.
 
     def read: InputStream = {
@@ -379,9 +379,9 @@ object FileHandle {
         var result = new ArrayList[FileHandle]
         try {
           val entries = parent.entries
-          while (entries hasMoreElements) {
+          while (entries.hasMoreElements) {
             val e = entries.nextElement
-            if (e.getName.split("/").dropRight(1).equals(entry getName))
+            if (e.getName.split("/").dropRight(1).equals(entry.getName))
               result.add( new JarEntryFileHandle(e, parent, pathTo) )
           }
          result
