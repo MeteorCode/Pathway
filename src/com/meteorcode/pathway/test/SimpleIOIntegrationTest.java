@@ -31,7 +31,7 @@ public class SimpleIOIntegrationTest {
         underTest = ClasspathTestShimDELETEME.c("/test/resources/zippedtest.zip");
         assertTrue(underTest.isDirectory());
         assertEquals(underTest.list().get(0).readString(), "also hi!");
-    }*/
+    }
 
     @Test
     public void testDirFileHandle() throws IOException{
@@ -39,6 +39,6 @@ public class SimpleIOIntegrationTest {
         assertTrue(underTest.isDirectory());
         assertEquals("yet again hi", underTest.list().get(0).readString());
         assertEquals("still hi", underTest.list().get(1).readString());
-    }
+    }*/
 
 }
