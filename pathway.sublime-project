@@ -4,23 +4,39 @@
 		{
 			"follow_symlinks": true,
 			"path": "src/com/meteorcode/pathway",
-			"name": "Core"
-		}
+			"name": "Source",
+			"folder_exclude_patterns": ["test"]
+		},
+		{
+			"follow_symlinks": true,
+			"path": "src/com/meteorcode/pathway/test",
+			"name": "Tests"
+		},
+		{
+			"follow_symlinks": true,
+			"path": ".",
+			"name": "Etc",
+			"folder_exclude_patterns": ["test", "src"]
+		},
 	],
 	"build_systems":
 	[
 		{
-			"name": "Gradle Build",
+			"name": "Distribution Jar",
 			"cmd":["gradle", "dist"],
 			"selector": "source.java",
 		},
 		{
-			"name": "Gradle Test",
+			"name": "Run Tests",
 			"cmd":["gradle", "test"],
 		},
 		{
-			"name": "Gradle JavaDoc",
+			"name": "Generate  JavaDoc",
 			"cmd":["gradle", "javadoc"],
+		},
+		{
+			"name": "Generate  JaCoCo Report",
+			"cmd":["gradle", "jacocoTestReport"],
 		},
 	]
 }
