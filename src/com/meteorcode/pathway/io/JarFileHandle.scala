@@ -11,10 +11,12 @@ import java.util.{
 import java.util.jar.JarFile
 
 
-class JarFileHandle protected[io] (pathTo: String) extends FileHandle {
+class JarFileHandle private (private val back: File) extends FileHandle {
   // I also hate java.util.jar
-  private val back = new File(pathTo)
   private val jarfile = new JarFile(file)
+
+  protected[io] def this(pathTo: String) = this(new File(pathTo))
+  protected[io] def this(fileHandle: FileHandle) = this(fileHandle.file)
 
   def file = this.back
   def path = back.getPath
