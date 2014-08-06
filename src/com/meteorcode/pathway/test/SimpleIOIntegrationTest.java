@@ -44,7 +44,7 @@ public class SimpleIOIntegrationTest {
     public void testDirFileHandle() throws IOException{
         underTest = r.handle("testDir");
         assertTrue(underTest.isDirectory());
-        System.out.println("underTest.list().toString()"); // FUCK IT. we can test for correctness manually.
+        System.out.println(underTest.list().toString()); // FUCK IT. we can test for correctness manually.
     }
 
 }
