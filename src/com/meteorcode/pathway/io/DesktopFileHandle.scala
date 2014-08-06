@@ -28,11 +28,11 @@ class DesktopFileHandle protected[io](pathTo: String,
 
   def path = pathTo //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
   def file = this.back
-  def exists(): Boolean = back.exists
+  def exists: Boolean = back.exists
   def isDirectory: Boolean = back.isDirectory
-  def writeable(): Boolean = exists && back.canWrite
+  def writable: Boolean = exists && back.canWrite
 
-  def read(): InputStream = {
+  def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
     else new FileInputStream(back)
@@ -40,11 +40,11 @@ class DesktopFileHandle protected[io](pathTo: String,
 
   def list: util.List[FileHandle] = {
     if (isDirectory) {
-      for (item <- file.list().toList) yield { // This is necessary so that yield() returns a List
+      for (item <- file.list.toList) yield { // This is necessary so that yield() returns a List
         manager.handle(path  + "/" + item)
       }
     } else Collections.emptyList()
   }
 
-  def write(append: Boolean) = if (writeable()) { new FileOutputStream(back, append) } else null
+  def write(append: Boolean) = if (writable) { new FileOutputStream(back, append) } else null
 }

@@ -54,7 +54,7 @@ class ZipFileHandle protected[io] (private val pathTo: String,
   def path = pathTo
   def exists: Boolean = back.exists
   def isDirectory: Boolean = true // Remember, we are pretending that zips are directories
-  def writeable = false // Zips can never be written to (at least by java.util.zip)
+  def writable = false // Zips can never be written to (at least by java.util.zip)
   def file = this.back
 
   @throws(classOf[IOException])

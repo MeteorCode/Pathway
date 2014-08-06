@@ -35,13 +35,13 @@ import scala.collection.JavaConversions._
  */
 abstract class FileHandle(protected[io] val manager: ResourceManager) {
   /** Returns true if the file exists. */
-  def exists(): Boolean
+  def exists: Boolean
 
   /** Returns true if this file is a directory. */
   def isDirectory: Boolean
 
   /** Returns true if this FileHandle represents something that can be written to */
-  def writeable(): Boolean
+  def writable: Boolean
 
   /** <p>Returns the path to this FileHandle.</p>
    * <p>All paths are treated as into Unix-style paths for cross-platform purposes.
@@ -71,23 +71,23 @@ abstract class FileHandle(protected[io] val manager: ResourceManager) {
    *  @throws IOException if the file does not exist or is a directory.
    */
   @throws(classOf[IOException])
-  def read(): InputStream
+  def read: InputStream
 
   /** Returns a buffered stream for reading this file as bytes.
    *  @throws IOException if the file does not exist or is a directory.
    */
   @throws(classOf[IOException])
-  def read(bufferSize: Integer): BufferedInputStream = new BufferedInputStream (read(), bufferSize)
+  def read(bufferSize: Integer): BufferedInputStream = new BufferedInputStream (read, bufferSize)
 
   /** Reads the entire file into a string using the platform's default charset.
 	 *  @throws IOException if the file does not exist or is a directory.
    */
   @throws(classOf[IOException])
-  def readString(): String = readString(Charset.defaultCharset())
+  def readString: String = readString(Charset.defaultCharset())
 
   /** Reads the entire file into a string using the specified charset.*/
   @throws(classOf[IOException])
-  def readString(charset: Charset): String = Source.fromInputStream(read()).mkString
+  def readString(charset: Charset): String = Source.fromInputStream(read).mkString
 
   /** Returns an {@link java.io.OutputStream OutputStream} for writing to this file.
    * @return an {@link java.io.OutputStream OutputStream} for writing to this file, or null if this file is not writeable.
@@ -100,7 +100,7 @@ abstract class FileHandle(protected[io] val manager: ResourceManager) {
    * @param bufferSize The size of the buffer
    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
    */
-   def write(bufferSize: Integer, append: Boolean): BufferedOutputStream = if (writeable()) { new BufferedOutputStream(write(append), bufferSize) } else null
+   def write(bufferSize: Integer, append: Boolean): BufferedOutputStream = if (writable) { new BufferedOutputStream(write(append), bufferSize) } else null
 
    /** <p>Writes the specified string to the file using the default charset.</p>
     * <p>Throws an {@link java.io.IOException IOException} if the FileHandle represents something that is not writeable; yes, I am aware
@@ -111,7 +111,7 @@ abstract class FileHandle(protected[io] val manager: ResourceManager) {
     * @throws IOException if this file is not writeable
     */
    @throws(classOf[IOException])
-   def writeString (string: String, append: Boolean): Unit = if (writeable()) { writeString(string, Charset.defaultCharset(), append) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
+   def writeString (string: String, append: Boolean): Unit = if (writable) { writeString(string, Charset.defaultCharset(), append) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
 
    /** Writes the specified string to the file using the specified  charset.
     * <p>Throws an {@link java.io.IOException IOException} if the FileHandle represents something that is not writeable; yes, I am aware
@@ -123,7 +123,7 @@ abstract class FileHandle(protected[io] val manager: ResourceManager) {
     * @throws IOException if this file is not writeable
     */
    @throws(classOf[IOException])
-   def writeString (string: String, charset: Charset, append: Boolean): Unit = if (writeable()) { write(append).write(string.getBytes(charset)) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
+   def writeString (string: String, charset: Charset, append: Boolean): Unit = if (writable) { write(append).write(string.getBytes(charset)) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
 
    override def toString = path
 }

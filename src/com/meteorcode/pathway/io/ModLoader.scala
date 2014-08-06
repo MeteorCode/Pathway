@@ -18,8 +18,8 @@ object ModLoader {
   //beanshell injectObject("gdx",gdx)
 
   private def loadMod(mod: FileHandle) = {
-    val stream = new JarInputStream(mod.read(), true)
-    def next() {
+    val stream = new JarInputStream(mod.read, true)
+    def next {
       val entry = stream.getNextEntry
       entry.getName match {
         case "init.java" =>

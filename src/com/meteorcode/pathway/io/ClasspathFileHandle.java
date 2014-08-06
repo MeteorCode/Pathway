@@ -47,7 +47,7 @@ public class ClasspathFileHandle extends FileHandle {
     public File file() {return back;}
 
 	@Override
-	public boolean writeable() {
+	public boolean writable() {
 		//ALL classpath files are not writable as far as I know.
 		return false;
 	}

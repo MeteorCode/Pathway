@@ -24,7 +24,7 @@ class JarFileHandle protected[io] (private val pathTo: String,
   def path = back.getPath
   def exists: Boolean = file.exists
   def isDirectory: Boolean = true
-  def writeable = false
+  def writable = false
 
   @throws(classOf[IOException])
   def list: List[FileHandle] = {

@@ -39,7 +39,7 @@ class ZipEntryFileHandle protected[io] (private val entry: ZipEntry,
                                         manager: ResourceManager)
     extends FileHandle(manager) {
 
-    def writeable = false // Zip files cannot be written to :c
+    def writable = false // Zip files cannot be written to :c
     def exists = true // if this ZipEntry was found in the ZipFile, it is Real And Has Been Proven To Exist
                       // (this is okay because ZipEntries are apparently un-deleteable; HAVE I MENTIONED HOW MUCH I HATE java.util.zip LATELY?)
     def isDirectory = entry.isDirectory

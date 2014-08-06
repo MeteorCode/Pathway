@@ -22,7 +22,7 @@ class JarEntryFileHandle protected[io] (private val entry: JarEntry,
                                         manager: ResourceManager)
   extends FileHandle(manager) {
     def file = null
-    def writeable = false
+    def writable = false
     def exists = true
     def isDirectory = entry.isDirectory
     def path = pathTo + entry.getName//TODO: coerce paths into Unix paths.
