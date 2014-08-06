@@ -44,10 +44,7 @@ public class SimpleIOIntegrationTest {
     public void testDirFileHandle() throws IOException{
         underTest = r.handle("testDir");
         assertTrue(underTest.isDirectory());
-        String test3 = underTest.list().get(0).readString();
-        String test4 = underTest.list().get(1).readString();
-        assertTrue("yet again hi".equals(test3));
-        assertTrue("still hi".equals(test4));
+        assertEquals("[testDir/test3.txt, testDir/test4.txt]", underTest.list().toString());
     }
 
 }
