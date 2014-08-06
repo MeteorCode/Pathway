@@ -2,18 +2,12 @@ package com.meteorcode.pathway.io
 import java.io.{
   File,
   InputStream,
-  OutputStream,
-  BufferedOutputStream,
-  BufferedInputStream,
   FileInputStream,
   FileOutputStream,
   IOException
 }
-import java.util.{
-  List,
-  ArrayList,
-  Arrays
-}
+import java.util
+import java.util.List
 import java.util.Collections
 import scala.collection.JavaConversions._
 /**
@@ -31,17 +25,17 @@ class DesktopFileHandle protected[io](pathTo: String) extends FileHandle {
   protected val file = new File(pathTo)
 
   def path = file.getPath //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
-  def exists: Boolean = file.exists
+  def exists(): Boolean = file.exists
   def isDirectory: Boolean = file.isDirectory
-  def writeable: Boolean = exists && file.canWrite
+  def writeable(): Boolean = exists && file.canWrite
 
-  def read: InputStream = {
+  def read(): InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
     else new FileInputStream(file)
   }
 
-  def list: List[FileHandle] = {
+  def list: util.List[FileHandle] = {
     if (isDirectory) {
       for (item <- file.list().toList) yield { // This is necessary so that yield() returns a List
         FileHandle(path + "/" + item)
@@ -49,5 +43,5 @@ class DesktopFileHandle protected[io](pathTo: String) extends FileHandle {
     } else Collections.emptyList()
   }
 
-  def write(append: Boolean) = if (writeable) { new FileOutputStream(file, append) } else null
+  def write(append: Boolean) = if (writeable()) { new FileOutputStream(file, append) } else null
 }

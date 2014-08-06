@@ -1,13 +1,12 @@
 package com.meteorcode.pathway.io
 import java.io.{
-  File,
   InputStream,
   OutputStream,
   BufferedOutputStream,
   BufferedInputStream,
   IOException
 }
-import java.util.List
+import java.util
 import java.nio.charset.Charset
 import scala.io.Source
 import scala.collection.JavaConversions._
@@ -39,7 +38,7 @@ abstract class FileHandle {
   def exists(): Boolean
 
   /** Returns true if this file is a directory. */
-  def isDirectory(): Boolean
+  def isDirectory: Boolean
 
   /** Returns true if this FileHandle represents something that can be written to */
   def writeable(): Boolean
@@ -53,14 +52,14 @@ abstract class FileHandle {
    *  <p>Returns a list containing FileHandles to the contents of FileHandle .</p>
    *  <p> Returns an empty list if this file is not a directory or does not have contents.</p>
    */
-  def list: List[FileHandle]
+  def list: util.List[FileHandle]
 
   /**
    *  <p>Returns a list containing FileHandles to the contents of this FileHandle with the specified suffix.</p>
    *  <p> Returns an empty list if this file is not a directory or does not have contents.</p>
    *  @param suffix
    */
-  def list(suffix: String): java.util.List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
+  def list(suffix: String): util.List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
 
   /** Returns a stream for reading this file as bytes.
    *  @throws IOException if the file does not exist or is a directory.
@@ -82,7 +81,7 @@ abstract class FileHandle {
 
   /** Reads the entire file into a string using the specified charset.*/
   @throws(classOf[IOException])
-  def readString(charset: Charset): String = Source.fromInputStream(read).mkString
+  def readString(charset: Charset): String = Source.fromInputStream(read()).mkString
 
   /** Returns an {@link java.io.OutputStream OutputStream} for writing to this file.
    * @return an {@link java.io.OutputStream OutputStream} for writing to this file, or null if this file is not writeable.
@@ -95,7 +94,7 @@ abstract class FileHandle {
    * @param bufferSize The size of the buffer
    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
    */
-   def write(bufferSize: Integer, append: Boolean): BufferedOutputStream = if (writeable) { new BufferedOutputStream(write(append), bufferSize) } else null
+   def write(bufferSize: Integer, append: Boolean): BufferedOutputStream = if (writeable()) { new BufferedOutputStream(write(append), bufferSize) } else null
 
    /** <p>Writes the specified string to the file using the default charset.</p>
     * <p>Throws an {@link java.io.IOException IOException} if the FileHandle represents something that is not writeable; yes, I am aware
@@ -106,7 +105,7 @@ abstract class FileHandle {
     * @throws IOException if this file is not writeable
     */
    @throws(classOf[IOException])
-   def writeString (string: String, append: Boolean): Unit = if (writeable) { writeString(string, Charset.defaultCharset(), append) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
+   def writeString (string: String, append: Boolean): Unit = if (writeable()) { writeString(string, Charset.defaultCharset(), append) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
 
    /** Writes the specified string to the file using the specified  charset.
     * <p>Throws an {@link java.io.IOException IOException} if the FileHandle represents something that is not writeable; yes, I am aware
@@ -118,7 +117,7 @@ abstract class FileHandle {
     * @throws IOException if this file is not writeable
     */
    @throws(classOf[IOException])
-   def writeString (string: String, charset: Charset, append: Boolean): Unit = if (writeable) { write(append).write(string.getBytes(charset)) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
+   def writeString (string: String, charset: Charset, append: Boolean): Unit = if (writeable()) { write(append).write(string.getBytes(charset)) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
 
    override def toString = path
 }
