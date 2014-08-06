@@ -1,4 +1,4 @@
-package com.meteorcode.pathway.test;
+/*package com.meteorcode.pathway.test;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -17,3 +17,4 @@ import org.junit.runners.Suite;
 
 public class AllTests {
 }
+*/
