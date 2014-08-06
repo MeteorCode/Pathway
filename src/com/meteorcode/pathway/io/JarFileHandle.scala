@@ -13,10 +13,11 @@ import java.util.jar.JarFile
 
 class JarFileHandle protected[io] (pathTo: String) extends FileHandle {
   // I also hate java.util.jar
-  private val file = new File(pathTo)
+  private val back = new File(pathTo)
   private val jarfile = new JarFile(file)
 
-  def path = file.getPath
+  def file = this.back
+  def path = back.getPath
   def exists: Boolean = file.exists
   def isDirectory: Boolean = true
   def writeable = false

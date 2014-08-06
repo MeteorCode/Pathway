@@ -322,9 +322,9 @@ public class EventStackTest {
 			public void evalEvent() throws ScriptException {
 				fail();
 			}
-		};
-		
-		Event e1 = new EventShouldBeInvalidated("I should be invalidated", c);
+		}
+
+        Event e1 = new EventShouldBeInvalidated("I should be invalidated", c);
 		Event e2 = new EventShouldBeInvalidated("I should also be invalidated", c);
 		Event e3 = new EventShouldBeInvalidated("I should also be invalidated", c);
 		

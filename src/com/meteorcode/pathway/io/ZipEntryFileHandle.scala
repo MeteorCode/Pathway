@@ -34,11 +34,13 @@ import java.util.Collections
    * @author Hawk Weisman
    */
 class ZipEntryFileHandle protected[io] (private val entry: ZipEntry, private val parent: ZipFile, private val pathTo: String) extends FileHandle {
+
     def writeable = false // Zip files cannot be written to :c
     def exists = true // if this ZipEntry was found in the ZipFile, it is Real And Has Been Proven To Exist
                       // (this is okay because ZipEntries are apparently un-deleteable; HAVE I MENTIONED HOW MUCH I HATE java.util.zip LATELY?)
     def isDirectory = entry.isDirectory
     def path = pathTo + entry.getName//TODO: coerce paths into Unix paths.
+    def file = null
 
     @throws(classOf[IOException])
     def read: InputStream = {

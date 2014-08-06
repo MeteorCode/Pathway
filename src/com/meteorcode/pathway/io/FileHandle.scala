@@ -49,6 +49,12 @@ abstract class FileHandle {
   def path: String
 
   /**
+   * Returns a {@link java.io.File java.io.File} that represents this file handle.
+   * @return a {@link java.io.File java.io.File} that represents this file handle, or null if this file is inside a Jar or Zip archive.
+   */
+  def file: java.io.File
+
+  /**
    *  <p>Returns a list containing FileHandles to the contents of FileHandle .</p>
    *  <p> Returns an empty list if this file is not a directory or does not have contents.</p>
    */
@@ -129,6 +135,7 @@ object FileHandle {
    */
   def apply(path: String) = path.split('.').drop(1).lastOption match {
     // TODO: Special-case files within archives, this placeholder pattern match will have a Hard Time
+    // TODO: detect if requested path is on the classpath and if so, return a ClasspathFileHandle.
     // if you try to get a handle into a file within an archive directly instead of requesting the top-level archive
     case Some("jar") => new JarFileHandle(path)
     case Some("zip") => new ZipFileHandle(path)

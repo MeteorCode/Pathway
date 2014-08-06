@@ -42,6 +42,9 @@ public class ClasspathFileHandle extends FileHandle {
 		return (back != null && back.isDirectory());
 	}
 
+    @Override
+    public File file() {return back;}
+
 	@Override
 	public boolean writeable() {
 		//ALL classpath files are not writable as far as I know.
@@ -62,7 +65,7 @@ public class ClasspathFileHandle extends FileHandle {
 			}
 			return r;
 		} else {
-			return Collections.<FileHandle>emptyList();
+			return Collections.emptyList();
 		}
 	}
 

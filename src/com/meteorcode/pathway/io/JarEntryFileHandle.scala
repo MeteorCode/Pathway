@@ -17,6 +17,7 @@ import java.util.Collections
 
 
 class JarEntryFileHandle protected[io] (private val entry: JarEntry, private val parent: JarFile, private val pathTo: String) extends FileHandle {
+    def file = null
     def writeable = false
     def exists = true
     def isDirectory = entry.isDirectory

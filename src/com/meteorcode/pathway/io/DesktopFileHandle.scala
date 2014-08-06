@@ -22,17 +22,18 @@ import scala.collection.JavaConversions._
  * @author Hawk Weisman
  */
 class DesktopFileHandle protected[io](pathTo: String) extends FileHandle {
-  protected val file = new File(pathTo)
+  protected val back = new File(pathTo)
 
-  def path = file.getPath //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
-  def exists(): Boolean = file.exists
-  def isDirectory: Boolean = file.isDirectory
-  def writeable(): Boolean = exists && file.canWrite
+  def path = back.getPath //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
+  def file = this.back
+  def exists(): Boolean = back.exists
+  def isDirectory: Boolean = back.isDirectory
+  def writeable(): Boolean = exists && back.canWrite
 
   def read(): InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
-    else new FileInputStream(file)
+    else new FileInputStream(back)
   }
 
   def list: util.List[FileHandle] = {
@@ -43,5 +44,5 @@ class DesktopFileHandle protected[io](pathTo: String) extends FileHandle {
     } else Collections.emptyList()
   }
 
-  def write(append: Boolean) = if (writeable()) { new FileOutputStream(file, append) } else null
+  def write(append: Boolean) = if (writeable()) { new FileOutputStream(back, append) } else null
 }
