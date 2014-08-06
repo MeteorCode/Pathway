@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.meteorcode.pathway.test;
 
 import static org.junit.Assert.*;
