@@ -8,6 +8,7 @@ package com.meteorcode.pathway.test;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.meteorcode.pathway.io.*;
@@ -19,26 +20,32 @@ import java.io.IOException;
  */
 public class SimpleIOIntegrationTest {
     private FileHandle underTest;
+    private ResourceManager r;
+
+    @Before
+    public void setUp() {
+        r = new ResourceManager("build/resources/test/");
+    }
 
 	@Test
 	public void testUnzippedFileHandle() throws IOException {
-	    underTest = ClasspathTestShimDELETEME.c("/test/resources/test1.txt");
+	    underTest = r.handle("test1.txt");
 	    assertEquals("hi!", underTest.readString());
 	}
-	/*
+
     @Test
     public void testZippedFileHandle() throws IOException {
-        underTest = ClasspathTestShimDELETEME.c("/test/resources/zippedtest.zip");
+        underTest = r.handle("zippedtest.zip");
         assertTrue(underTest.isDirectory());
         assertEquals(underTest.list().get(0).readString(), "also hi!");
     }
 
     @Test
     public void testDirFileHandle() throws IOException{
-        underTest = ClasspathTestShimDELETEME.c("/test/resources/testDir");
+        underTest = r.handle("testDir");
         assertTrue(underTest.isDirectory());
         assertEquals("yet again hi", underTest.list().get(0).readString());
         assertEquals("still hi", underTest.list().get(1).readString());
-    }*/
+    }
 
 }
