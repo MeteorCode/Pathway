@@ -30,7 +30,7 @@ class DesktopFileHandle protected[io](pathTo: String,
   def file = this.back
   def exists: Boolean = back.exists
   def isDirectory: Boolean = back.isDirectory
-  def writable: Boolean = exists && back.canWrite
+  def writable: Boolean =  if (isDirectory) false else { if (exists) back.canWrite else back.createNewFile() }
 
   def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
