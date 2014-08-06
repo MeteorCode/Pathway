@@ -19,7 +19,9 @@ import java.util.zip.ZipFile
  * @param back A java.util.File representing the Zip archive to handle.
  * @author Hawk Weisman
  */
-class ZipFileHandle private (private val back: File) extends FileHandle {
+class ZipFileHandle protected[io] (private val pathTo: String,
+                                   private val back: File,
+                                   manager: ResourceManager) extends FileHandle(manager) {
   /*
   Let's take a moment to discuss how Java's Zip API is Not My Favourite Thing.
 
@@ -47,10 +49,9 @@ class ZipFileHandle private (private val back: File) extends FileHandle {
   */
   private val zipfile = new ZipFile(file)
 
-  protected[io] def this(pathTo: String) = this(new File(pathTo))
-  protected[io] def this(fileHandle: FileHandle) = this(fileHandle.file)
+  protected[io] def this(fileHandle: FileHandle) = this(fileHandle.path, fileHandle.file, fileHandle.manager)
 
-  def path = back.getPath
+  def path = pathTo
   def exists: Boolean = back.exists
   def isDirectory: Boolean = true // Remember, we are pretending that zips are directories
   def writeable = false // Zips can never be written to (at least by java.util.zip)
@@ -65,7 +66,7 @@ class ZipFileHandle private (private val back: File) extends FileHandle {
       // Enumeration<T> class which appears to be a dumb knockoff of Iterator created
       // specifically for use in ZipFile just to make it EVEN WORSE
       // I HATE JAVA
-     while (entries.hasMoreElements) result.add( new ZipEntryFileHandle(entries.nextElement(), zipfile, path) )
+     while (entries.hasMoreElements) result.add( new ZipEntryFileHandle(entries.nextElement(), zipfile, path, manager) )
      result
     } catch {
       // Don't close my ZipFile while I'm getting its' entries! Geez!

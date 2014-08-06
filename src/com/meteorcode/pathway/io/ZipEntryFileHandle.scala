@@ -29,11 +29,15 @@ import java.util.Collections
    * @param parent
    *              a reference to the the {@link java.util.zip.ZipFile ZipFile} containing the ZipEntry - this is necessary so that we can do things
    *              like list the children of a directory in a Zip archive.
-   * @param path
+   * @param pathTo
    *             the path to the top-level ZipFile that contains the thing this handle is to
    * @author Hawk Weisman
    */
-class ZipEntryFileHandle protected[io] (private val entry: ZipEntry, private val parent: ZipFile, private val pathTo: String) extends FileHandle {
+class ZipEntryFileHandle protected[io] (private val entry: ZipEntry,
+                                        private val parent: ZipFile,
+                                        private val pathTo: String,
+                                        manager: ResourceManager)
+    extends FileHandle(manager) {
 
     def writeable = false // Zip files cannot be written to :c
     def exists = true // if this ZipEntry was found in the ZipFile, it is Real And Has Been Proven To Exist
@@ -63,7 +67,7 @@ class ZipEntryFileHandle protected[io] (private val entry: ZipEntry, private val
           while (entries.hasMoreElements) {
             val e = entries.nextElement
             if (e.getName.split("/").dropRight(1).equals(entry.getName))
-              result.add( new ZipEntryFileHandle(e, parent, pathTo) )
+              result.add( new ZipEntryFileHandle(e, parent, pathTo, manager) )
           }
          result
         } catch {

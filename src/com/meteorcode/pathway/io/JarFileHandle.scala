@@ -11,12 +11,14 @@ import java.util.{
 import java.util.jar.JarFile
 
 
-class JarFileHandle private (private val back: File) extends FileHandle {
+class JarFileHandle protected[io] (private val pathTo: String,
+                                   private val back: File,
+                                   manager: ResourceManager)
+  extends FileHandle(manager) {
   // I also hate java.util.jar
   private val jarfile = new JarFile(file)
 
-  protected[io] def this(pathTo: String) = this(new File(pathTo))
-  protected[io] def this(fileHandle: FileHandle) = this(fileHandle.file)
+  protected[io] def this(fileHandle: FileHandle) = this(fileHandle.path, fileHandle.file, fileHandle.manager)
 
   def file = this.back
   def path = back.getPath
@@ -30,7 +32,7 @@ class JarFileHandle private (private val back: File) extends FileHandle {
     try {
       val entries = jarfile.entries
 
-     while (entries.hasMoreElements) result.add( new JarEntryFileHandle(entries.nextElement(), jarfile, path) )
+     while (entries.hasMoreElements) result.add( new JarEntryFileHandle(entries.nextElement(), jarfile, path, manager) )
      result
     } catch {
       case e: IllegalStateException => throw new IOException ("Could not list JarFile entries, file " + path + " appears to have been closed.", e)

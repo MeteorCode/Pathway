@@ -33,7 +33,7 @@ import scala.collection.JavaConversions._
  *
  * @author Hawk Weisman
  */
-abstract class FileHandle {
+abstract class FileHandle(protected[io] val manager: ResourceManager) {
   /** Returns true if the file exists. */
   def exists(): Boolean
 
@@ -126,26 +126,4 @@ abstract class FileHandle {
    def writeString (string: String, charset: Charset, append: Boolean): Unit = if (writeable()) { write(append).write(string.getBytes(charset)) } else { throw new IOException("FileHandle " + path + " is not writeable.") }
 
    override def toString = path
-}
-
-object FileHandle {
-  /**
-   * The Correct Way to get new FileHandles for a specified path
-   * @param path the path you want a FileHandle into
-   */
-  def apply(path: String) = path.split('.').drop(1).lastOption match {
-    // TODO: Special-case files within archives, this placeholder pattern match will have a Hard Time
-    // TODO: detect if requested path is on the classpath and if so, return a ClasspathFileHandle.
-    // if you try to get a handle into a file within an archive directly instead of requesting the top-level archive
-    case Some("jar") => new JarFileHandle(path)
-    case Some("zip") => new ZipFileHandle(path)
-    case _ => new DesktopFileHandle(path)
-  }
-
-  /**
-   * <p>Alternate (wrapper) version of {@link com.meteorcode.pathway.io.FileHandle apply()} for Java callers who can't call apply() as a constructor.</p>
-   * <p>Java programmers should treat FileHandle.handle(path) as equivalent to FileHandleFactory.getNewInstance(path).</p>
-   * @param path the path to the thing you want a handle into
-   */
-  def handle(path: String) = apply(path)
 }

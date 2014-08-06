@@ -23,7 +23,8 @@ public class ClasspathFileHandle extends FileHandle {
 	 * during construction.
 	 * @param path The path to grab.
 	 */
-	protected ClasspathFileHandle(String path) {
+	protected ClasspathFileHandle(String path, ResourceManager manager) {
+        super(manager);
 		this.opath = path;
 		URL url = this.getClass().getResource(path);
 		try {
@@ -61,7 +62,8 @@ public class ClasspathFileHandle extends FileHandle {
 		if(back != null && back.isDirectory()) {
 			ArrayList<FileHandle> r = new ArrayList<FileHandle>();
 			for(String s : back.list()) {
-				r.add(new ClasspathFileHandle(this.opath + "/" + s));
+				//r.add(new ClasspathFileHandle(this.opath + "/" + s, manager));
+                // FIXME: this doesn't work because apparently ClasspathFileHandle doesn't have access to FileHandle.manager, even though it extends that class (weird Java/Scala interop error)
 			}
 			return r;
 		} else {

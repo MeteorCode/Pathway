@@ -21,10 +21,12 @@ import scala.collection.JavaConversions._
  * @param pathTo the path to the file
  * @author Hawk Weisman
  */
-class DesktopFileHandle protected[io](pathTo: String) extends FileHandle {
-  protected val back = new File(pathTo)
+class DesktopFileHandle protected[io](pathTo: String,
+                                      protected val back: File,
+                                      manager: ResourceManager)
+  extends FileHandle(manager) {
 
-  def path = back.getPath //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
+  def path = pathTo //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
   def file = this.back
   def exists(): Boolean = back.exists
   def isDirectory: Boolean = back.isDirectory
@@ -39,7 +41,7 @@ class DesktopFileHandle protected[io](pathTo: String) extends FileHandle {
   def list: util.List[FileHandle] = {
     if (isDirectory) {
       for (item <- file.list().toList) yield { // This is necessary so that yield() returns a List
-        FileHandle(path + "/" + item)
+        manager.handle(path  + "/" + item)
       }
     } else Collections.emptyList()
   }

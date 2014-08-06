@@ -16,7 +16,11 @@ import java.util.jar.{
 import java.util.Collections
 
 
-class JarEntryFileHandle protected[io] (private val entry: JarEntry, private val parent: JarFile, private val pathTo: String) extends FileHandle {
+class JarEntryFileHandle protected[io] (private val entry: JarEntry,
+                                        private val parent: JarFile,
+                                        private val pathTo: String,
+                                        manager: ResourceManager)
+  extends FileHandle(manager) {
     def file = null
     def writeable = false
     def exists = true
@@ -44,7 +48,7 @@ class JarEntryFileHandle protected[io] (private val entry: JarEntry, private val
           while (entries.hasMoreElements) {
             val e = entries.nextElement
             if (e.getName.split("/").dropRight(1).equals(entry.getName))
-              result.add( new JarEntryFileHandle(e, parent, pathTo) )
+              result.add( new JarEntryFileHandle(e, parent, pathTo, manager) )
           }
          result
         } catch {
