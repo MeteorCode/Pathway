@@ -31,20 +31,39 @@ public class SimpleIOIntegrationTest {
 	public void testUnzippedFileHandle() throws IOException {
 	    underTest = r.handle("test1.txt");
 	    assertEquals("hi!", underTest.readString());
+        assertFalse(underTest.isDirectory());
+        assertTrue(underTest.writable());
 	}
+
+    @Test
+    public void testWriteString() throws IOException {
+        underTest = r.handle("test5.txt");
+        underTest.writeString("hello", false);
+        assertEquals("hello", underTest.readString());
+    }
 
     @Test
     public void testZippedFileHandle() throws IOException {
         underTest = r.handle("zippedtest.zip");
         assertTrue(underTest.isDirectory());
+        assertNull(underTest.read());
+        assertNull(underTest.write(true));
         assertEquals(underTest.list().get(0).readString(), "also hi!");
     }
 
     @Test
-    public void testDirFileHandle() throws IOException{
+    public void testDirFileHandle() throws IOException {
         underTest = r.handle("testDir");
+        assertFalse("FAIL: Directory claimed to be writable.", underTest.writable());
         assertTrue(underTest.isDirectory());
+        assertNull("FAIL: directory gave us an OutputStream?", underTest.write(true));
         System.out.println(underTest.list().toString()); // FUCK IT. we can test for correctness manually.
+        try {
+            underTest.read();
+            fail("FAIL: Exception was not thrown when reading to directory.");
+        } catch (IOException e) {
+            //meh
+        }
     }
 
 }
