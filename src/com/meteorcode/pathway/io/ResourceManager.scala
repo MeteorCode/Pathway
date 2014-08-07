@@ -2,8 +2,8 @@ package com.meteorcode.pathway.io
 
 import java.io.File
 
-import scala.collection.mutable.{Map, HashMap}
 import scala.collection.JavaConversions._
+import scala.collection.mutable
 
 class ResourceManager (private val directories: List[FileHandle]) {
   def this(directory: FileHandle) = this(List(directory))
@@ -12,7 +12,8 @@ class ResourceManager (private val directories: List[FileHandle]) {
                                           // it will never need to get the path from the ResourceManager
   private val ZipMatch = """(\/*\w*\/*\w*.zip)(\/\w+.*\w*)+""".r
   private val JarMatch = """(\/*\w*\/*\w*.jar)(\/\w+.*\w*)+""".r
-  private val paths: Map[String, String] = new HashMap[String, String]
+  private var paths = Map[String, String]()
+  private val cachedHandles = mutable.HashMap[String, FileHandle]()
 
   private def walk(h: FileHandle, currentPath: String) { // recursively walk the directories and cache the paths
     h.list.foreach { f: FileHandle =>
@@ -33,9 +34,15 @@ class ResourceManager (private val directories: List[FileHandle]) {
 
   protected[io] def getLogicalPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).get
 
-  private val cachedHandles: Map[String, FileHandle] = new HashMap[String, FileHandle]
-
-  def handle (path: String) = cachedHandles.getOrElseUpdate(path, makeHandle(path))
+  def handle (path: String): FileHandle = {
+    if (cachedHandles.keySet contains path)
+      cachedHandles.getOrElseUpdate(path, makeHandle(path))
+    else {
+      val f = makeHandle(path)
+      cachedHandles += (path -> f)
+      f
+    }
+  }
 
   private def makeHandle (fakePath: String): FileHandle = {
     val realPath: String = paths(fakePath)
@@ -46,7 +53,7 @@ class ResourceManager (private val directories: List[FileHandle]) {
         case ZipMatch(zipfile, name) =>
           val parent = new ZipFileHandle(paths(zipfile), new File(zipfile), this)
           new ZipEntryFileHandle(parent.zipfile.getEntry(name), parent)
-        case JarMatch(jarfile, name) => //TODO: Extracting a match is deprecated, refactor
+        case JarMatch(jarfile, name) =>
           val parent = new JarFileHandle(paths(jarfile), new File(jarfile), this)
           new JarEntryFileHandle(parent.jarfile.getJarEntry(name), parent)
         case _ => new DesktopFileHandle(fakePath, realPath, this)
