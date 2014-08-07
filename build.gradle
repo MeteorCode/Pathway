@@ -37,6 +37,7 @@ repositories {
 // the transitive=false means that the plugin won't show up
 // as a dependency in the final output
 configurations {
+    //noinspection GroovyAssignabilityCheck
     scalaCompilerPlugins { transitive = false }
 }
 
@@ -97,13 +98,16 @@ ext {
 }
 
 task dist(type: Jar) {
+    //noinspection GroovyAssignabilityCheck
     dependsOn classes
+    //noinspection GroovyAssignabilityCheck
     dependsOn test
     description "Bundle Pathway library jarfile for distribution."
 
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
     from {configurations.compile.collect {zipTree(it)}}
+    //noinspection GroovyAssignabilityCheck
     from files(project.assetsDir);
 }
 
@@ -133,12 +137,15 @@ sourceSets {
 }
 
 jar {
+    //noinspection GroovyAssignabilityCheck
     dependsOn test
 }
 
+//noinspection GroovyAssignabilityCheck
 tasks.eclipse.dependsOn cleanEclipse
 
 eclipse {
+    //noinspection GroovyAssignabilityCheck
     project {
     	name = appName
     }

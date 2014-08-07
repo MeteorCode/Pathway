@@ -68,7 +68,7 @@ abstract class FileHandle (protected val logicalPath: String,
   /**
    * @return the name of this object, without the filename extension and path.
    */
-  def name: String = path.split('/').last.split('.').head
+  def name: String = path.split('/').last.split('.').dropRight(1).last
 
   /**
    * Returns a {@link java.io.File java.io.File} that represents this file handle.
