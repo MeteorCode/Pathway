@@ -27,7 +27,7 @@ class ResourceManager (private val directories: List[FileHandle]) {
           if (f.extension == "") {
             paths += (currentPath + f.name  -> f.path) // otherwise, add logical path maps to real path
           } else {
-            paths += (currentPath + f.name + f.extension -> f.path) // otherwise, add logical path maps to real path
+            paths += (currentPath + f.name + "." + f.extension -> f.path) // otherwise, add logical path maps to real path
           }
           if (f.isDirectory) walk(f, currentPath) // and walk (if it's a dir)
       }
