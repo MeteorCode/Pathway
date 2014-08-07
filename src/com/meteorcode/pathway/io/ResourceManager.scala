@@ -1,13 +1,13 @@
 package com.meteorcode.pathway.io
 
 import java.io.File
-import scala.collection.immutable.HashMap
+import scala.collection.mutable.Map
 
 class ResourceManager (private val directories: List[FileHandle]) {
   def this(directory: FileHandle) = this(List(directory))
   def this() = this(List[FileHandle](new DesktopFileHandle("assets")))
 
-  private var cachedPaths = HashMap[String, String]
+  private val cachedPaths = Map[String, String]
 
   directories.foreach{ directory =>
     def walk(h: FileHandle, currentPath: String) { // recursively walk the directories and cache the paths
@@ -27,28 +27,16 @@ class ResourceManager (private val directories: List[FileHandle]) {
   }
 
   // TODO: traverse the tree from the initial FileHandle down and call list(), building the tree?
-  private val cachedHandles = collection.mutable.Map[String, FileHandle]()
+  private val cachedHandles = Map[String, FileHandle]()
 
   def handle (path: String) = cachedHandles.getOrElseUpdate(path, makeHandle(path))
 
-  private def makeHandle (path: String): FileHandle = {
-    // TODO: Special-case files within archives, this placeholder pattern match will have a Hard Time
-    // if you try to get a handle into a file within an archive directly instead of requesting the top-level archive
-    // TODO: detect if requested path is on the classpath and if so, return a ClasspathFileHandle.
-    if (path.startsWith("/")) {
-      // handle absolute paths
-      path.split('.').drop(1).lastOption match {
-        case Some("jar") => new JarFileHandle(path, new File(path), this)
-        case Some("zip") => new ZipFileHandle(path, new File(path), this)
-        case _ => new DesktopFileHandle(path, new File(path), this)
-      }
-    } else {
-      // handle relative paths relative to assets dir
-      path.split('.').drop(1).lastOption match {
-        case Some("jar") => new JarFileHandle(path, new File(assetsDir + path), this)
-        case Some("zip") => new ZipFileHandle(path, new File(assetsDir + path), this)
-        case _ => new DesktopFileHandle(path, new File(assetsDir + path), this)
-      }
+  private def makeHandle (fakePath: String): FileHandle = {
+    val realPath = cachedPaths get fakePath
+    realPath.split('.').drop(1).lastOption match {
+      case Some("jar") => new JarFileHandle(realPath)
+      case Some("zip") => new ZipFileHandle(realPath)
+      case _ => new DesktopFileHandle(realPath) //TODO: check if contained by {Zip|Jar} and return {Zip|Jar}EntryFileHandle
     }
   }
 
