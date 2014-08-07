@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 class ResourceManager (private val directories: List[FileHandle]) {
   def this(directory: FileHandle) = this(List(directory))
-  def this(path: String) = this(new DesktopFileHandle("/", path, null)) // default to DesktopFileHandle
+  def this(path: String) = this(new DesktopFileHandle("", path, null)) // default to DesktopFileHandle
   def this() = this("assets")             // it's okay for the Manager to be null because if it has a path,
                                           // it will never need to get the path from the ResourceManager
   private val ZipMatch = """(\/*\w*\/*\w*.zip)(\/\w+.*\w*)+""".r
@@ -20,11 +20,15 @@ class ResourceManager (private val directories: List[FileHandle]) {
       f.extension match {
         case "jar" =>
           // logical path for an archive is attached at /, so we don't add it to the paths
-          walk(new JarFileHandle("/", f), "/")  // but we do add the paths to its' children
+          walk(new JarFileHandle("", f), "")  // but we do add the paths to its' children
         case "zip" =>
-          walk(new ZipFileHandle("/", f), "/")  // walk all children of this dir
+          walk(new ZipFileHandle("", f), "")  // walk all children of this dir
         case _ =>
-          paths += currentPath + f.name + f.extension -> f.path // otherwise, add logical path maps to real path
+          if (f.extension == "") {
+            paths += (currentPath + f.name  -> f.path) // otherwise, add logical path maps to real path
+          } else {
+            paths += (currentPath + f.name + f.extension -> f.path) // otherwise, add logical path maps to real path
+          }
           if (f.isDirectory) walk(f, currentPath) // and walk (if it's a dir)
       }
     }

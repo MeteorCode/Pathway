@@ -46,7 +46,7 @@ class Context(name: String) {
   def getGameObjects: java.util.List[GameObject] = {
     var result: java.util.List[GameObject] = new ArrayList[GameObject]
     result.addAll(gameObjects)
-    return result
+    result
   }
   def removeGameObject(g: GameObject) = gameObjects -= g
   def addGameObject(g: GameObject) = gameObjects += g
@@ -74,7 +74,7 @@ class Context(name: String) {
     var result: Deque[Event] = new ArrayDeque[Event]
     for (e <- eventStack)
       result.push(e)
-    return result
+    result
   }
 
   /**

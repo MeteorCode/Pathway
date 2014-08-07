@@ -24,7 +24,7 @@ public class SimpleIOIntegrationTest {
 
     @Before
     public void setUp() {
-        r = new ResourceManager("build/resources/test/");
+        r = new ResourceManager("build/resources/test");
     }
 
 	@Test

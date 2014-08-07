@@ -44,8 +44,8 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
   def stampExists(stampedBy: Property) = stamps.contains(stampedBy)
   
   def where = location
-  def x: Integer = { if (location == null) { return null } else return location.getPosition().getX }
-  def y: Integer = { if (location == null) { return null } else return location.getPosition().getY }
+  def x: Integer = { if (location == null) { null } else location.getPosition().getX }
+  def y: Integer = { if (location == null) { null } else location.getPosition().getY }
 
   def +(kv: (String, Object)) = map += kv
   def ++(addition: scala.collection.immutable.Map[String, Object]) = map ++= addition
