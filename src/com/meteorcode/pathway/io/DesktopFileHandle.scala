@@ -44,7 +44,7 @@ class DesktopFileHandle protected[io](logicalPath: String,
 
   def list: java.util.List[FileHandle] = {
     if (isDirectory) {
-      for (item <- back.list.toList) yield new DesktopFileHandle(item, path + "/" + item, manager)
+      for (item <- back.list.toList) yield new DesktopFileHandle(path + "/" + item, physicalPath + "/" + item, manager)
     } else Collections.emptyList()
   }
 
