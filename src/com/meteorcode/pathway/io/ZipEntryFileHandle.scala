@@ -1,18 +1,14 @@
 package com.meteorcode.pathway.io
 import java.io.{
-  File,
   InputStream,
   IOException
 }
-import java.util.jar.{JarFile, JarEntry}
 import java.util.{
   List,
   ArrayList
 }
 import java.util.zip.{
-  ZipFile,
   ZipEntry,
-  ZipInputStream,
   ZipException
 }
 import java.util.Collections
@@ -39,6 +35,7 @@ class ZipEntryFileHandle protected[io](private val entry: ZipEntry,
 
     protected[io] def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.manager)
 
+    protected[io] def physicalPath = null
     def writable = false // Zip files cannot be written to :c
     def exists = parent.exists // if the ZipFile this zip entry lives in exists, it is Real And Has Been Proven To Exist
     def isDirectory = entry.isDirectory
@@ -64,7 +61,7 @@ class ZipEntryFileHandle protected[io](private val entry: ZipEntry,
           val entries = parent.zipfile.entries
           while (entries.hasMoreElements) {
             val e = entries.nextElement
-            if (e.getName.split("/").dropRight(1).equals(entry.getName)) // if e is a child of this
+            if (e.getName.split("/").dropRight(1).last == entry.getName) // if e is a child of this
               result.add( new ZipEntryFileHandle(e, parent, manager) )
           }
          result

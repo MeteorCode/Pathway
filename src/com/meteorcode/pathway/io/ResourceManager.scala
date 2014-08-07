@@ -7,9 +7,9 @@ import scala.collection.JavaConversions._
 
 class ResourceManager (private val directories: List[FileHandle]) {
   def this(directory: FileHandle) = this(List(directory))
-  def this(path: String) = this(new DesktopFileHandle("/", path, this)) // default to desktopfilehandle
-  def this() = this("assets")
-
+  def this(path: String) = this(new DesktopFileHandle("/", path, null)) // default to DesktopFileHandle
+  def this() = this("assets")             // it's okay for the Manager to be null because if it has a path,
+                                          // it will never need to get the path from the ResourceManager
   private val ZipMatch = """(\/*\w*\/*\w*.zip)(\/\w+.*\w*)+""".r
   private val JarMatch = """(\/*\w*\/*\w*.jar)(\/\w+.*\w*)+""".r
   private val paths: Map[String, String] = new HashMap[String, String]
@@ -33,7 +33,6 @@ class ResourceManager (private val directories: List[FileHandle]) {
 
   protected[io] def getLogicalPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).get
 
-  // TODO: traverse the tree from the initial FileHandle down and call list(), building the tree?
   private val cachedHandles: Map[String, FileHandle] = new HashMap[String, FileHandle]
 
   def handle (path: String) = cachedHandles.getOrElseUpdate(path, makeHandle(path))

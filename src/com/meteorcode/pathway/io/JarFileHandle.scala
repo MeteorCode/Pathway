@@ -22,6 +22,7 @@ class JarFileHandle protected[io] (logicalPath: String,
   protected[io] def this(file: File, manager: ResourceManager) = this (null, file, manager)
 
   protected[io] def file = back
+  protected[io] def physicalPath = back.getPath
 
   def exists: Boolean = back.exists
   def isDirectory: Boolean = true

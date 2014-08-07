@@ -28,24 +28,25 @@ class DesktopFileHandle protected[io](logicalPath: String,
 
   def this(physicalPath: String, manager: ResourceManager) = this (null, physicalPath, manager)
 
-  private val file = new File(realPath)
+  private val back = new File(realPath)
 
-  def exists: Boolean = file.exists
-  def isDirectory: Boolean = file.isDirectory
-  def writable: Boolean =  if (isDirectory) false else { if (exists) file.canWrite else file.createNewFile() }
+  def file = back
+  def exists: Boolean = back.exists
+  def isDirectory: Boolean = back.isDirectory
+  def writable: Boolean =  if (isDirectory) false else { if (exists) back.canWrite else back.createNewFile() }
   def physicalPath: String = realPath
 
   def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
-    else new FileInputStream(file)
+    else new FileInputStream(back)
   }
 
-  def list: List[FileHandle] = {
+  def list: java.util.List[FileHandle] = {
     if (isDirectory) {
-      for (item <- file.list.toList) yield new DesktopFileHandle(item, path + "/" + item, manager)
+      for (item <- back.list.toList) yield new DesktopFileHandle(item, path + "/" + item, manager)
     } else Collections.emptyList()
   }
 
-  def write(append: Boolean) = if (writable) { new FileOutputStream(file, append) } else null
+  def write(append: Boolean) = if (writable) { new FileOutputStream(back, append) } else null
 }

@@ -8,7 +8,7 @@ BufferedOutputStream,
 BufferedInputStream,
 IOException
 }
-import java.util
+import java.util.List
 import java.nio.charset.Charset
 import scala.io.Source
 import scala.collection.JavaConversions._
@@ -50,7 +50,7 @@ abstract class FileHandle (protected val logicalPath: String,
     * <p>All paths are treated as into Unix-style paths for cross-platform purposes.</p>
     * @return the logical path to the filesystem uobject wrapped by this FileHandle
     */
-  def path: String = if (logicalPath != null) {logicalPath} else {manager.getLogicalPath(physicalPath)}
+  def path: String = if (logicalPath != null) logicalPath else manager.getLogicalPath(physicalPath)
 
   /**
    * Returns the physical path to the actual filesystem object represented by this FileHandle.
@@ -74,7 +74,7 @@ abstract class FileHandle (protected val logicalPath: String,
    * Returns a {@link java.io.File java.io.File} that represents this file handle.
    * @return a { @link java.io.File java.io.File} that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
-  def file: File
+  protected[io] def file: File
 
   /**
    * <p>Returns a list containing FileHandles to the contents of FileHandle .</p>

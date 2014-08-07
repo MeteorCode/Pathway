@@ -24,6 +24,8 @@ class JarEntryFileHandle protected[io] (private val entry: JarEntry,
 
     protected[io] def this(entry: JarEntry, parent: JarFileHandle) = this (entry, parent, parent.manager)
 
+    protected[io] def physicalPath = null
+
     def file = null
     def writable = false
     def exists = true
@@ -49,7 +51,7 @@ class JarEntryFileHandle protected[io] (private val entry: JarEntry,
           val entries = parent.jarfile.entries
           while (entries.hasMoreElements) {
             val e = entries.nextElement
-            if (e.getName.split("/").dropRight(1).equals(entry.getName))
+            if (e.getName.split("/").dropRight(1).last == entry.getName)
               result.add( new JarEntryFileHandle(e, parent, manager) )
           }
         result
