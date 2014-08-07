@@ -1,6 +1,7 @@
 package com.meteorcode.pathway.io
 
 import java.io.{
+File,
 InputStream,
 OutputStream,
 BufferedOutputStream,
@@ -34,7 +35,8 @@ import scala.collection.JavaConversions._
  *
  * @author Hawk Weisman
  */
-abstract class FileHandle(protected[io] val manager: ResourceManager) {
+abstract class FileHandle (protected val logicalPath: String,
+                           protected[io] val manager: ResourceManager) {
   /** Returns true if the file exists. */
   def exists: Boolean
 
@@ -44,42 +46,48 @@ abstract class FileHandle(protected[io] val manager: ResourceManager) {
   /** Returns true if this FileHandle represents something that can be written to */
   def writable: Boolean
 
-  /** <p>Returns the path to this FileHandle.</p>
-    * <p>All paths are treated as into Unix-style paths for cross-platform purposes.
+  /** <p>Returns the logical path to this FileHandle.</p>
+    * <p>All paths are treated as into Unix-style paths for cross-platform purposes.</p>
+    * @return the logical path to the filesystem uobject wrapped by this FileHandle
     */
-  def path: String
+  def path: String = if (logicalPath != null) {logicalPath} else {manager.getLogicalPath(physicalPath)}
 
   /**
-   * @return The filename extension of this string
+   * Returns the physical path to the actual filesystem object represented by this FileHandle.
+   */
+  protected[io] def physicalPath: String
+
+  /**
+   * @return The filename extension of the object wrapped by this FileHandle, or emptystring if there is no extension.
    */
   def extension: String = path.split('.').drop(1).lastOption match {
-    case s:Some => s.get
+    case s:Some[String] => s.get
     case None => ""
   }
 
   /**
-   * @return the name of this object, without the filename extension
+   * @return the name of this object, without the filename extension and path.
    */
-  def name: String = path.split('/').getLast.split('.').getFirst
+  def name: String = path.split('/').last.split('.').head
 
   /**
    * Returns a {@link java.io.File java.io.File} that represents this file handle.
    * @return a { @link java.io.File java.io.File} that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
-  def file: java.io.File
+  def file: File
 
   /**
    * <p>Returns a list containing FileHandles to the contents of FileHandle .</p>
    * <p> Returns an empty list if this file is not a directory or does not have contents.</p>
    */
-  def list: util.List[FileHandle]
+  def list: List[FileHandle]
 
   /**
    * <p>Returns a list containing FileHandles to the contents of this FileHandle with the specified suffix.</p>
    * <p> Returns an empty list if this file is not a directory or does not have contents.</p>
    * @param suffix
    */
-  def list(suffix: String): util.List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
+  def list(suffix: String): List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
 
   /** Returns a stream for reading this file as bytes.
     * @throws IOException if the file does not exist or is a directory.

@@ -17,21 +17,23 @@ import java.util.Collections
 
 
 class JarEntryFileHandle protected[io] (private val entry: JarEntry,
-                                        private val parent: JarFile,
-                                        private val pathTo: String,
-                                        manager: ResourceManager)
-  extends FileHandle(manager) {
+                                        private val parent: JarFileHandle,
+                                        manager: ResourceManager) extends FileHandle(
+                                                                                     parent.path + "/" + entry.getName,
+                                                                                     manager) {
+
+    protected[io] def this(entry: JarEntry, parent: JarFileHandle) = this (entry, parent, parent.manager)
+
     def file = null
     def writable = false
     def exists = true
     def isDirectory = entry.isDirectory
-    def path = pathTo + entry.getName//TODO: coerce paths into Unix paths.
 
     def read: InputStream = {
       if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
       else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
       else try {
-        parent.getInputStream(entry)
+        parent.jarfile.getInputStream(entry)
       } catch {
         case ze: ZipException => throw new IOException("Could not read file " + path + ", a ZipException occured", ze)
         case se: SecurityException => throw new IOException("Could not read file " + path + ", a Jar entry was improperly signed", se)
@@ -44,13 +46,13 @@ class JarEntryFileHandle protected[io] (private val entry: JarEntry,
       if (isDirectory) {
         var result = new ArrayList[FileHandle]
         try {
-          val entries = parent.entries
+          val entries = parent.jarfile.entries
           while (entries.hasMoreElements) {
             val e = entries.nextElement
             if (e.getName.split("/").dropRight(1).equals(entry.getName))
-              result.add( new JarEntryFileHandle(e, parent, pathTo, manager) )
+              result.add( new JarEntryFileHandle(e, parent, manager) )
           }
-         result
+        result
         } catch {
           case e: IllegalStateException => throw new IOException ("Could not list JarFile entries, file " + path + " appears to have been closed.", e)
         }

@@ -6,7 +6,6 @@ import java.io.{
   FileOutputStream,
   IOException
 }
-import java.util
 import java.util.List
 import java.util.Collections
 import scala.collection.JavaConversions._
@@ -18,33 +17,35 @@ import scala.collection.JavaConversions._
  * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
  * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
  *
- * @param pathTo the path to the file
+ * @param logicalPath the logical path to the file in the fake filesystem
+ * @param realPath the physical path to the actual FilSystem object
+ * @param manager the instance of {@link com.meteorcode.pathway.io.ResourceManager ResourceManager} managing this FileHandle
  * @author Hawk Weisman
  */
-class DesktopFileHandle protected[io](pathTo: String,
-                                      protected val back: File,
-                                      manager: ResourceManager)
-  extends FileHandle(manager) {
+class DesktopFileHandle protected[io](logicalPath: String,
+                                      realPath: String,
+                                      manager: ResourceManager) extends FileHandle(logicalPath, manager) {
 
-  def path = pathTo //TODO: Add code to coerce Windows paths into Unix-style paths as documented (This Sounds Like A Job For regular expressions)
-  def file = this.back
-  def exists: Boolean = back.exists
-  def isDirectory: Boolean = back.isDirectory
-  def writable: Boolean =  if (isDirectory) false else { if (exists) back.canWrite else back.createNewFile() }
+  def this(physicalPath: String, manager: ResourceManager) = this (null, physicalPath, manager)
+
+  private val file = new File(realPath)
+
+  def exists: Boolean = file.exists
+  def isDirectory: Boolean = file.isDirectory
+  def writable: Boolean =  if (isDirectory) false else { if (exists) file.canWrite else file.createNewFile() }
+  def physicalPath: String = realPath
 
   def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
-    else new FileInputStream(back)
+    else new FileInputStream(file)
   }
 
-  def list: util.List[FileHandle] = {
+  def list: List[FileHandle] = {
     if (isDirectory) {
-      for (item <- file.list.toList) yield { // This is necessary so that yield() returns a List
-        manager.handle(path  + "/" + item)
-      }
+      for (item <- file.list.toList) yield new DesktopFileHandle(item, path + "/" + item, manager)
     } else Collections.emptyList()
   }
 
-  def write(append: Boolean) = if (writable) { new FileOutputStream(back, append) } else null
+  def write(append: Boolean) = if (writable) { new FileOutputStream(file, append) } else null
 }

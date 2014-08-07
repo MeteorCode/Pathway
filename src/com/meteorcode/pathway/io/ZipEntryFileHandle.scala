@@ -4,6 +4,7 @@ import java.io.{
   InputStream,
   IOException
 }
+import java.util.jar.{JarFile, JarEntry}
 import java.util.{
   List,
   ArrayList
@@ -29,21 +30,18 @@ import java.util.Collections
    * @param parent
    *              a reference to the the {@link java.util.zip.ZipFile ZipFile} containing the ZipEntry - this is necessary so that we can do things
    *              like list the children of a directory in a Zip archive.
-   * @param pathTo
-   *             the path to the top-level ZipFile that contains the thing this handle is to
    * @author Hawk Weisman
    */
-class ZipEntryFileHandle protected[io] (private val entry: ZipEntry,
-                                        private val parent: ZipFile,
-                                        private val pathTo: String,
-                                        manager: ResourceManager)
-    extends FileHandle(manager) {
+class ZipEntryFileHandle protected[io](private val entry: ZipEntry,
+                                       private val parent: ZipFileHandle,
+                                       manager: ResourceManager) extends FileHandle(parent.path + "/" + entry.getName,
+                                                                                    manager) {
+
+    protected[io] def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.manager)
 
     def writable = false // Zip files cannot be written to :c
-    def exists = true // if this ZipEntry was found in the ZipFile, it is Real And Has Been Proven To Exist
-                      // (this is okay because ZipEntries are apparently un-deleteable; HAVE I MENTIONED HOW MUCH I HATE java.util.zip LATELY?)
+    def exists = parent.exists // if the ZipFile this zip entry lives in exists, it is Real And Has Been Proven To Exist
     def isDirectory = entry.isDirectory
-    def path = pathTo + entry.getName//TODO: coerce paths into Unix paths.
     def file = null
 
     @throws(classOf[IOException])
@@ -51,7 +49,7 @@ class ZipEntryFileHandle protected[io] (private val entry: ZipEntry,
       if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
       else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
       else try {
-        parent.getInputStream(entry)
+        parent.zipfile.getInputStream(entry)
       } catch {
         case ze: ZipException => throw new IOException("Could not read file " + path + " a ZipException occured", ze)
         case ise: IllegalStateException => throw new IOException("Could not read file " + path + " appears to have been closed", ise)
@@ -63,11 +61,11 @@ class ZipEntryFileHandle protected[io] (private val entry: ZipEntry,
       if (isDirectory) {
         var result = new ArrayList[FileHandle]
         try {
-          val entries = parent.entries
+          val entries = parent.zipfile.entries
           while (entries.hasMoreElements) {
             val e = entries.nextElement
-            if (e.getName.split("/").dropRight(1).equals(entry.getName))
-              result.add( new ZipEntryFileHandle(e, parent, pathTo, manager) )
+            if (e.getName.split("/").dropRight(1).equals(entry.getName)) // if e is a child of this
+              result.add( new ZipEntryFileHandle(e, parent, manager) )
           }
          result
         } catch {
