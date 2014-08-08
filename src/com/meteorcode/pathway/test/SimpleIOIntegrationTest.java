@@ -44,7 +44,7 @@ public class SimpleIOIntegrationTest {
 
     @Test
     public void testZippedFileHandle() throws IOException {
-        underTest = r.handle("zippedtest.zip");
+        underTest = r.handle("zippedtest.txt");
         assertTrue("FAIL: Zip file did not claim to be a directory.", underTest.isDirectory());
         assertNull("FAIL: Zipfile.read() was not null.", underTest.read());
         assertNull("FAIL: Zipfile.write() was not null.", underTest.write(true));
