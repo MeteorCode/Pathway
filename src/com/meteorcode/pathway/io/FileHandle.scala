@@ -8,6 +8,7 @@ BufferedOutputStream,
 BufferedInputStream,
 IOException
 }
+import java.util
 import java.util.List
 import java.nio.charset.Charset
 import scala.io.Source
@@ -83,14 +84,14 @@ abstract class FileHandle (protected val logicalPath: String,
    * <p>Returns a list containing FileHandles to the contents of FileHandle .</p>
    * <p> Returns an empty list if this file is not a directory or does not have contents.</p>
    */
-  def list: List[FileHandle]
+  def list: util.List[FileHandle]
 
   /**
    * <p>Returns a list containing FileHandles to the contents of this FileHandle with the specified suffix.</p>
    * <p> Returns an empty list if this file is not a directory or does not have contents.</p>
    * @param suffix
    */
-  def list(suffix: String): List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
+  def list(suffix: String): util.List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
 
   /** Returns a stream for reading this file as bytes.
     * @throws IOException if the file does not exist or is a directory.

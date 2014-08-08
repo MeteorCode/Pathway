@@ -3,6 +3,7 @@ import java.io.{
   InputStream,
   IOException
 }
+import java.util
 import java.util.{
   List,
   ArrayList
@@ -55,9 +56,9 @@ class ZipEntryFileHandle protected[io](private val entry: ZipEntry,
       }
     }
 
-    def list: List[FileHandle] = {
+    def list: util.List[FileHandle] = {
       if (isDirectory) {
-        var result = new ArrayList[FileHandle]
+        var result = new util.ArrayList[FileHandle]
         try {
           val entries = parent.zipfile.entries
           while (entries.hasMoreElements) {

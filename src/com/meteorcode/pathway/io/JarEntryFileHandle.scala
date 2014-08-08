@@ -3,6 +3,7 @@ import java.io.{
   InputStream,
   IOException
 }
+import java.util
 import java.util.{
   List,
   ArrayList
@@ -44,9 +45,9 @@ class JarEntryFileHandle protected[io] (private val entry: JarEntry,
       }
     }
 
-    def list: List[FileHandle] = {
+  def list: util.List[FileHandle] = {
       if (isDirectory) {
-        var result = new ArrayList[FileHandle]
+        var result = new util.ArrayList[FileHandle]
         try {
           val entries = parent.jarfile.entries
           while (entries.hasMoreElements) {

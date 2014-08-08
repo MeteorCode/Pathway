@@ -3,6 +3,7 @@ import java.io.{
   File,
   IOException
 }
+import java.util
 import java.util.{
   List,
   ArrayList
@@ -62,8 +63,8 @@ class ZipFileHandle protected[io] (logicalPath: String,
   def writable = false // Zips can never be written to (at least by java.util.zip)
 
   @throws(classOf[IOException])
-  def list: List[FileHandle] = {
-    var result = new ArrayList[FileHandle]
+  def list: util.List[FileHandle] = {
+    var result = new util.ArrayList[FileHandle]
     try {
       val entries = zipfile.entries
       // furthermore, I also loathe java.util.zip for making me use the braindead
