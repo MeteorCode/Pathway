@@ -69,9 +69,10 @@ class ResourceManager(private val directories: List[FileHandle]) {
   directories.foreach { directory => walk(directory, directory.name)}
 
   /**
-   * Request the logical path for a given virtual path.
-   * @param physicalPath
-   * @return
+   * Request the logical path for a given physical path.
+   * @param physicalPath a physical path in the filesystem
+   * @return the logical path corresponding to that physical path.
+   * @deprecated As you can no longer make FileHandles with null paths, this should no longer be necessary.
    */
   protected[io] def getLogicalPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).get
 
