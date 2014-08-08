@@ -55,10 +55,10 @@ class ResourceManager (private val directories: List[FileHandle]) {
       case _ => ArchiveMatch.findFirstIn(realPath) match {
         case Some(ArchiveMatch(path, extension, name)) => extension match {
           case ".zip" =>
-            val parent = new ZipFileHandle(paths(path + extension), new File(path + extension), this)
+            val parent = new ZipFileHandle("/", new File(path + extension), this)
             new ZipEntryFileHandle(parent.zipfile.getEntry(name), parent)
           case ".jar" =>
-            val parent = new JarFileHandle(paths(path + extension), new File(path + extension), this)
+            val parent = new JarFileHandle("/", new File(path + extension), this)
             new JarEntryFileHandle(parent.jarfile.getJarEntry(name), parent)
         }
         case _ => new DesktopFileHandle(fakePath, realPath, this)
