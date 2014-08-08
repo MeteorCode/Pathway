@@ -24,7 +24,10 @@ abstract class FileHandle(protected val logicalPath: String,
   /** Returns true if the file exists. */
   def exists: Boolean
 
-  /** Returns true if this file is a directory. */
+  /** <p>Returns true if this file is a directory.</p>
+    * <p>Note that this may return false if a directory exists but is empty.
+    * This is Not My Fault, it's {@link java.util.file java.util.file} behaviour.</p>
+    * */
   def isDirectory: Boolean
 
   /** Returns true if this FileHandle represents something that can be written to */
