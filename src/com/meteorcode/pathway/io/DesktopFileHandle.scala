@@ -32,7 +32,7 @@ class DesktopFileHandle protected[io](logicalPath: String,
 
   def file = back
   def exists: Boolean = back.exists
-I  def isDirectory: Boolean = back.isDirectory
+  def isDirectory: Boolean = back.isDirectory
   def writable: Boolean =  {
     if (isDirectory)
       false
