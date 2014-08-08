@@ -35,7 +35,7 @@ class DesktopFileHandle protected[io](logicalPath: String,
 
   private val back = new File(realPath)
 
-  def this(physicalPath: String, manager: ResourceManager) = this(null, physicalPath, manager)
+  //def this(physicalPath: String, manager: ResourceManager) = this(null, physicalPath, manager)
 
   def file = back
 
