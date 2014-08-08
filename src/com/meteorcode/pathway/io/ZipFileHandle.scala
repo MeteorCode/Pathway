@@ -1,14 +1,16 @@
 package com.meteorcode.pathway.io
+
 import java.io.{
-  File,
-  IOException
+File,
+IOException
 }
 import java.util
 import java.util.{
-  List,
-  ArrayList
+List,
+ArrayList
 }
 import java.util.zip.{ZipEntry, ZipFile}
+
 /**
  * <p>A FileHandle into the top level of a Zip archive (treated as a directory).</p>
  * <p>DON'T MAKE THESE - if you want to handle a file, please get it from an instance of {@link com.meteorcode.pathway.io.ResourceManager ResourceManager}.
@@ -20,9 +22,9 @@ import java.util.zip.{ZipEntry, ZipFile}
  * @param back A java.util.File representing the Zip archive to handle.
  * @author Hawk Weisman
  */
-class ZipFileHandle protected[io] (logicalPath: String,
-                                   private val back: File,
-                                   manager: ResourceManager) extends FileHandle(logicalPath, manager) {
+class ZipFileHandle protected[io](logicalPath: String,
+                                  private val back: File,
+                                  manager: ResourceManager) extends FileHandle(logicalPath, manager) {
   /*
   Let's take a moment to discuss how Java's Zip API is Not My Favourite Thing.
 
@@ -51,15 +53,22 @@ class ZipFileHandle protected[io] (logicalPath: String,
   protected[io] val zipfile = new ZipFile(file)
 
   protected[io] def this(fileHandle: FileHandle) = this(fileHandle.path, fileHandle.file, fileHandle.manager)
+
   protected[io] def this(fileHandle: FileHandle, manager: ResourceManager) = this(fileHandle.path, fileHandle.file, manager)
+
   protected[io] def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
-  protected[io] def this(back: File, manager: ResourceManager) = this (null, back, manager)
+
+  protected[io] def this(back: File, manager: ResourceManager) = this(null, back, manager)
 
   protected[io] def file = back
+
   protected[io] def physicalPath = back.getPath
 
   def exists: Boolean = back.exists
-  def isDirectory: Boolean = true // Remember, we are pretending that zips are directories
+
+  def isDirectory: Boolean = true
+
+  // Remember, we are pretending that zips are directories
   def writable = false // Zips can never be written to (at least by java.util.zip)
 
   @throws(classOf[IOException])
@@ -71,11 +80,11 @@ class ZipFileHandle protected[io] (logicalPath: String,
       // Enumeration<T> class which appears to be a dumb knockoff of Iterator created
       // specifically for use in ZipFile just to make it EVEN WORSE
       // I HATE JAVA
-     while (entries.hasMoreElements) result.add( new ZipEntryFileHandle(entries.nextElement(), this, manager) )
-     result
+      while (entries.hasMoreElements) result.add(new ZipEntryFileHandle(entries.nextElement(), this, manager))
+      result
     } catch {
       // Don't close my ZipFile while I'm getting its' entries! Geez!
-      case e: IllegalStateException => throw new IOException ("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
+      case e: IllegalStateException => throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
     }
   }
 

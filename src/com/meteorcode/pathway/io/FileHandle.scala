@@ -17,27 +17,10 @@ import scala.collection.JavaConversions._
 /**
  * <p>An abstraction wrapping a file in the filesystem.</p>
  *
- * <p>FileHandle paths are relative to the game's Assets directory. This is a "virtual directory" managed by the game's
- * {@link com.meteorcode.pathway.io.ResourceManager ResourceManager}. Zip and Jar files within the virtual assets directory are
- * treated as though they were directories, rather than as flat files, so files within a Zip or Jar file may be accessed as though
- * that file was a directory containing them. </p>
- *
- * <p>On the desktop, the Assets directory is located at <approot>/assets, although a different directory may be specified when the
- * game's ResourceManager is initialized. On Android, the game's virtual Assets directory encompasses the files stored within the
- * game's APK as assets, and files stored in the application's associated portion of the device's internal storage. The ResourceManager
- * "fuses" thetop-level index of both of these locations  into one virtual directory tree, to which all FileHandle paths are relative.</p>
- *
- * <p> All FileHandles are backed by {@link java.io.InputStream InputStream}s and {@link java.io.OutputStream OutputStream}s,
- * so reading and writing to a file should be consistent across operating systems, filesystem locations, and file types.</p>
- *
- * <p>DO NOT use the FileHandle() constructor if you want a FileHandle into a file. Instead, get it from
- * {@link com.meteorcode.pathway.io.FileHandle apply(path)}  (call FileHandle(path)) from Scala, or
- * {@link com.meteorcode.pathway.io.FileHandle#handle handle(path)} from Java. Calling new FileHandle() will NOT give you what you want.</p>
- *
  * @author Hawk Weisman
  */
-abstract class FileHandle (protected val logicalPath: String,
-                           protected[io] val manager: ResourceManager) {
+abstract class FileHandle(protected val logicalPath: String,
+                          protected[io] val manager: ResourceManager) {
   /** Returns true if the file exists. */
   def exists: Boolean
 
@@ -62,7 +45,7 @@ abstract class FileHandle (protected val logicalPath: String,
    * @return The filename extension of the object wrapped by this FileHandle, or emptystring if there is no extension.
    */
   def extension: String = path.split('.').drop(1).lastOption match {
-    case s:Some[String] => s.get
+    case s: Some[String] => s.get
     case None => ""
   }
 
@@ -70,7 +53,7 @@ abstract class FileHandle (protected val logicalPath: String,
    * @return the name of this object, without the filename extension and path.
    */
   def name: String = path.split('/').lastOption match {
-    case s:Some[String] => s.get.split('.').head
+    case s: Some[String] => s.get.split('.').head
     case None => "/"
   }
 
