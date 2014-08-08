@@ -20,25 +20,24 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
   def this(initialMap: java.util.Map[String, Object], tile: Tile) = this(initialMap.asScala, tile: Tile)
 
   /**
-   * <p>
-   * Stamps this Payload with a Property, marking that that Property has "seen"
+   *
+   * Stamps this Payload with a [[com.meteorcode.model.Property]], marking that that Property has "seen"
    * this Payload.
-   * </p>
-   * <p>
+   *
    * A Property may only stamp a Payload once; attempting to stamp the same
-   * Payload multiple times will do nothing past the initial stamping.</[>
+   * Payload multiple times will do nothing past the initial stamping.
    *
    * @param stampedBy
-   *            the property stamping this event.
+   *            the [[com.meteorcode.model.Property]] stamping this event.
    */
   def stamp(stampedBy: Property) = stamps += stampedBy
   def unstamp(stampedBy: Property) = stamps -= stampedBy
   /**
-   * Checks to see if this Payload has been stamped by a Property, marking that
+   * Checks to see if this Payload has been stamped by a [[com.meteorcode.model.Property]], marking that
    * that Property has "seen" this Payload
    *
    * @param stampedBy
-   *            the Property who's stamp is being searched for
+   *            the [[com.meteorcode.model.Property]] who's stamp is being searched for
    * @return true if that Property's stamp is present.
    */
   def stampExists(stampedBy: Property) = stamps.contains(stampedBy)

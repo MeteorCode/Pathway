@@ -16,18 +16,21 @@ ZipException
 import java.util.Collections
 
 /**
- * <p>A FileHandle into a file or directory within a zip archive.</p>
- * <p>DON'T MAKE THESE - if you want to handle a file, please get it from {@link com.meteorcode.pathway.io.FileHandle apply()}.
- * The FileHandle system is supposed to allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only works
- * if you treat all files you have to access as instances of {@link com.meteorcode.pathway.io.FileHandle FileHandle}. If you ever refer to files as
- * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
- * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
+ * A FileHandle into a file or directory within a zip archive.
+ *
+ * DON'T MAKE THESE - if you want to handle a file, please get it from
+ * [[com.meteorcode.pathway.io.ResourceManager.handle()]]. The FileHandle system is supposed to allow you to treat files in
+ * zip/jar archives as though they were on the filesystem as regular files, but this only works if you treat all files
+ * you have to access as instances of [[com.meteorcode.pathway.io.FileHandle]]. If you  ever refer to files as
+ * [[com.meteorcode.pathway.io.DesktopFileHandle]], [[com.meteorcode.pathway.io.ZipFileHandle]], or
+ * [[com.meteorcode.pathway.io.JarFileHandle]] explicitly in your code, you are doing the  Wrong Thing and negating a
+ * whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * @param entry
-   * the { @link java.util.zip.ZipEntry ZipEntry} representing the file
+ * the [[java.util.zip.ZipEntry]] representing the file
  * @param parent
-   * a reference to the the { @link java.util.zip.ZipFile ZipFile} containing the ZipEntry - this is necessary so that we can do things
- *   like list the children of a directory in a Zip archive.
+ * a reference to the the [[java.util.zip.ZipFile]] containing the ZipEntry - this is necessary so that we can do
+ * things like list the children of a directory in a Zip archive.
  * @author Hawk Weisman
  */
 class ZipEntryFileHandle protected[io](private val entry: ZipEntry,

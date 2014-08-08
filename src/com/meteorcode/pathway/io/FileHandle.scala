@@ -15,7 +15,7 @@ import scala.io.Source
 import scala.collection.JavaConversions._
 
 /**
- * <p>An abstraction wrapping a file in the filesystem.</p>
+ * An abstraction wrapping a file in the filesystem.
  *
  * @author Hawk Weisman
  */
@@ -24,17 +24,21 @@ abstract class FileHandle(protected val logicalPath: String,
   /** Returns true if the file exists. */
   def exists: Boolean
 
-  /** <p>Returns true if this file is a directory.</p>
-    * <p>Note that this may return false if a directory exists but is empty.
-    * This is Not My Fault, it's {@link java.util.file java.util.file} behaviour.</p>
+  /** Returns true if this file is a directory.
+    *
+    * Note that this may return false if a directory exists but is empty.
+    * This is Not My Fault, it's [[java.util.File]] behaviour.
+    *
+    * @return true if this file is a directory, false otherwise
     * */
   def isDirectory: Boolean
 
   /** Returns true if this FileHandle represents something that can be written to */
   def writable: Boolean
 
-  /** <p>Returns the logical path to this FileHandle.</p>
-    * <p>All paths are treated as into Unix-style paths for cross-platform purposes.</p>
+  /** Returns the logical path to this FileHandle.
+    *
+    * All paths are treated as into Unix-style paths for cross-platform purposes.
     * @return the logical path to the filesystem uobject wrapped by this FileHandle
     */
   def path: String = if (logicalPath != null) logicalPath else manager.getLogicalPath(physicalPath)
@@ -61,20 +65,21 @@ abstract class FileHandle(protected val logicalPath: String,
   }
 
   /**
-   * Returns a {@link java.io.File java.io.File} that represents this file handle.
-   * @return a { @link java.io.File java.io.File} that represents this file handle, or null if this file is inside a Jar or Zip archive.
+   * Returns a [[java.io.File]] that represents this file handle.
+   * @return a [[java.io.File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
   protected[io] def file: File
 
   /**
-   * <p>Returns a list containing FileHandles to the contents of FileHandle .</p>
-   * <p> Returns an empty list if this file is not a directory or does not have contents.</p>
+   * Returns a list containing FileHandles to the contents of FileHandle.
+   * Returns an empty list if this file is not a directory or does not have contents.
    */
   def list: util.List[FileHandle]
 
   /**
-   * <p>Returns a list containing FileHandles to the contents of this FileHandle with the specified suffix.</p>
-   * <p> Returns an empty list if this file is not a directory or does not have contents.</p>
+   * Returns a list containing FileHandles to the contents of this FileHandle with the specified suffix.
+   *
+   * Returns an empty list if this file is not a directory or does not have contents.
    * @param suffix
    */
   def list(suffix: String): util.List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
@@ -101,14 +106,14 @@ abstract class FileHandle(protected val logicalPath: String,
   @throws(classOf[IOException])
   def readString(charset: Charset): String = Source.fromInputStream(read).mkString
 
-  /** Returns an {@link java.io.OutputStream OutputStream} for writing to this file.
-    * @return an { @link java.io.OutputStream OutputStream} for writing to this file, or null if this file is not writeable.
+  /** Returns an [[java.io.OutputStream]] for writing to this file.
+    * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writeable.
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     */
   def write(append: Boolean): OutputStream
 
-  /** Returns an {@link java.io.BufferedOutputStream BufferedOutputStream} for writing to this file.
-    * @return an { @link java.io.BufferedOutputStream BufferedOutputStream} for writing to this file, or null if this file is not writeable.
+  /** Returns a [[java.io.BufferedOutputStream]] for writing to this file.
+    * @return a [[java.io.BufferedOutputStream ]] for writing to this file, or null if this file is not writeable.
     * @param bufferSize The size of the buffer
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     */
@@ -116,10 +121,12 @@ abstract class FileHandle(protected val logicalPath: String,
     new BufferedOutputStream(write(append), bufferSize)
   } else null
 
-  /** <p>Writes the specified string to the file using the default charset.</p>
-    * <p>Throws an {@link java.io.IOException IOException} if the FileHandle represents something that is not writeable; yes, I am aware
+  /** Writes the specified string to the file using the default charset.
+    *
+    * Throws an [[java.io.IOException]] if the FileHandle represents something that is not writeable; yes, I am aware
     * that having some of these methods return null and others throw exceptions is Wrong and I should feel Bad,
-    * I wanted them to return an {@link scala.Option Option}, but Max wouldn't let me.</p>
+    * I wanted them to return an [[scala.Option]], but Max wouldn't let me.
+    *
     * @param string the string to write to the file
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     * @throws IOException if this file is not writeable
@@ -132,11 +139,13 @@ abstract class FileHandle(protected val logicalPath: String,
   }
 
   /** Writes the specified string to the file using the specified  charset.
-    * <p>Throws an {@link java.io.IOException IOException} if the FileHandle represents something that is not writeable; yes, I am aware
+    *
+    * Throws an [[java.io.IOException]] if the FileHandle represents something that is not writeable; yes, I am aware
     * that having some of these methods return null and others throw exceptions is Wrong and I should feel Bad,
-    * I wanted them to return an {@link scala.Option Option}, but Max wouldn't let me.</p>
+    * I wanted them to return an [[scala.Option]], but Max wouldn't let me.
+    *
     * @param string the string to write to the file
-    * @param charset the { @link java.nio.charset.Charset charset} to use while writing to the file
+    * @param charset the [[java.nio.charset.Charset]] to use while writing to the file
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     * @throws IOException if this file is not writeable
     */

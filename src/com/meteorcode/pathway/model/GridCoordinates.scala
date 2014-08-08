@@ -3,6 +3,7 @@ package com.meteorcode.pathway.model
 /**
  * Bundles together an x- and y-coordinate on a Cartesian plane, such as a dungeon grid.
  *
+ * @deprecated This seems more like a job for a [[scala.Tuple2]] (Integer, Integer)
  * @param x the x-value
  * @param y the y-value
  */
