@@ -45,10 +45,9 @@ public class SimpleIOIntegrationTest {
     @Test
     public void testZippedFileHandle() throws IOException {
         underTest = r.handle("zippedtest.txt");
-        assertTrue("FAIL: Zip file did not claim to be a directory.", underTest.isDirectory());
-        assertNull("FAIL: Zipfile.read() was not null.", underTest.read());
-        assertNull("FAIL: Zipfile.write() was not null.", underTest.write(true));
-        assertEquals("FAIL: Zipfile did not list expected contents.", underTest.list().get(0).readString(), "also hi!");
+        assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
+        assertEquals("FAIL: Zipped file readString() returned wrong thing.", "also hi!", underTest.readString());
+        assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
     }
 
     @Test
