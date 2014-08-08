@@ -39,8 +39,9 @@ class JarFileHandle protected[io](logicalPath: String,
     var result = new ArrayList[FileHandle]
     try {
       val entries = jarfile.entries
-
-      while (entries.hasMoreElements) result.add(new JarEntryFileHandle(entries.nextElement(), this, manager))
+      while (entries.hasMoreElements) {
+        result.add(new JarEntryFileHandle(entries.nextElement(), this, manager))
+      }
       result
     } catch {
       case e: IllegalStateException => throw new IOException("Could not list JarFile entries, file " + path + " appears to have been closed.", e)

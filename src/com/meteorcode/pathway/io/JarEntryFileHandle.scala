@@ -56,7 +56,7 @@ class JarEntryFileHandle protected[io](private val entry: JarEntry,
         val entries = parent.jarfile.entries
         while (entries.hasMoreElements) {
           val e = entries.nextElement
-          if (e.getName.split("/").dropRight(1).last == entry.getName)
+          if (e.getName.split("/").lastOption == Some(entry.getName))
             result.add(new JarEntryFileHandle(e, parent, manager))
         }
         result
