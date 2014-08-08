@@ -1,19 +1,17 @@
-
-//////////////////////////////////////////////////
-// THIS TEST FAILS ON JENKINS                   //
-// Un-comment it and run it locally to confirm  //
-// that it works as expected, but DO NOT commit //
-////////////////////////////////////////////////*/
 package com.meteorcode.pathway.test;
 
 import static org.junit.Assert.*;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.meteorcode.pathway.io.*;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Non-comprehensive test case to assert that the IO package does the Right Thing
@@ -26,6 +24,12 @@ public class SimpleIOIntegrationTest {
     @Before
     public void setUp() {
         r = new ResourceManager("build/resources/test");
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        // clean up the file so that it won't exist next time tests are run
+        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test", "test5.txt"));
     }
 
     @Test
@@ -76,6 +80,23 @@ public class SimpleIOIntegrationTest {
         } catch (IOException e) {
             //meh
         }
+    }
+
+    @Test
+    public void testGetLogicalPath () {
+        assertTrue("FAIL: ResourceManager.getLogicalPath() did not return expected path for file.",
+                r.getLogicalPath("build/resources/test/test1.txt").equals("test1.txt"));
+
+        assertTrue(
+                "FAIL: ResourceManager.getLogicalPath() did not return expected path for file in zip.",
+                r.getLogicalPath("build/resources/test/zippedtest.zip/zippedtest.txt").equals("zippedtest.txt"));
+    }
+
+    @Test
+    public void testResourceManagerCaching() {
+        FileHandle h1 = r.handle("test1.txt");
+        FileHandle h2 = r.handle("test1.txt");
+        assertSame("FAIL: ResourceManager did not return cached FileHandle.", h1, h2);
     }
 
 }
