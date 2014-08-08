@@ -10,8 +10,8 @@ class ResourceManager (private val directories: List[FileHandle]) {
   def this(path: String) = this(new DesktopFileHandle("", path, null)) // default to DesktopFileHandle
   def this() = this("assets")             // it's okay for the Manager to be null because if it has a path,
                                           // it will never need to get the path from the ResourceManager
-  private val ZipMatch = """(\/*\w*\/*\w*.zip)(\/\w+.*\w*)+""".r
-  private val JarMatch = """(\/*\w*\/*\w*.jar)(\/\w+.*\w*)+""".r
+  private val ZipMatch = """([A-Za-z0-9_/]*\w*.zip)(\/\w+.*\w*)""".r
+  private val JarMatch = """([A-Za-z0-9_/]*\w*.jar)(\/\w+.*\w*)""".r
   private var paths = Map[String, String]()
   private val cachedHandles = mutable.HashMap[String, FileHandle]()
 
