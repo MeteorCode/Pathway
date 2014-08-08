@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.meteorcode.pathway.io.*;
+
 import java.io.IOException;
 
 /**
@@ -27,13 +28,13 @@ public class SimpleIOIntegrationTest {
         r = new ResourceManager("build/resources/test");
     }
 
-	@Test
-	public void testUnzippedFileHandle() throws IOException {
-	    underTest = r.handle("test1.txt");
-	    assertEquals("hi!", underTest.readString());
+    @Test
+    public void testUnzippedFileHandle() throws IOException {
+        underTest = r.handle("test1.txt");
+        assertEquals("hi!", underTest.readString());
         assertFalse(underTest.isDirectory());
         assertTrue(underTest.writable());
-	}
+    }
 
     @Test
     public void testWriteString() throws IOException {
@@ -47,6 +48,18 @@ public class SimpleIOIntegrationTest {
         underTest = r.handle("zippedtest.txt");
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "also hi!", underTest.readString());
+        assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
+    }
+
+    @Test
+    public void testJarFileHandle() throws IOException {
+        underTest = r.handle("test6.txt");
+        assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
+        assertEquals("FAIL: Zipped file readString() returned wrong thing.", "Continued hi.", underTest.readString());
+        assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
+        underTest = r.handle("test7.txt");
+        assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
+        assertEquals("FAIL: Zipped file readString() returned wrong thing.", "Hi continues.", underTest.readString());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
     }
 
