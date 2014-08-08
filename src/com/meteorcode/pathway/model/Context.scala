@@ -20,9 +20,7 @@ import scala.collection.immutable.{
   List
 }
 /**
- * <p>
  * A Context in which Event stacks are evaluated.
- * </p>
  *
  * @author Hawk Weisman <hawk.weisman@gmail.com>
  *
@@ -88,11 +86,12 @@ class Context(name: String) {
   }
 
   /**
-   * <p>Pops off the top {@link com.meteorcode.pathway.model.Event} in the stack,
-   * notifies any subscribed Properties, and then evaluates that Event.</p>
-   * <p>Each Property is given the opportunity to {@link com.meteorcode.pathway.model.Event#invalidate()}
-   * the Event when they are notified. If no Property invalidates the Event, it will be evaluated immediately
-   * after all Properties are notified.</p>
+   * Pops off the top [[com.meteorcode.pathway.model.Event]] in the stack,  notifies any subscribed Properties, and then
+   * evaluates that Event.
+   *
+   * Each Property is given the opportunity to [[com.meteorcode.pathway.model.Event.invalidate(]] the Event when they
+   * are notified. If no Property invalidates the Event, it will be evaluated once all Properties are notified.
+   *
    * @throws ScriptException if the Context's associated ScriptContainer encounters an error when evaluating the Event.
    */
   @throws(classOf[ScriptException])

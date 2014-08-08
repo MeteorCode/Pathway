@@ -12,14 +12,17 @@ ArrayList
 import java.util.zip.{ZipEntry, ZipFile}
 
 /**
- * <p>A FileHandle into the top level of a Zip archive (treated as a directory).</p>
- * <p>DON'T MAKE THESE - if you want to handle a file, please get it from an instance of {@link com.meteorcode.pathway.io.ResourceManager ResourceManager}.
- * The FileHandle system is supposed to allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only works
- * if you treat all files you have to access as instances of {@link com.meteorcode.pathway.io.FileHandle FileHandle}. If you ever refer to files as
- * DesktopFileHandle, ZipFileHandle, or JarFileHandle explicitly in your code, you are doing the Wrong Thing and negating a whole lot of time and effort I
- * put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.</p>
+ * A FileHandle into the top level of a Zip archive (treated as a directory).
  *
- * @param back A java.util.File representing the Zip archive to handle.
+ * DON'T MAKE THESE - if you want to handle a file, please get it from
+ * [[com.meteorcode.pathway.io.ResourceManager.handle()]]. The FileHandle system is supposed to allow you to treat files in
+ * zip/jar archives as though they were on the filesystem as regular files, but this only works if you treat all files
+ * you have to access as instances of [[com.meteorcode.pathway.io.FileHandle]]. If you  ever refer to files as
+ * [[com.meteorcode.pathway.io.DesktopFileHandle]], [[com.meteorcode.pathway.io.ZipFileHandle]], or
+ * [[com.meteorcode.pathway.io.JarFileHandle]] explicitly in your code, you are doing the  Wrong Thing and negating a
+ * whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
+ *
+ * @param back A [[java.util.File]] representing the Zip archive to handle.
  * @author Hawk Weisman
  */
 class ZipFileHandle protected[io](logicalPath: String,

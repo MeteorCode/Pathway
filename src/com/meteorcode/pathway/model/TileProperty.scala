@@ -6,29 +6,30 @@ package com.meteorcode.pathway.model
 	 *
 	 * @param initDrawID
 	 *            the Property's initial drawID
-	 * @param context
-	 *            the script context within which this Property may eval()
-	 *            scripts. This should be the script context of whomever owns
-	 *            the property.
+   * @param location The [[com.meteorcode.model.Tile]] this property is attached to.
+   * @param context the [[com.meteorcode.model.Context]] within which this Property may
+   *                [[com.meteorcode.pathway.model.Property.eval()]] scripts. This should be the script context of
+   *                whomever owns the property.
 	 */
-abstract class TileProperty(location:Tile, initDrawID: Integer, initParent: Context) extends Property(initDrawID, initParent) {
-	var payload = new Payload(location)
+abstract class TileProperty(
+                             location: Tile,
+                             initDrawID: Integer,
+                             context: Context) extends Property(initDrawID, context) {
+
+	val payload: Payload = new Payload(location)
 	def x = payload.x
 	def y = payload.y
 
 	/**
 	 * Constructor for a TileProperty with an unknown drawID (a new TileProperty).
 	 *
-	 * <p>
 	 * The drawID should be assigned by the Grand Source of All DrawIDs.
-	 * </p>
 	 *
-	 * @param initDrawID
-	 *            the Property's initial drawID
-	 * @param context
-	 *            the script context within which this Property may eval()
-	 *            scripts. This should be the script context of whomever owns
-	 *            the property.
+	 *
+	 * @param location The [[com.meteorcode.model.Tile]] this property is attached to.
+	 * @param context the [[com.meteorcode.model.Context]] within which this Property may
+   *                [[com.meteorcode.pathway.model.Property.eval()]] scripts. This should be the script context of
+   *                whomever owns the property.
 	 */
 	def this(location: Tile, context: Context) = this(location, null, context)
 }

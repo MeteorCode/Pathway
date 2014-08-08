@@ -6,29 +6,30 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 /**
- * <p>A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
- * as though they were directories.</p>
+ * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
+ * as though they were directories.
  *
- * <p>Archives are attached at "/" in the virtual filesystem, and directories within
- * archives are "fused" into one directory in the virtual filesystem. For example, if we have a file foo.zip containing
- * the path foo/images/spam.png and another file bar.jar, containing bar/images/eggs.jpeg, the virtual directory bar/
- * contains spam.png and eggs.jpeg.</p>
+ * Archives are attached at /" in the virtual filesystem, and directories within archives are "fused" into one directory
+ * in the virtual filesystem. For example, if we have a file foo.zip containing the path foo/images/spam.png and another
+ * file bar.jar, containing bar/images/eggs.jpeg, the virtual directory bar/ contains spam.png and eggs.jpeg.
+ *
  * @param directories A list of directories to be fused into the top level of the virtual filesystem.
  */
 class ResourceManager(private val directories: List[FileHandle]) {
   /**
    * Constructor for a ResourceManager with a single managed directory.
+   *
    * @param directory a FileHandle into the directory to manage.
    * @return a new ResourceManager managing the specified directory.
    */
   def this(directory: FileHandle) = this(List(directory))
 
   /**
-   * <p>Constructor for a ResourceManager with a String representing a path to the managed directory.</p>
-   * <p>Note that this defaults to using {@link com.meteorcode.io.DesktopFileHandle DesktopFileHandles}, if you
-   * want to use a different type of FileHandle, use the
-   * {@link com.meteorcode.io.ResourceManager#ResourceManagerFileHandle) ResourceManager(FileHandle)} constructor
-   * instead.</p>
+   * Constructor for a ResourceManager with a String representing a path to the managed directory.
+   *
+   * Note that this defaults to using [[com.meteorcode.io.DesktopFileHandle]] if you  want to use a different type of
+   * FileHandle, use the [[com.meteorcode.io.ResourceManager#ResourceManagerFileHandle)]] constructor  instead.
+   *
    * @param path the path to the directory to manage
    * @return a new ResourceManager managing the specified directory.
    */
@@ -70,6 +71,7 @@ class ResourceManager(private val directories: List[FileHandle]) {
 
   /**
    * Request the logical path for a given physical path.
+   *
    * @param physicalPath a physical path in the filesystem
    * @return the logical path corresponding to that physical path.
    * @deprecated As you can no longer make FileHandles with null paths, this should no longer be necessary.
@@ -79,7 +81,7 @@ class ResourceManager(private val directories: List[FileHandle]) {
   /**
    * Request that the ResourceManager handle the file at a given path.
    * @param path The virtual path to the requested object
-   * @return A { @link com.meteorcode.io.FileHandle FileHandle} wrapping the object that exists at the requested path
+   * @return A [[com.meteorcode.io.FileHandle]] wrapping the object that exists at the requested path
    */
   def handle(path: String): FileHandle = {
     if (cachedHandles.keySet contains path)
