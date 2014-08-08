@@ -15,7 +15,7 @@ class ResourceManager (private val directories: List[FileHandle]) {
   private var paths = Map[String, String]()
   private val cachedHandles = mutable.HashMap[String, FileHandle]()
 
-  private def walk(h: FileHandle, currentPath: String) { // recursively walk the directories and cache the paths
+  private def walk(h: FileHandle, fakePath: String) { // recursively walk the directories and cache the paths
     h.list.foreach { f: FileHandle =>
       f.extension match {
         case "jar" =>
@@ -25,11 +25,11 @@ class ResourceManager (private val directories: List[FileHandle]) {
           walk(new ZipFileHandle("", f), "")  // walk all children of this dir
         case _ =>
           if (f.extension == "") {
-            paths += (currentPath + f.name  -> f.path) // otherwise, add logical path maps to real path
+            paths += (fakePath + f.name  -> f.physicalPath) // otherwise, add logical path maps to real path
           } else {
-            paths += (currentPath + f.name + "." + f.extension -> f.path) // otherwise, add logical path maps to real path
+            paths += (fakePath + f.name + "." + f.extension -> f.physicalPath) // otherwise, add logical path maps to real path
           }
-          if (f.isDirectory) walk(f, currentPath) // and walk (if it's a dir)
+          if (f.isDirectory) walk(f, fakePath) // and walk (if it's a dir)
       }
     }
   }
