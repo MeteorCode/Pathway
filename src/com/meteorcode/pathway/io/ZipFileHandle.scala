@@ -54,7 +54,7 @@ class ZipFileHandle protected[io] (logicalPath: String,
   protected[io] def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
   protected[io] def this(back: File, manager: ResourceManager) = this (null, back, manager)
 
-  protected[io]def file = back
+  protected[io] def file = back
   protected[io] def physicalPath = back.getPath
 
   def exists: Boolean = back.exists

@@ -24,7 +24,7 @@ class JarEntryFileHandle protected[io] (private val entry: JarEntry,
 
     protected[io] def this(entry: JarEntry, parent: JarFileHandle) = this (entry, parent, parent.manager)
 
-    protected[io] def physicalPath = null
+    protected[io] def physicalPath = parent.physicalPath + "/" + entry.getName
 
     def file = null
     def writable = false

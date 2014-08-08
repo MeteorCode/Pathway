@@ -35,7 +35,8 @@ class ZipEntryFileHandle protected[io](private val entry: ZipEntry,
 
     protected[io] def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.manager)
 
-    protected[io] def physicalPath = null
+    protected[io] def physicalPath = parent.physicalPath + "/" + entry.getName
+
     def writable = false // Zip files cannot be written to :c
     def exists = parent.exists // if the ZipFile this zip entry lives in exists, it is Real And Has Been Proven To Exist
     def isDirectory = entry.isDirectory
