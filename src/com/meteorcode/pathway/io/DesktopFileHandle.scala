@@ -33,7 +33,18 @@ class DesktopFileHandle protected[io](logicalPath: String,
   def file = back
   def exists: Boolean = back.exists
   def isDirectory: Boolean = back.isDirectory
-  def writable: Boolean =  if (isDirectory) false else { if (exists) back.canWrite else back.createNewFile() }
+  def writable: Boolean =  {
+    if (isDirectory)
+      false
+    else if (exists)
+      back.canWrite
+    else
+      try {
+        back.createNewFile()
+      } catch {
+        case up:IOException => if (up.getMessage == "Permission denied") false else throw up
+      }
+  }
   def physicalPath: String = realPath
 
   def read: InputStream = {
