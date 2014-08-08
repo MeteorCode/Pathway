@@ -10,8 +10,7 @@ class ResourceManager (private val directories: List[FileHandle]) {
   def this(path: String) = this(new DesktopFileHandle("", path, null)) // default to DesktopFileHandle
   def this() = this("assets")             // it's okay for the Manager to be null because if it has a path,
                                           // it will never need to get the path from the ResourceManager
-  private val ZipMatch = """([A-Za-z0-9_/]*\w*.zip)(\/\w+.*\w*)""".r
-  private val JarMatch = """([A-Za-z0-9_/]*\w*.jar)(\/\w+.*\w*)""".r
+  private val ArchiveMatch = """([A-Za-z0-9_/]*\w*)(.zip|.jar)(\/\w+.*\w*)""".r
   private var paths = Map[String, String]()
   private val cachedHandles = mutable.HashMap[String, FileHandle]()
 
@@ -53,13 +52,15 @@ class ResourceManager (private val directories: List[FileHandle]) {
     realPath.split('.').drop(1).lastOption match {
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
-      case _ => realPath match {
-        case ZipMatch(zipfile, name) =>
-          val parent = new ZipFileHandle(paths(zipfile), new File(zipfile), this)
-          new ZipEntryFileHandle(parent.zipfile.getEntry(name), parent)
-        case JarMatch(jarfile, name) =>
-          val parent = new JarFileHandle(paths(jarfile), new File(jarfile), this)
-          new JarEntryFileHandle(parent.jarfile.getJarEntry(name), parent)
+      case _ => ArchiveMatch.findFirstIn(realPath) match {
+        case Some(ArchiveMatch(path, extension, name)) => extension match {
+          case ".zip" =>
+            val parent = new ZipFileHandle(paths(path + extension), new File(path + extension), this)
+            new ZipEntryFileHandle(parent.zipfile.getEntry(name), parent)
+          case ".jar" =>
+            val parent = new JarFileHandle(paths(path + extension), new File(path + extension), this)
+            new JarEntryFileHandle(parent.jarfile.getJarEntry(name), parent)
+        }
         case _ => new DesktopFileHandle(fakePath, realPath, this)
       }
     }
