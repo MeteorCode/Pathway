@@ -16,12 +16,24 @@ import scala.collection.mutable
  * @param directories A list of directories to be fused into the top level of the virtual filesystem.
  */
 class ResourceManager(private val directories: List[FileHandle]) {
+  /**
+   * Constructor for a ResourceManager with a single managed directory.
+   * @param directory a FileHandle into the directory to manage.
+   * @return a new ResourceManager managing the specified directory.
+   */
   def this(directory: FileHandle) = this(List(directory))
 
+  /**
+   * <p>Constructor for a ResourceManager with a String representing a path to the managed directory.</p>
+   * <p>Note that this defaults to using {@link com.meteorcode.io.DesktopFileHandle DesktopFileHandles}, if you
+   * want to use a different type of FileHandle, use the
+   * {@link com.meteorcode.io.ResourceManager#ResourceManagerFileHandle) ResourceManager(FileHandle)} constructor
+   * instead.</p>
+   * @param path the path to the directory to manage
+   * @return a new ResourceManager managing the specified directory.
+   */
   def this(path: String) = this(new DesktopFileHandle("", path, null))
 
-  // default to DesktopFileHandle
-  def this() = this("assets")
 
   // it's okay for the Manager to be null because if it has a path,
   // it will never need to get the path from the ResourceManager
