@@ -16,17 +16,21 @@ public class ClasspathFileHandle extends FileHandle {
 	
 	File back;
 	String opath;
+    String logicalPath;
+    ResourceManager manager;
 	
 	/**
 	 * Constructor for grabbing a thing off the Classpath.
 	 * Note that this constructor silently swallows errors that may arise
 	 * during construction.
-	 * @param path The path to grab.
+	 * @param physicalPath The physicalPath to grab.
 	 */
-	protected ClasspathFileHandle(String path, ResourceManager manager) {
-        super(manager);
-		this.opath = path;
-		URL url = this.getClass().getResource(path);
+	protected ClasspathFileHandle(String physicalPath, String logicalPath, ResourceManager manager) {
+        super(logicalPath, manager);
+		this.opath = physicalPath;
+        this.manager = manager;         //FIXME: dumb Scala/Java interop behaviour, apparently this class doesn't
+        this.logicalPath = logicalPath; //have access to fields of the superclass
+		URL url = this.getClass().getResource(physicalPath);
 		try {
 			back = new File(url.toURI());
 		} catch (URISyntaxException e) {
@@ -53,8 +57,8 @@ public class ClasspathFileHandle extends FileHandle {
 	}
 
 	@Override
-	public String path() {
-		return "";
+	public String physicalPath() {
+		return back.getPath();
 	}
 
 	@Override
@@ -62,8 +66,7 @@ public class ClasspathFileHandle extends FileHandle {
 		if(back != null && back.isDirectory()) {
 			ArrayList<FileHandle> r = new ArrayList<FileHandle>();
 			for(String s : back.list()) {
-				//r.add(new ClasspathFileHandle(this.opath + "/" + s, manager));
-                // FIXME: this doesn't work because apparently ClasspathFileHandle doesn't have access to FileHandle.manager, even though it extends that class (weird Java/Scala interop error)
+				r.add(new ClasspathFileHandle(this.opath + "/" + s, this.path() + "/" + s, this.manager));
 			}
 			return r;
 		} else {
