@@ -9,7 +9,7 @@ import scala.collection.mutable
  * <p>A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
  * as though they were directories.</p>
  *
- * <p>Archives are attached at "/" in the virttal filesystem, and directories within
+ * <p>Archives are attached at "/" in the virtual filesystem, and directories within
  * archives are "fused" into one directory in the virtual filesystem. For example, if we have a file foo.zip containing
  * the path foo/images/spam.png and another file bar.jar, containing bar/images/eggs.jpeg, the virtual directory bar/
  * contains spam.png and eggs.jpeg.</p>
@@ -79,8 +79,15 @@ class ResourceManager(private val directories: List[FileHandle]) {
   }
 
   private def makeHandle(fakePath: String): FileHandle = {
-    val realPath: String = paths(fakePath)
+    val realPath: String = paths.get(fakePath) match {
+      case s:Some[String] => s.get
+      case None => // If the path is not in the tree, handle write attempts.
+        //TODO: define a better write location, directories(0) may not always be correct
+        paths += (fakePath -> (directories(0).physicalPath + "/" + fakePath))
+        paths(fakePath)
+    }
     realPath.split('.').drop(1).lastOption match {
+        //TODO: Handle write attempts into archives by uncompressing the archive, writing the file, and recompressing
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
       case _ => ArchiveMatch.findFirstIn(realPath) match {
