@@ -85,7 +85,7 @@ public class IOIntegrationTest {
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "Continued hi.", underTest.readString());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
-        underTest = r.handle("test7.md");
+        underTest = r.handle("testJarDir/test7.md");
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "Hi continues.", underTest.readString());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
@@ -133,7 +133,7 @@ public class IOIntegrationTest {
     }
 
     @Test
-    public void testFileErrors () throws IOException {
+    public void testPermissionDenied () throws IOException {
         when(fakeFile.createNewFile())
                 .thenThrow(new IOException("Permission denied"))
                 .thenThrow(new IOException("LOL FAKE STRING"));
