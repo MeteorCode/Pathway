@@ -1,6 +1,7 @@
 package com.meteorcode.pathway.test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,10 +21,12 @@ import java.util.Collections;
 public class IOIntegrationTest {
     private FileHandle underTest;
     private ResourceManager r;
+    private File fakeFile;
 
     @Before
     public void setUp() {
         r = new ResourceManager("build/resources/test");
+        fakeFile = mock(File.class);
     }
 
     @After
@@ -127,5 +130,25 @@ public class IOIntegrationTest {
         FileHandle h1 = r.handle("test1.txt");
         FileHandle h2 = r.handle("test1.txt");
         assertSame("FAIL: ResourceManager did not return cached FileHandle.", h1, h2);
+    }
+
+    @Test
+    public void testFileErrors () throws IOException {
+        when(fakeFile.createNewFile())
+                .thenThrow(new IOException("Permission denied"))
+                .thenThrow(new IOException("LOL FAKE STRING"));
+        when(fakeFile.isDirectory()).thenReturn(false);
+        when(fakeFile.exists()).thenReturn(false);
+        underTest = new DesktopFileHandle("lolfakepath", "lolfakepath", fakeFile, r);
+        assertFalse(underTest.writable());
+        try {
+            underTest.writable();
+            fail("FAIL: DesktopFileHandle did not throw after catching non-permission IOException");
+        } catch (IOException e) {
+            assertEquals("LOL FAKE STRING", e.getMessage());
+        }
+        verify(fakeFile, times(2)).isDirectory();
+        verify(fakeFile, times(2)).exists();
+        verify(fakeFile, times(2)).createNewFile();
     }
 }
