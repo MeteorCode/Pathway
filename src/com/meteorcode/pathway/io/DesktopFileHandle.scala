@@ -23,18 +23,20 @@ import scala.collection.JavaConversions._
  *
  * @param logicalPath
  * the logical path to the file in the fake filesystem
- * @param realPath
- * the physical path to the actual FilSystem object
+ * @param back a [[java.util.File]] representing the file in the filesystem
  * @param manager
  * An [[com.meteorcode.pathway.io.ResourceManager]] managing this FileHandle
  * @author Hawk Weisman
  */
 class DesktopFileHandle protected[io](logicalPath: String,
-                                      realPath: String,
+                                      private val realPath: String,
+                                      private val back: File,
                                       manager: ResourceManager) extends FileHandle(logicalPath, manager) {
 
-  private val back = new File(realPath)
 
+  def this(logicalPath: String,
+           realPath: String,
+           manager: ResourceManager) = this (logicalPath, realPath, new File(realPath), manager)
   //def this(physicalPath: String, manager: ResourceManager) = this(null, physicalPath, manager)
 
   def file = back
