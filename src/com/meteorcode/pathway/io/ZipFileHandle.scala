@@ -57,8 +57,6 @@ class ZipFileHandle (logicalPath: String,
 
   def this(fileHandle: FileHandle) = this(fileHandle.path, fileHandle.file, fileHandle.manager)
 
-  def this(fileHandle: FileHandle, manager: ResourceManager) = this(fileHandle.path, fileHandle.file, manager)
-
   def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
 
   protected[io] def file = back
