@@ -2,7 +2,8 @@ package com.meteorcode.pathway.io
 
 import java.io.{
 InputStream,
-IOException
+IOException,
+File
 }
 import java.util
 import java.util.{
@@ -19,28 +20,26 @@ import java.util.Collections
 
 
 class JarEntryFileHandle (private val entry: JarEntry,
-                                       private val parent: JarFileHandle,
-                                       manager: ResourceManager) extends FileHandle(
-  parent.path + "/" + entry.getName,
-  manager) {
+                          private val parent: JarFileHandle,
+                          private val back: File,
+                          manager: ResourceManager)
+  extends JarFileHandle(parent.path + "/" + entry.getName, back, manager) {
 
-  def this(entry: JarEntry, parent: JarFileHandle) = this(entry, parent, parent.manager)
+  def this(entry: JarEntry, parent: JarFileHandle) = this(entry, parent, parent.file, parent.manager)
 
-  protected[io] def physicalPath = parent.physicalPath + "/" + entry.getName
+  override protected[io] def physicalPath = if (parent.physicalPath.endsWith(".jar")) {
+    parent.physicalPath + "/" + entry.getName
+  } else {
+    parent.physicalPath + entry.getName
+  }
 
-  def file = null
+  override def isDirectory = entry.isDirectory
 
-  def writable = false
-
-  def exists = true
-
-  def isDirectory = entry.isDirectory
-
-  def read: InputStream = {
+  override def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
     else try {
-      parent.jarfile.getInputStream(entry)
+      jarfile.getInputStream(entry)
     } catch {
       case ze: ZipException => throw new IOException("Could not read file " + path + ", a ZipException occured", ze)
       case se: SecurityException => throw new IOException("Could not read file " + path + ", a Jar entry was improperly signed", se)
@@ -49,15 +48,16 @@ class JarEntryFileHandle (private val entry: JarEntry,
     }
   }
 
-  def list: util.List[FileHandle] = {
+  override def list: util.List[FileHandle] = {
     if (isDirectory) {
       var result = new util.ArrayList[FileHandle]
+      jarfile = new JarFile(back) // reset the jarfile
       try {
-        val entries = parent.jarfile.entries
+        val entries = jarfile.entries
         while (entries.hasMoreElements) {
           val e = entries.nextElement
-          if (e.getName.split("/").lastOption == Some(entry.getName))
-            result.add(new JarEntryFileHandle(e, parent, manager))
+          if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
+            result.add(new JarEntryFileHandle(e, parent))
         }
         result
       } catch {
@@ -65,6 +65,4 @@ class JarEntryFileHandle (private val entry: JarEntry,
       }
     } else Collections.emptyList()
   }
-
-  def write(append: Boolean) = null
 }

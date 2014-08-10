@@ -2,16 +2,17 @@ package com.meteorcode.pathway.io
 
 import java.io.{
 InputStream,
-IOException
-}
-import java.util
-import java.util.{
-List,
-ArrayList
+IOException,
+File
 }
 import java.util.zip.{
 ZipEntry,
-ZipException
+ZipException,
+ZipFile
+}
+import java.util.{
+List,
+ArrayList
 }
 import java.util.Collections
 
@@ -20,10 +21,10 @@ import java.util.Collections
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
  * [[com.meteorcode.pathway.io.ResourceManager.handle()]]. The FileHandle system is supposed to allow you to treat files in
- * zip/jar archives as though they were on the filesystem as regular files, but this only works if you treat all files
+ * zip/zip archives as though they were on the filesystem as regular files, but this only works if you treat all files
  * you have to access as instances of [[com.meteorcode.pathway.io.FileHandle]]. If you  ever refer to files as
  * [[com.meteorcode.pathway.io.DesktopFileHandle]], [[com.meteorcode.pathway.io.ZipFileHandle]], or
- * [[com.meteorcode.pathway.io.JarFileHandle]] explicitly in your code, you are doing the  Wrong Thing and negating a
+ * [[com.meteorcode.pathway.io.ZipFileHandle]] explicitly in your code, you are doing the  Wrong Thing and negating a
  * whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * @param entry
@@ -35,54 +36,48 @@ import java.util.Collections
  */
 class ZipEntryFileHandle (private val entry: ZipEntry,
                           private val parent: ZipFileHandle,
-                          manager: ResourceManager) extends FileHandle(parent.path + "/" + entry.getName, manager) {
+                          private val back: File,
+                          manager: ResourceManager)
+  extends ZipFileHandle(parent.path + "/" + entry.getName, back, manager) {
 
-  def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.manager)
+  def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.file, parent.manager)
 
-  protected[io] def physicalPath = parent.physicalPath + "/" + entry.getName
+  override protected[io] def physicalPath = if (parent.physicalPath.endsWith(".zip")) {
+    parent.physicalPath + "/" + entry.getName
+  } else {
+    parent.physicalPath + entry.getName
+  }
 
-  def writable = false
+  override def isDirectory = entry.isDirectory
 
-  // Zip files cannot be written to :c
-  def exists = parent.exists
-
-  // if the ZipFile this zip entry lives in exists, it is Real And Has Been Proven To Exist
-  def isDirectory = entry.isDirectory
-
-  def file = null
-
-  @throws(classOf[IOException])
-  def read: InputStream = {
+  override def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
     else try {
-      parent.zipfile.getInputStream(entry)
+      zipfile.getInputStream(entry)
     } catch {
-      case ze: ZipException => throw new IOException("Could not read file " + path + " a ZipException occured", ze)
+      case ze: ZipException => throw new IOException("Could not read file " + path + ", a ZipException occured", ze)
+      case se: SecurityException => throw new IOException("Could not read file " + path + ", a Zip entry was improperly signed", se)
       case ise: IllegalStateException => throw new IOException("Could not read file " + path + " appears to have been closed", ise)
-      case up: IOException => throw up //haha!
+      case up: IOException => throw up //because you've spent too long dealing with java.util.zip and you hate everything.
     }
   }
 
-  def list: util.List[FileHandle] = {
+  override def list: List[FileHandle] = {
     if (isDirectory) {
-      var result = new util.ArrayList[FileHandle]
+      var result = new ArrayList[FileHandle]
+      zipfile = new ZipFile(back) // reset the zipfile
       try {
-        val entries = parent.zipfile.entries
+        val entries = zipfile.entries
         while (entries.hasMoreElements) {
           val e = entries.nextElement
-          if (e.getName.split("/").dropRight(1).last == entry.getName) // if e is a child of this
-            result.add(new ZipEntryFileHandle(e, parent, manager))
+          if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
+            result.add(new ZipEntryFileHandle(e, parent))
         }
         result
       } catch {
-        // Don't close my ZipFile while I'm getting its' entries! Geez!
         case e: IllegalStateException => throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
       }
     } else Collections.emptyList()
   }
-
-  @throws(classOf[IOException])
-  def write(append: Boolean) = null
-
 }

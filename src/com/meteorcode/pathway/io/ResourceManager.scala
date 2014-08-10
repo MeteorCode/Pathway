@@ -62,7 +62,7 @@ class ResourceManager(private val directories: List[FileHandle]) {
           } else {
             paths += (fakePath + f.name + "." + f.extension -> f.physicalPath) // otherwise, map logical path to real
           }
-          if (f.isDirectory) walk(f, fakePath) // and walk (if it's a dir)
+          if (f.isDirectory) walk(f, fakePath + f.name + "/") // and walk (if it's a dir)
       }
     }
   }

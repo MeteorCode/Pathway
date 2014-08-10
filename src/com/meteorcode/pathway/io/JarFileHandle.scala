@@ -9,14 +9,14 @@ import java.util.{
 List,
 ArrayList
 }
-import java.util.jar.{JarEntry, JarFile}
+import java.util.jar.JarFile
 
 
 class JarFileHandle (logicalPath: String,
-                                  private val back: File,
-                                  manager: ResourceManager) extends FileHandle(logicalPath, manager) {
+                     private val back: File,
+                     manager: ResourceManager) extends FileHandle(logicalPath, manager) {
   // I also hate java.util.jar
-  protected[io] val jarfile = new JarFile(back)
+  protected[io] var jarfile = new JarFile(back)
 
   def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
 
@@ -36,8 +36,12 @@ class JarFileHandle (logicalPath: String,
     try {
       val entries = jarfile.entries
       while (entries.hasMoreElements) {
-        result.add(new JarEntryFileHandle(entries.nextElement(), this, manager))
+        val e = entries.nextElement()
+        if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
+          result.add(new JarEntryFileHandle(e, this))
+        }
       }
+      jarfile = new JarFile(back) // reset the archive
       result
     } catch {
       case e: IllegalStateException => throw new IOException("Could not list JarFile entries, file " + path + " appears to have been closed.", e)
@@ -47,5 +51,5 @@ class JarFileHandle (logicalPath: String,
   @throws(classOf[IOException])
   def write(append: Boolean) = null
 
-  def read = null
+  def read: InputStream = null
 }

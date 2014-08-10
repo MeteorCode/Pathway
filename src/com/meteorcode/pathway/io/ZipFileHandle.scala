@@ -2,24 +2,24 @@ package com.meteorcode.pathway.io
 
 import java.io.{
 File,
-IOException
+IOException,
+InputStream
 }
-import java.util
 import java.util.{
 List,
 ArrayList
 }
-import java.util.zip.{ZipEntry, ZipFile}
+import java.util.zip.{ZipFile}
 
 /**
  * A FileHandle into the top level of a Zip archive (treated as a directory).
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
  * [[com.meteorcode.pathway.io.ResourceManager.handle()]]. The FileHandle system is supposed to allow you to treat files in
- * zip/jar archives as though they were on the filesystem as regular files, but this only works if you treat all files
+ * zip/zip archives as though they were on the filesystem as regular files, but this only works if you treat all files
  * you have to access as instances of [[com.meteorcode.pathway.io.FileHandle]]. If you  ever refer to files as
  * [[com.meteorcode.pathway.io.DesktopFileHandle]], [[com.meteorcode.pathway.io.ZipFileHandle]], or
- * [[com.meteorcode.pathway.io.JarFileHandle]] explicitly in your code, you are doing the  Wrong Thing and negating a
+ * [[com.meteorcode.pathway.io.ZipFileHandle]] explicitly in your code, you are doing the  Wrong Thing and negating a
  * whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * @param back A [[java.util.File]] representing the Zip archive to handle.
@@ -53,7 +53,7 @@ class ZipFileHandle (logicalPath: String,
 
   In short, I hate java.util.zip.
   */
-  protected[io] val zipfile = new ZipFile(file)
+  protected[io] var zipfile = new ZipFile(file)
 
   def this(fileHandle: FileHandle) = this(fileHandle.path, fileHandle.file, fileHandle.manager)
 
@@ -73,18 +73,23 @@ class ZipFileHandle (logicalPath: String,
   def writable = false // Zips can never be written to (at least by java.util.zip)
 
   @throws(classOf[IOException])
-  def list: util.List[FileHandle] = {
-    var result = new util.ArrayList[FileHandle]
+  def list: List[FileHandle] = {
+    var result = new ArrayList[FileHandle]
     try {
       val entries = zipfile.entries
       // furthermore, I also loathe java.util.zip for making me use the braindead
       // Enumeration<T> class which appears to be a dumb knockoff of Iterator created
       // specifically for use in ZipFile just to make it EVEN WORSE
       // I HATE JAVA
-      while (entries.hasMoreElements) result.add(new ZipEntryFileHandle(entries.nextElement(), this, manager))
+      while (entries.hasMoreElements) {
+        val e = entries.nextElement()
+        if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
+          result.add(new ZipEntryFileHandle(e, this))
+        }
+      }
+      zipfile = new ZipFile(back) // reset the archive
       result
     } catch {
-      // Don't close my ZipFile while I'm getting its' entries! Geez!
       case e: IllegalStateException => throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
     }
   }
@@ -93,6 +98,5 @@ class ZipFileHandle (logicalPath: String,
   def write(append: Boolean) = null
 
   @throws(classOf[IOException])
-  def read = null
-
+  def read: InputStream = null
 }
