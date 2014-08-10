@@ -38,7 +38,7 @@ class ResourceManager(private val directories: List[FileHandle]) {
 
   // it's okay for the Manager to be null because if it has a path,
   // it will never need to get the path from the ResourceManager
-  private val ArchiveMatch = """([A-Za-z0-9_/]*\w*)(.zip|.jar)\/(\w+.*\w*)""".r
+  private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
   private var paths = Map[String, String]()
   private val cachedHandles = mutable.HashMap[String, FileHandle]()
 
