@@ -18,13 +18,13 @@ JarInputStream
 import java.util.Collections
 
 
-class JarEntryFileHandle protected[io](private val entry: JarEntry,
+class JarEntryFileHandle (private val entry: JarEntry,
                                        private val parent: JarFileHandle,
                                        manager: ResourceManager) extends FileHandle(
   parent.path + "/" + entry.getName,
   manager) {
 
-  protected[io] def this(entry: JarEntry, parent: JarFileHandle) = this(entry, parent, parent.manager)
+  def this(entry: JarEntry, parent: JarFileHandle) = this(entry, parent, parent.manager)
 
   protected[io] def physicalPath = parent.physicalPath + "/" + entry.getName
 

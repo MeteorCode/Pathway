@@ -12,17 +12,13 @@ ArrayList
 import java.util.jar.{JarEntry, JarFile}
 
 
-class JarFileHandle protected[io](logicalPath: String,
+class JarFileHandle (logicalPath: String,
                                   private val back: File,
                                   manager: ResourceManager) extends FileHandle(logicalPath, manager) {
   // I also hate java.util.jar
   protected[io] val jarfile = new JarFile(back)
 
-  protected[io] def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
-
-  protected[io] def this(logicalPath: String, fileHandle: FileHandle, manager: ResourceManager) = this(logicalPath, fileHandle.file, manager)
-
-  protected[io] def this(file: File, manager: ResourceManager) = this(null, file, manager)
+  def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
 
   protected[io] def file = back
 

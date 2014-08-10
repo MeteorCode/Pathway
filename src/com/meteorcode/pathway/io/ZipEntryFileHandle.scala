@@ -33,12 +33,11 @@ import java.util.Collections
  * things like list the children of a directory in a Zip archive.
  * @author Hawk Weisman
  */
-class ZipEntryFileHandle protected[io](private val entry: ZipEntry,
-                                       private val parent: ZipFileHandle,
-                                       manager: ResourceManager) extends FileHandle(parent.path + "/" + entry.getName,
-  manager) {
+class ZipEntryFileHandle (private val entry: ZipEntry,
+                          private val parent: ZipFileHandle,
+                          manager: ResourceManager) extends FileHandle(parent.path + "/" + entry.getName, manager) {
 
-  protected[io] def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.manager)
+  def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.manager)
 
   protected[io] def physicalPath = parent.physicalPath + "/" + entry.getName
 

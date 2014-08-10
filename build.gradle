@@ -8,10 +8,9 @@
 version = "1.0"
 
 apply plugin: "java"
+apply plugin: "scala"
 apply plugin: "eclipse"
 apply plugin: "idea"
-apply plugin: "java"
-apply plugin: "scala"
 apply plugin: "jacoco"
 
 buildscript {
@@ -117,7 +116,6 @@ tasks.withType(ScalaCompile) {
 }
 
 sourceCompatibility = 1.7
-
 
 sourceSets {
     main {
