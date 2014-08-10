@@ -34,6 +34,7 @@ abstract class FileHandle(protected val logicalPath: String,
   def isDirectory: Boolean
 
   /** Returns true if this FileHandle represents something that can be written to */
+  @throws(classOf[IOException])
   def writable: Boolean
 
   /** Returns the logical path to this FileHandle.

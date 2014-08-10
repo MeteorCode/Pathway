@@ -28,10 +28,10 @@ import scala.collection.JavaConversions._
  * An [[com.meteorcode.pathway.io.ResourceManager]] managing this FileHandle
  * @author Hawk Weisman
  */
-class DesktopFileHandle protected[io](logicalPath: String,
-                                      private val realPath: String,
-                                      private val back: File,
-                                      manager: ResourceManager) extends FileHandle(logicalPath, manager) {
+class DesktopFileHandle (logicalPath: String,
+                         private val realPath: String,
+                         private val back: File,
+                         manager: ResourceManager) extends FileHandle(logicalPath, manager) {
 
 
   def this(logicalPath: String,
@@ -63,6 +63,7 @@ class DesktopFileHandle protected[io](logicalPath: String,
     new FileOutputStream(back, append)
   } else null
 
+  @throws(classOf[IOException])
   def writable: Boolean = {
     if (isDirectory)
       false
