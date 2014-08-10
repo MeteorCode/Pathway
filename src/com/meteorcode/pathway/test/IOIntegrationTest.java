@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.meteorcode.pathway.io.*;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.Collections;
@@ -77,6 +78,18 @@ public class IOIntegrationTest {
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "also hi!", underTest.readString());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
+        assertNull("FAIL: Zipped file write() was not null.", underTest.write(8, true));
+        try {
+            underTest.writeString("hi", true);
+            fail();
+        } catch (IOException io) {
+        }
+        try {
+            underTest.writeString("hi", Charset.defaultCharset(), true);
+            fail();
+        } catch (IOException io) {
+        }
+
     }
 
     @Test
@@ -123,6 +136,15 @@ public class IOIntegrationTest {
         assertTrue(
                 "FAIL: ResourceManager.getLogicalPath() did not return expected path for file in zip.",
                 r.getLogicalPath("build/resources/test/zippedtest.zip/zippedtest.txt").equals("zippedtest.txt"));
+    }
+
+    @Test
+    public void testZipFileHandle () throws IOException {
+        underTest = r.handle("zippedtest.zip");
+        String name = underTest.name();
+        assertTrue("FAIL: got " + name + " expected /", name.equals("zippedtest"));
+        assertTrue(underTest.isDirectory());
+        assertNull(underTest.read());
     }
 
     @Test
