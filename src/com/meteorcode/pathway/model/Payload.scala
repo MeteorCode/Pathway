@@ -35,11 +35,11 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
 
   /**
    * Attempts to stamp this Payload with a [[com.meteorcode.model.Property]] if this Payload has not already been
-   * stamped by that Property, and returns false if the Payload has already been stamped.
+   * stamped by that Property, and returns true if the Payload has already been stamped.
    * @param stampedBy the [[com.meteorcode.model.Property]] stamping this event.
-   * @return false if this Payload was already stamped by that Property, true if not
+   * @return true if this Payload was already stamped by that Property, false if not
    */
-  def tryToStamp (stampedBy: Property) = if (stampExists(stampedBy)) { false } else { stamp(stampedBy); true }
+  def tryToStamp (stampedBy: Property) = if (stampExists(stampedBy)) { true } else{ stamp(stampedBy); false }
   /**
    * Checks to see if this Payload has been stamped by a [[com.meteorcode.model.Property]], marking that
    * that Property has "seen" this Payload
