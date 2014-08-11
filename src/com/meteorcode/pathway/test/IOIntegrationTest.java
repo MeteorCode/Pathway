@@ -97,11 +97,20 @@ public class IOIntegrationTest {
         underTest = r.handle("test6.txt");
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "Continued hi.", underTest.readString());
+        assertFalse(underTest.writable());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
         underTest = r.handle("testJarDir/test7.md");
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "Hi continues.", underTest.readString());
+        assertFalse(underTest.writable());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
+        assertEquals(underTest.list(), Collections.emptyList());
+        assertEquals("build/resources/test/testJar.jar/testJarDir/test7.md", underTest.physicalPath());
+        underTest = r.handle("testJarDir");
+        assertTrue(underTest.isDirectory());
+        assertFalse(underTest.writable());
+        assertNull(underTest.write(true));
+        assertEquals("Hi continues.",underTest.list(".md").get(0).readString());
     }
 
     @Test
