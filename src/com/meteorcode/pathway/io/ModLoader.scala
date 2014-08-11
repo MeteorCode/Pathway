@@ -4,11 +4,8 @@
 package com.meteorcode.pathway.io
 
 import scala.collection.JavaConversions._
-import java.io.{IOException, FilenameFilter}
-import java.util.jar.{JarInputStream, JarEntry}
+import java.io.IOException
 import com.meteorcode.pathway.script.{ScriptContainerFactory, ScriptContainer}
-import scala.io.Source
-import java.util.zip.ZipEntry
 
 /**
  * @author Hawk Weisman
@@ -16,37 +13,21 @@ import java.util.zip.ZipEntry
  */
 object ModLoader {
   private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()
-  //beanshell injectObject("gdx",gdx)
-
-  private def loadMod(mod: FileHandle) = {
-    val stream = new JarInputStream(mod.read, true)
-    def next {
-      val entry = stream.getNextEntry
-      entry.getName match {
-        case "init.java" =>
-          val buffer = new Array[Byte](entry.getSize.asInstanceOf[Integer])
-          stream.read(buffer, 0, buffer.length)
-          beanshell.eval(Source.fromRawBytes(buffer).mkString)
-          stream.closeEntry
-        case _ => next
-      }
-    }
-    next
-    stream.close
-  }
 
   /**
    * Loads all mods in the target directory.
+   * @param directory A [[com.meteorcode.io.FileHandle]] representing the mods directory
+   * @throws IOException if the mods directory is invalid.
    */
-  def loadDir(directory: FileHandle) = {
-    if (directory.exists) {
-      // if the directory doesn't exist, throw an IOException
-      if (directory.isDirectory) {
-        // if the mods directory isn't a directory, throw an IOException
-        directory.list(".jar").foreach {
-          loadMod
-        } // otherwise, get all the jarfiles from the directory and load them
-      } else throw new IOException("Could not load mods directory " + directory + ", was not a directory.")
-    } else throw new IOException("Could not load mods directory " + directory + ", did not exist.")
+  @throws(classOf[IOException])
+  def load(directory: FileHandle): Unit = {
+    if (directory.exists == false) // if the directory doesn't exist, throw an IOException
+      throw new IOException("Could not load mods directory " + directory + ", was not a directory.")
+    if (directory.isDirectory == false ) // if the mods directory isn't a directory, throw an IOException
+      throw new IOException("Could not load mods directory " + directory + ", did not exist.")
+    // otherwise, get all the jarfiles from the directory and load them
+    beanshell injectObject("ResourceManager",directory.manager)
+    directory.list("init.java").foreach { initScript => beanshell.eval(initScript) }
+    beanshell removeObject("ResourceManager") //unset so that next time this is called, a different manager is set
   }
 }
