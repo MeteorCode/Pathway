@@ -45,22 +45,22 @@ class ResourceManager(private val directories: List[FileHandle]) {
   /**
    * Recursively walk the filesystem down from a given FileHandle
    * @param h the FileHandle tos eed the recursive walk
-   * @param fakePath the logical path represented by h
+   * @param fakePath the virtual path represented by h
    */
   private def walk(h: FileHandle, fakePath: String) {
     // recursively walk the directories and cache the paths
     h.list.foreach { f: FileHandle =>
       f.extension match {
         case "jar" =>
-          // logical path for an archive is attached at /, so we don't add it to the paths
+          // virtual path for an archive is attached at /, so we don't add it to the paths
           walk(new JarFileHandle("", f), "") // but we do add the paths to its' children
         case "zip" =>
           walk(new ZipFileHandle("", f), "") // walk all children of this dir
         case _ =>
           if (f.extension == "") {
-            paths += (fakePath + f.name -> f.physicalPath) // otherwise, add logical path maps to real path
+            paths += (fakePath + f.name -> f.physicalPath) // otherwise, add virtual path maps to real path
           } else {
-            paths += (fakePath + f.name + "." + f.extension -> f.physicalPath) // otherwise, map logical path to real
+            paths += (fakePath + f.name + "." + f.extension -> f.physicalPath) // otherwise, map virtual path to real
           }
           if (f.isDirectory) walk(f, fakePath + f.name + "/") // and walk (if it's a dir)
       }
@@ -70,13 +70,13 @@ class ResourceManager(private val directories: List[FileHandle]) {
   directories.foreach { directory => walk(directory, directory.name)}
 
   /**
-   * Request the logical path for a given physical path.
+   * Request the virtual path for a given physical path.
    *
    * @param physicalPath a physical path in the filesystem
-   * @return the logical path corresponding to that physical path.
+   * @return the virtual path corresponding to that physical path.
    * @deprecated As you can no longer make FileHandles with null paths, this should no longer be necessary.
    */
-  protected[io] def getLogicalPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).get
+  protected[io] def getVirtualPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).get
 
   /**
    * Request that the ResourceManager handle the file at a given path.

@@ -12,13 +12,13 @@ ArrayList
 import java.util.jar.JarFile
 
 
-class JarFileHandle (logicalPath: String,
+class JarFileHandle (virtualPath: String,
                      private val back: File,
-                     manager: ResourceManager) extends FileHandle(logicalPath, manager) {
+                     manager: ResourceManager) extends FileHandle(virtualPath, manager) {
   // I also hate java.util.jar
   protected[io] var jarfile = new JarFile(back)
 
-  def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
+  def this(virtualPath: String, fileHandle: FileHandle) = this(virtualPath, fileHandle.file, fileHandle.manager)
 
   /**
    * @return the [[java.io.File]] backing this file handle, or null if this file is inside a Jar or Zip archive.

@@ -140,11 +140,11 @@ public class IOTest {
     @Test
     public void testGetLogicalPath () {
         assertTrue("FAIL: ResourceManager.getLogicalPath() did not return expected path for file.",
-                r.getLogicalPath("build/resources/test/test1.txt").equals("test1.txt"));
+                r.getVirtualPath("build/resources/test/test1.txt").equals("test1.txt"));
 
         assertTrue(
                 "FAIL: ResourceManager.getLogicalPath() did not return expected path for file in zip.",
-                r.getLogicalPath("build/resources/test/zippedtest.zip/zippedtest.txt").equals("zippedtest.txt"));
+                r.getVirtualPath("build/resources/test/zippedtest.zip/zippedtest.txt").equals("zippedtest.txt"));
     }
 
     @Test

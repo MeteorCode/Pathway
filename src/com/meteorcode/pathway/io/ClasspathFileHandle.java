@@ -13,30 +13,30 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ClasspathFileHandle extends FileHandle {
-	
+
 	File back;
 	String opath;
-    String logicalPath;
+    String virtualPath;
     ResourceManager manager;
-	
+
 	/**
 	 * Constructor for grabbing a thing off the Classpath.
 	 * Note that this constructor silently swallows errors that may arise
 	 * during construction.
 	 * @param physicalPath The physicalPath to grab.
 	 */
-	protected ClasspathFileHandle(String physicalPath, String logicalPath, ResourceManager manager) {
-        super(logicalPath, manager);
+	protected ClasspathFileHandle(String physicalPath, String virtualPath, ResourceManager manager) {
+        super(virtualPath, manager);
 		this.opath = physicalPath;
         this.manager = manager;         //FIXME: dumb Scala/Java interop behaviour, apparently this class doesn't
-        this.logicalPath = logicalPath; //have access to fields of the superclass
+        this.virtualPath = virtualPath; //have access to fields of the superclass
 		URL url = this.getClass().getResource(physicalPath);
 		try {
 			back = new File(url.toURI());
 		} catch (URISyntaxException e) {
 		}
 	}
-	
+
 	@Override
 	public boolean exists() {
 		return (back != null && back.exists());
@@ -87,7 +87,7 @@ public class ClasspathFileHandle extends FileHandle {
 	public OutputStream write(boolean append) {
 		return null;
 	}
-	
+
 	@Override public String readString() throws IOException{
 		if(back != null && !back.isDirectory()) {
 			StringBuffer b = new StringBuffer("");

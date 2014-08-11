@@ -21,22 +21,22 @@ import scala.collection.JavaConversions._
  * [[com.meteorcode.pathway.io.JarFileHandle]] explicitly in your code, you are doing the  Wrong Thing and negating a
  * whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
- * @param logicalPath
- * the logical path to the file in the fake filesystem
+ * @param virtualPath
+ * the virtual path to the file in the fake filesystem
  * @param back a [[java.util.File]] representing the file in the filesystem
  * @param manager
  * An [[com.meteorcode.pathway.io.ResourceManager]] managing this FileHandle
  * @author Hawk Weisman
  */
-class DesktopFileHandle (logicalPath: String,
+class DesktopFileHandle (virtualPath: String,
                          private val realPath: String,
                          private val back: File,
-                         manager: ResourceManager) extends FileHandle(logicalPath, manager) {
+                         manager: ResourceManager) extends FileHandle(virtualPath, manager) {
 
 
-  def this(logicalPath: String,
+  def this(virtualPath: String,
            realPath: String,
-           manager: ResourceManager) = this (logicalPath, realPath, new File(realPath), manager)
+           manager: ResourceManager) = this (virtualPath, realPath, new File(realPath), manager)
   //def this(physicalPath: String, manager: ResourceManager) = this(null, physicalPath, manager)
 
   /**

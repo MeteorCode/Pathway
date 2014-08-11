@@ -25,9 +25,9 @@ import java.util.zip.{ZipFile}
  * @param back A [[java.util.File]] representing the Zip archive to handle.
  * @author Hawk Weisman
  */
-class ZipFileHandle (logicalPath: String,
+class ZipFileHandle (virtualPath: String,
                      private val back: File,
-                     manager: ResourceManager) extends FileHandle(logicalPath, manager) {
+                     manager: ResourceManager) extends FileHandle(virtualPath, manager) {
   /*
   Let's take a moment to discuss how Java's Zip API is Not My Favourite Thing.
 
@@ -57,7 +57,7 @@ class ZipFileHandle (logicalPath: String,
 
   def this(fileHandle: FileHandle) = this(fileHandle.path, fileHandle.file, fileHandle.manager)
 
-  def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
+  def this(virtualPath: String, fileHandle: FileHandle) = this(virtualPath, fileHandle.file, fileHandle.manager)
 
   /**
    * Returns a [[java.io.File]] that represents this file handle.

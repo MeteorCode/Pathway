@@ -19,7 +19,7 @@ import scala.collection.JavaConversions._
  *
  * @author Hawk Weisman
  */
-abstract class FileHandle(protected val logicalPath: String,
+abstract class FileHandle(protected val virtualPath: String,
                           protected[io] val manager: ResourceManager) {
   /** Returns true if the file exists. */
   def exists: Boolean
@@ -37,12 +37,12 @@ abstract class FileHandle(protected val logicalPath: String,
   @throws(classOf[IOException])
   def writable: Boolean
 
-  /** Returns the logical path to this FileHandle.
+  /** Returns the virtual path to this FileHandle.
     *
     * All paths are treated as into Unix-style paths for cross-platform purposes.
-    * @return the logical path to the filesystem uobject wrapped by this FileHandle
+    * @return the virtual path to the filesystem uobject wrapped by this FileHandle
     */
-  def path: String = if (logicalPath != null) logicalPath else manager.getLogicalPath(physicalPath)
+  def path: String = if (virtualPath != null) virtualPath else manager.getVirtualPath(physicalPath)
 
   /**
    * Returns the physical path to the actual filesystem object represented by this FileHandle.
