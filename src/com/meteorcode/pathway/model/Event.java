@@ -65,6 +65,74 @@ public abstract class Event {
 		this.payload = new Payload();
 		this.valid = true;
 	}
+
+    /**
+     * Constructor for an event with an originating context. The name defaults to the event's class name.
+     * @param origin The Context where this event originated.
+     */
+    public Event(Context origin) {
+        this.children = new HashSet<Event>();
+        this.parent = null;
+        this.name = this.getClass().getName();
+        this.origin = origin;
+        this.payload = new Payload();
+        this.valid = true;
+    }
+
+    /**
+     * Constructor for an Event with a data payload.
+     * The name defaults to the event's class name.
+     *
+     * @param payload
+     *            a Map<String, Object> containing the data payload connected to
+     *            this Event.
+     * @param origin
+     *            The Context where this event originated.
+     */
+    public Event(Map<String, Object> payload, Context origin) {
+        this.children = new HashSet<Event>();
+        this.parent = null;
+        this.name = this.getClass().getName();
+        this.payload = new Payload(payload);
+        this.origin = origin;
+        this.valid = true;
+    }
+
+    /**
+     * Constructor for an event with a location.
+     * The name defaults to the event's class name.
+     * @param origin
+     * @param location
+     */
+    public Event(Context origin, Tile location) {
+        this.children = new HashSet<Event>();
+        this.parent = null;
+        this.name = this.getClass().getName();
+        this.origin = origin;
+        this.payload = new Payload(location);
+        this.valid = true;
+    }
+
+    /**
+     * Constructor for an event with a payload and a location.
+     * The name defaults to the event's class name.
+     *
+     * @param location
+     *             The Tile where this event occurred.
+     * @param payload
+     *            a Map<String, Object> containing the data payload connected to
+     *            this Event.
+     * @param origin
+     *            The Context where this event originated.
+     */
+    public Event(Map<String, Object> payload, Context origin, Tile location) {
+        this.children = new HashSet<Event>();
+        this.parent = null;
+        this.name = this.getClass().getName();
+        this.payload = new Payload(payload, location);
+        this.origin = origin;
+        this.valid = true;
+    }
 	
 	public Event(String name, Context origin, Tile location) {
 		this.children = new HashSet<Event>();
