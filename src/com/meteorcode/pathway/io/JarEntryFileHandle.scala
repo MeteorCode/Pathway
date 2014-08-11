@@ -27,11 +27,8 @@ class JarEntryFileHandle (private val entry: JarEntry,
 
   def this(entry: JarEntry, parent: JarFileHandle) = this(entry, parent, parent.file, parent.manager)
 
-  override protected[io] def physicalPath = if (parent.physicalPath.endsWith(".jar")) {
-    parent.physicalPath + "/" + entry.getName
-  } else {
-    parent.physicalPath + entry.getName
-  }
+  override protected[io] def physicalPath = parent.physicalPath + "/" + entry.getName
+
 
   override def isDirectory = entry.isDirectory
 
