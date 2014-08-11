@@ -73,15 +73,9 @@ public class IOTest {
     }
 
     @Test
-    public void testNonexistantFileHandle() {
+    public void testNonexistantFileHandle() throws IOException {
         underTest = r.handle("testDir/I AM NOT A REAL FILE.txt");
-        try {
-            underTest.read();
-            fail();
-        } catch (IOException e) {
-            assertEquals("Could not read file:testDir/I AM NOT A REAL FILE.txt, the requested file does not exist.",
-                    e.getMessage());
-        }
+        assertNull(underTest.read());
     }
 
     @Test
@@ -133,13 +127,7 @@ public class IOTest {
         assertFalse("FAIL: Directory claimed to be writable.", underTest.writable());
         assertTrue("FAIL: Directory claimed not to be.", underTest.isDirectory());
         assertNull("FAIL: directory gave us an OutputStream?", underTest.write(true));
-        System.out.println(underTest.list().toString()); // FUCK IT. we can test for correctness manually.
-        try {
-            underTest.read();
-            fail("FAIL: Exception was not thrown when reading to directory.");
-        } catch (IOException e) {
-            //meh
-        }
+        assertNull(underTest.read());
     }
 
     @Test

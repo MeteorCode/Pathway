@@ -42,17 +42,28 @@ class ZipEntryFileHandle (private val entry: ZipEntry,
 
   def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.file, parent.manager)
 
+  /**
+   * @return  the physical path to the actual filesystem object represented by this FileHandle.
+   */
   override protected[io] def physicalPath = if (parent.physicalPath.endsWith(".zip")) {
     parent.physicalPath + "/" + entry.getName
   } else {
     parent.physicalPath + entry.getName
   }
 
+  /**
+   * @return true if this file is a directory, false otherwise
+   */
   override def isDirectory = entry.isDirectory
 
+
+  /** Returns a stream for reading this file as bytes, or null if it is not readable (does not exist or is a directory).
+    * @return a [[java.io.InputStream]] for reading the contents of this file, or null if it is not readable.
+    * @throws IOException if something went wrong while reading from the file.
+    */
+  @throws(classOf[IOException])
   override def read: InputStream = {
-    if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
-    else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
+    if (!exists || isDirectory) return null
     else try {
       zipfile.getInputStream(entry)
     } catch {
@@ -63,6 +74,10 @@ class ZipEntryFileHandle (private val entry: ZipEntry,
     }
   }
 
+  /**
+   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
+   *         directory or does not have contents.
+   */
   override def list: List[FileHandle] = {
     if (isDirectory) {
       var result = new ArrayList[FileHandle]

@@ -66,27 +66,25 @@ abstract class FileHandle(protected val logicalPath: String,
   }
 
   /**
-   * Returns a [[java.io.File]] that represents this file handle.
+   * Returns the [[java.io.File]] backing this file handle.
    * @return a [[java.io.File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
   protected[io] def file: File
 
   /**
-   * Returns a list containing FileHandles to the contents of FileHandle.
-   * Returns an empty list if this file is not a directory or does not have contents.
+   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
+   *         directory or does not have contents.
    */
   def list: util.List[FileHandle]
 
   /**
-   * Returns a list containing FileHandles to the contents of this FileHandle with the specified suffix.
-   *
-   * Returns an empty list if this file is not a directory or does not have contents.
+   * @return a list containing FileHandles to the contents of this FileHandle with the specified suffix, or an
+   *         an empty list if this file is not a directory or does not have contents.
    * @param suffix
    */
   def list(suffix: String): util.List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
 
-  /** Returns a stream for reading this file as bytes.
-    * @throws IOException if the file does not exist or is a directory.
+  /** @return a [[java.io.InputStream]] for reading this file, or null if the file does not exist or is a directory.
     */
   @throws(classOf[IOException])
   def read: InputStream
@@ -108,9 +106,11 @@ abstract class FileHandle(protected val logicalPath: String,
   def readString(charset: Charset): String = Source.fromInputStream(read).mkString
 
   /** Returns an [[java.io.OutputStream]] for writing to this file.
-    * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writeable.
+    * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
+    * @throws IOException if something went wrong while opening the file.
     */
+  @throws(classOf[IOException])
   def write(append: Boolean): OutputStream
 
   /** Returns a [[java.io.BufferedOutputStream]] for writing to this file.

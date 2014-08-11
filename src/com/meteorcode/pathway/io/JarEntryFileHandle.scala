@@ -27,11 +27,20 @@ class JarEntryFileHandle (private val entry: JarEntry,
 
   def this(entry: JarEntry, parent: JarFileHandle) = this(entry, parent, parent.file, parent.manager)
 
+  /**
+   * @return the physical path to the actual filesystem object represented by this FileHandle.
+   */
   override protected[io] def physicalPath = parent.physicalPath + "/" + entry.getName
 
-
+  /**
+   * @return true if this file is a directory, false otherwise
+   */
   override def isDirectory = entry.isDirectory
 
+  /**
+   *
+   * @return a [[java.io.InputStream]] for reading this file, or null if the file does not exist or is a directory.
+   */
   override def read: InputStream = {
     if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
     else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
@@ -45,6 +54,10 @@ class JarEntryFileHandle (private val entry: JarEntry,
     }
   }
 
+  /**
+   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
+   *         directory or does not have contents.
+   */
   override def list: util.List[FileHandle] = {
     if (isDirectory) {
       var result = new util.ArrayList[FileHandle]

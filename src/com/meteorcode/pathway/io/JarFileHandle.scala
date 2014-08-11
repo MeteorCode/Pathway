@@ -20,16 +20,35 @@ class JarFileHandle (logicalPath: String,
 
   def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
 
+  /**
+   * @return the [[java.io.File]] backing this file handle, or null if this file is inside a Jar or Zip archive.
+   */
   protected[io] def file = back
 
+  /**
+   * @return the physical path to the actual filesystem object represented by this FileHandle.
+   */
   protected[io] def physicalPath = back.getPath
 
+  /**
+   * @return true if this FileHandle represents something that exists, false if it does not exist.
+   */
   def exists: Boolean = back.exists
 
+  /**
+   * @return true if this file is a directory, false otherwise
+   */
   def isDirectory: Boolean = true
 
+  /**
+   * @return true if this FileHandle can be written to, false if it cannot.
+   */
   def writable = false
 
+  /**
+   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
+   *         directory or does not have contents.
+   */
   @throws(classOf[IOException])
   def list: List[FileHandle] = {
     var result = new ArrayList[FileHandle]
@@ -48,8 +67,16 @@ class JarFileHandle (logicalPath: String,
     }
   }
 
+  /**
+   * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
+   * @throws java.io.IOException
+   * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
+   */
   @throws(classOf[IOException])
   def write(append: Boolean) = null
 
+  /**
+   * @return a [[java.io.InputStream]] for reading this file, or null if the file does not exist or is a directory.
+   */
   def read: InputStream = null
 }
