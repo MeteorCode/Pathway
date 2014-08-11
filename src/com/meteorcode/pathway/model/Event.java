@@ -261,10 +261,17 @@ public abstract class Event {
 		return true;
 	}
 
+    /**
+     * Set the Context of this Event to the specified Context.
+     * @param c the new Context to set
+     */
 	public void setTarget(Context c) {
 		this.target = c;
 	}
-	
+
+    /**
+     * @return a pointer to the parent Event
+     */
 	public Event getParent() {
 		return this.parent;
 	}

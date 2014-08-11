@@ -9,7 +9,6 @@ import com.meteorcode.pathway.script.{ScriptContainerFactory, ScriptContainer}
 
 /**
  * @author Hawk Weisman
- *
  */
 object ModLoader {
   private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()

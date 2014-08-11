@@ -59,17 +59,36 @@ class ZipFileHandle (logicalPath: String,
 
   def this(logicalPath: String, fileHandle: FileHandle) = this(logicalPath, fileHandle.file, fileHandle.manager)
 
+  /**
+   * Returns a [[java.io.File]] that represents this file handle.
+   * @return a [[java.io.File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
+   */
   protected[io] def file = back
 
+  /**
+   * Returns the physical path to the actual filesystem object represented by this FileHandle.
+   */
   protected[io] def physicalPath = back.getPath
 
+  /** Returns true if the file exists. */
   def exists: Boolean = back.exists
 
-  def isDirectory: Boolean = true
+  /** Returns true if this file is a directory.
+    *
+    * Note that this may return false if a directory exists but is empty.
+    * This is Not My Fault, it's [[java.util.File]] behaviour.
+    *
+    * @return true if this file is a directory, false otherwise
+    */
+  def isDirectory: Boolean = true   // Remember, we are pretending that zips are directories
 
-  // Remember, we are pretending that zips are directories
+  /** Returns true if this FileHandle represents something that can be written to */
   def writable = false // Zips can never be written to (at least by java.util.zip)
 
+  /**
+   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
+   *         directory or does not have contents.
+   */
   @throws(classOf[IOException])
   def list: List[FileHandle] = {
     var result = new ArrayList[FileHandle]
@@ -92,9 +111,19 @@ class ZipFileHandle (logicalPath: String,
     }
   }
 
+  /** Returns an [[java.io.OutputStream]] for writing to this file.
+    * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
+    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
+    * @throws IOException if something went wrong while opening the file.
+    */
   @throws(classOf[IOException])
   def write(append: Boolean) = null
 
+
+  /** Returns a stream for reading this file as bytes, or null if it is not readable (does not exist or is a directory).
+    * @return a [[java.io.InputStream]] for reading the contents of this file, or null if it is not readable.
+    * @throws IOException if something went wrong while opening the file.
+    */
   @throws(classOf[IOException])
   def read: InputStream = null
 }

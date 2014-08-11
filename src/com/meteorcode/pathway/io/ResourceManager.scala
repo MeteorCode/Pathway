@@ -80,6 +80,11 @@ class ResourceManager(private val directories: List[FileHandle]) {
 
   /**
    * Request that the ResourceManager handle the file at a given path.
+   *
+   * ResourceManager attempts to cache all FileHandles requested, so if you request a FileHandle once and then
+   * request it again later, you will receive the same FileHandle, if possible. This is because making new FileHandles
+   * is a relatively expensive operation.
+   *
    * @param path The virtual path to the requested object
    * @return A [[com.meteorcode.io.FileHandle]] wrapping the object that exists at the requested path
    */

@@ -1,5 +1,8 @@
 package com.meteorcode.pathway.script;
 
+/**
+ * An extension thrown in the event of a script execution issue.
+ */
 public class ScriptException extends Exception {
 
 	/**
