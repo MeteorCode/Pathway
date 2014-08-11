@@ -68,7 +68,7 @@ public class EventBSHTest {
 		c.eval("something = 1");
 		assertEquals(1, c.eval("something"));
 
-		Event e = new Event(null, c) {
+		Event e = new Event(c) {
 			@Override
 			public void evalEvent() throws ScriptException {
 				target.eval("something = 2");
@@ -82,7 +82,7 @@ public class EventBSHTest {
 
 	@Test
 	public void testEventMathEval() throws ScriptException {
-		Event e = new Event(null, c) {
+		Event e = new Event(c) {
 			@Override
 			public void evalEvent() throws ScriptException {
 				target.eval("testvar = 2+2");
@@ -93,7 +93,7 @@ public class EventBSHTest {
 		c.pump();
 		assertEquals(4, c.eval("testvar"));
 
-		e = new Event(null, c) {
+		e = new Event(c) {
 			@Override
 			public void evalEvent() throws ScriptException {
 				target.eval("testvar = 1.2 + 1.3");
@@ -104,7 +104,7 @@ public class EventBSHTest {
 		c.pump();
 		assertEquals(2.5, c.eval("testvar"));
 
-		e = new Event(null, c) {
+		e = new Event(c) {
 			@Override
 			public void evalEvent() throws ScriptException {
 				target.eval("testvar = 5 - 2");
@@ -115,7 +115,7 @@ public class EventBSHTest {
 		c.pump();
 		assertEquals(3, c.eval("testvar"));
 
-		e = new Event(null, c) {
+		e = new Event(c) {
 			@Override
 			public void evalEvent() throws ScriptException {
 				target.eval("testvar = 10/5");
@@ -129,7 +129,7 @@ public class EventBSHTest {
 
 	@Test
 	public void testEventPropertiesOfEquality() throws ScriptException {
-		Event e = new Event(null, c) {
+		Event e = new Event(c) {
 			@Override
 			public void evalEvent() throws ScriptException {
 				target.eval("a = 1 + 2");
@@ -141,7 +141,7 @@ public class EventBSHTest {
 		c.pump();
 		assertEquals(c.eval("a"), c.eval("b"));
 
-		e = new Event(null, c) {
+		e = new Event(c) {
 			@Override
 			public void evalEvent() throws ScriptException {
 				target.eval("a = 1 + (4 + 7)");
@@ -153,7 +153,7 @@ public class EventBSHTest {
 		c.pump();
 		assertEquals(c.eval("a"), c.eval("b"));
 
-		e = new Event(null, c) {
+		e = new Event(c) {
 			@Override
 			public void evalEvent() throws ScriptException {
 				target.eval("a = 2*(3 + 4)");

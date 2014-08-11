@@ -7,6 +7,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.mockito.MockitoAnnotations.*;
+import org.mockito.MockitoAnnotations;
+
 import com.meteorcode.pathway.io.*;
 
 import java.io.*;
@@ -14,20 +17,29 @@ import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.Collections;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Non-comprehensive test case to assert that the IO package does the Right Thing
  * THIS IS NOT A UNIT TEST - io classes should be unit with mock objects as well
  */
-public class IOIntegrationTest {
+public class IOTest {
     private FileHandle underTest;
     private ResourceManager r;
-    private File fakeFile;
+    @Mock private File fakeFile;
+    @Mock private ResourceManager fakeMangler;
+    @Mock private FileHandle fakeHandle;
+    @Mock private JarEntry fakeEntry;
+
 
     @Before
     public void setUp() {
         r = new ResourceManager("build/resources/test");
-        fakeFile = mock(File.class);
+    }
+
+    @Before public void initMocks() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @After

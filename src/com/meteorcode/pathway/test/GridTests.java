@@ -29,7 +29,7 @@ public class GridTests {
 
 	@Test
 	public void testEventWithLocation() {
-		Event target = new Event(null, null, null, mockTile){
+		Event target = new Event("", null, null, mockTile){
 
 			@Override
 			public void evalEvent() throws ScriptException {
@@ -39,7 +39,7 @@ public class GridTests {
 			
 		assertEquals(target.getPayload().where(), mockTile);
 		
-		target = new Event(null, null, mockTile){
+		target = new Event("", null, null, mockTile){
 
 			@Override
 			public void evalEvent() throws ScriptException {
