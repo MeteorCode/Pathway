@@ -3,9 +3,9 @@ package com.meteorcode.pathway.model
 import GridCoordinatesImplicits._
 
 class Entity(gameID: Option[Long]) extends GameObject(gameID) {
-  protected var coordinates: (Int, Int)
-  protected var grid: Grid
-  protected var name: String
+  protected var coordinates: (Int, Int) = _
+  protected var grid: Grid = _
+  protected var name: String = _
 
   def this() = {
     this(None)
@@ -45,5 +45,7 @@ class Entity(gameID: Option[Long]) extends GameObject(gameID) {
   def setLocation (newCoords: GridCoordinates) = this.coordinates = newCoords
   def getCoordinates: GridCoordinates = coordinates
   def getLocation: Tile = grid.getTileAt(coordinates)
+  def getName = new String(name)
+  override def toString = "Entity " + getName + " at " + getCoordinates
 
 }
