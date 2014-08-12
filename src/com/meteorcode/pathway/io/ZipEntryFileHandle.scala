@@ -20,7 +20,7 @@ import java.util.Collections
  * A FileHandle into a file or directory within a zip archive.
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
- * [[com.meteorcode.pathway.io.ResourceManager.handle()]]. The FileHandle system is supposed to allow you to treat files in
+ * [[com.meteorcode.pathway.io.ResourceManager.handle]]. The FileHandle system is supposed to allow you to treat files in
  * zip/zip archives as though they were on the filesystem as regular files, but this only works if you treat all files
  * you have to access as instances of [[com.meteorcode.pathway.io.FileHandle]]. If you  ever refer to files as
  * [[com.meteorcode.pathway.io.DesktopFileHandle]], [[com.meteorcode.pathway.io.ZipFileHandle]], or

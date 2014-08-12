@@ -27,8 +27,8 @@ class ResourceManager(private val directories: List[FileHandle]) {
   /**
    * Constructor for a ResourceManager with a String representing a path to the managed directory.
    *
-   * Note that this defaults to using [[com.meteorcode.io.DesktopFileHandle]] if you  want to use a different type of
-   * FileHandle, use the [[com.meteorcode.io.ResourceManager#ResourceManagerFileHandle)]] constructor  instead.
+   * Note that this defaults to using [[com.meteorcode.pathway.io.DesktopFileHandle]] if you  want to use a different type of
+   * FileHandle, use [[com.meteorcode.pathway.io.ResourceManager.handle]]  instead.
    *
    * @param path the path to the directory to manage
    * @return a new ResourceManager managing the specified directory.
@@ -86,7 +86,7 @@ class ResourceManager(private val directories: List[FileHandle]) {
    * is a relatively expensive operation.
    *
    * @param path The virtual path to the requested object
-   * @return A [[com.meteorcode.io.FileHandle]] wrapping the object that exists at the requested path
+   * @return A [[com.meteorcode.pathway.io.FileHandle]] wrapping the object that exists at the requested path
    */
   def handle(path: String): FileHandle = {
     if (cachedHandles.keySet contains path)

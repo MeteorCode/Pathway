@@ -93,7 +93,7 @@ class Context(protected var name: String) {
    * Pops off the top [[com.meteorcode.pathway.model.Event]] in the stack,  notifies any subscribed Properties, and then
    * evaluates that Event.
    *
-   * Each Property is given the opportunity to [[com.meteorcode.pathway.model.Event.invalidate(]] the Event when they
+   * Each Property is given the opportunity to [[com.meteorcode.pathway.model.Event.invalidate]] the Event when they
    * are notified. If no Property invalidates the Event, it will be evaluated once all Properties are notified.
    *
    * @throws ScriptException if the Context's associated ScriptContainer encounters an error when evaluating the Event.
