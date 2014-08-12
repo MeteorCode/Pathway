@@ -35,8 +35,8 @@ public class GameObjectTest {
 	 */
 	@Test
 	public void testGetGameID() {
-		target = new GameObject(1235453456){};
-		assertEquals(1235453456,target.getGameID());
+		target = new GameObject(1235453456l){};
+		assertEquals(1235453456l,target.getGameID());
 	}
 
 	/**
