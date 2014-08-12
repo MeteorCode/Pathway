@@ -2,22 +2,48 @@ package com.meteorcode.pathway.model
 
 import GridCoordinatesImplicits._
 
-class Entity(gameID: Long,
-             protected var coordinates: GridCoordinates,
-             protected var grid: Grid,
-             protected var name: String) extends GameObject(gameID) {
+class Entity(gameID: Option[Long]) extends GameObject(gameID) {
+  protected var coordinates: (Int, Int)
+  protected var grid: Grid
+  protected var name: String
 
-  if (this.name == null) this.name = this.getClass.getSimpleName
+  def this() = {
+    this(None)
+    this.name = this.getClass.getSimpleName
+  }
+  def this(gameID: Long) = {
+    this(Some(gameID))
+    this.name = this.getClass.getSimpleName
+  }
+  def this(name: String) = {
+    this(None)
+    this.name = name
+  }
+  def this(gameID: Long, name:String) = {
+    this(Some(gameID))
+    this.name = name
+  }
+  def this(coords: (Int, Int), grid: Grid) = {
+    this(None)
+    this.coordinates = coords
+    this.grid = grid
+    this.name = this.getClass.getSimpleName
+  }
+  def this(coords: (Int, Int), grid: Grid, name: String) = {
+    this(None)
+    this.coordinates = coords
+    this.grid = grid
+    this.name = name
+  }
+  def this(gameID: Long, coords: (Int, Int), grid: Grid, name: String) = {
+    this(Some(gameID))
+    this.coordinates = coordinates
+    this.grid = grid
+    this.name = name
+  }
 
-  def this() = this(null, null, null, null)
-  def this(gameID: Long) = this (gameID, null, null, null)
-  def this(position: (Int, Int), grid: Grid) = this (null, position, grid, null)
-  def this(name: String) = this(null, null, null, name)
-  def this(gameID: Long, name:String) = this (gameID, null, null, name)
-  def this(position: (Int, Int), grid: Grid, name: String) = this (null, position, location, name)
-
-  def setLocation (xy: GridCoordinates) = this.coordinates = (xy.x, xy.y)
-  def getCoordinates: GridCoordinates = new GridCoordinates(coordinates)
+  def setLocation (newCoords: GridCoordinates) = this.coordinates = newCoords
+  def getCoordinates: GridCoordinates = coordinates
   def getLocation: Tile = grid.getTileAt(coordinates)
 
 }

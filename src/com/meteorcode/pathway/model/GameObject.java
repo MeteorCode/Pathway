@@ -1,6 +1,8 @@
 package com.meteorcode.pathway.model;
 
 import com.meteorcode.pathway.model.Context;
+import scala.None;
+import scala.Option;
 
 /**
  * An object within the game.
@@ -20,9 +22,9 @@ public abstract class GameObject {
 	 */
 	public GameObject(Long gameID) {
         if (gameID==null) {
-            // TODO: Get GameIDs from the GameInstance/GameEngine which does not
-            // currently exist (presumably in Controller?) so that we can get them
-            // from the server in SMP
+            // TODO: Get GameIDs from the GameInstance/GameEngine
+            // which does not  currently exist (presumably in Controller?)
+            // so that we can get themfrom the server in SMP
         } else {
             this.gameID = gameID;
         }
@@ -34,11 +36,24 @@ public abstract class GameObject {
 	 * GameInstance/GameEngine (NYI)
 	 */
 	public GameObject() {
-		// TODO: Get GameIDs from the GameInstance/GameEngine which does not
-		// currently exist (presumably in Controller?) so that we can get them
-		// from the server in SMP
-		this.parent = null;
-	}
+        // TODO: Get GameIDs from the GameInstance/GameEngine
+        // which does not  currently exist (presumably in Controller?)
+        // so that we can get themfrom the server in SMP
+        this.parent = null;
+    }
+
+    public GameObject(Option<scala.Long> optionalID) {
+        // stupid Scala/Java interop cruft
+        Long gameID = optionalID.getOrElse(null);
+        if (gameID == null) {
+            // TODO: Get GameIDs from the GameInstance/GameEngine
+            // which does not  currently exist (presumably in Controller?)
+            // so that we can get themfrom the server in SMP
+        } else {
+            this.gameID = gameID;
+        }
+        this.parent = null;
+    }
 
 	/**
 	 * @return the gameID
