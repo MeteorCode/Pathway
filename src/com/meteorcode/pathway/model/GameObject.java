@@ -9,7 +9,7 @@ import com.meteorcode.pathway.model.Context;
  *
  */
 public abstract class GameObject {
-	private long gameID;
+	private Long gameID;
 	protected Context parent;
 
 	/**
@@ -18,8 +18,14 @@ public abstract class GameObject {
 	 * @param gameID
 	 *            a gameID for this Object.
 	 */
-	public GameObject(long gameID) {
-		this.gameID = gameID;
+	public GameObject(Long gameID) {
+        if (gameID==null) {
+            // TODO: Get GameIDs from the GameInstance/GameEngine which does not
+            // currently exist (presumably in Controller?) so that we can get them
+            // from the server in SMP
+        } else {
+            this.gameID = gameID;
+        }
 		this.parent = null;
 	}
 
