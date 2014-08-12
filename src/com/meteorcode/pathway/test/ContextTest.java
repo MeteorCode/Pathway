@@ -30,7 +30,7 @@ public class ContextTest {
 	public void setUp() throws Exception {
 		mockGameObjectOne = mock(GameObject.class);
 		mockGameObjectTwo = mock(GameObject.class);
-		target = new Context("Target Context");
+		target = new Context("Target");
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class ContextTest {
 	
 	@Test
 	public void toStringTest() {
-		assertEquals("Target Context", target.toString());
+		assertEquals("[Target Context][]", target.toString());
 	}
 
 }

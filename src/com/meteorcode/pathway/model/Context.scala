@@ -25,7 +25,10 @@ import scala.collection.immutable.{
  * @author Hawk Weisman <hawk.weisman@gmail.com>
  *
  */
-class Context(name: String) {
+class Context(protected var name: String) {
+
+  def this() = this(null)
+  if (name == null) name = this.getClass.getSimpleName
 
   protected var eventStack = Stack[Event]()
   protected var gameObjects = HashSet[GameObject]()
@@ -50,6 +53,7 @@ class Context(name: String) {
   def addGameObject(g: GameObject) = gameObjects += g
   def subscribe(p: Property) = properties += p
   def unsubscribe(p: Property) = properties -= p
+  def getName = this.name
 
   /**
    * Evals a BeanShell expression against this Context's ScriptContainer
@@ -112,5 +116,5 @@ class Context(name: String) {
     }
   }
 
-  override def toString(): String = name;
+  override def toString(): String = "[" + name + " Context]" + viewEventStack();
 }

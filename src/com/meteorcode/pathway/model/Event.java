@@ -12,7 +12,7 @@ import com.meteorcode.pathway.script.ScriptException;
  * modify an Event that's on the stack, swallow that Event and fire a new Event
  * with the appropriate data changed. Don't forget to invalidate old events on
  * the stack.
- * 
+ *
  * @author Hawk Weisman
  * @author Xyzzy
  */
@@ -28,7 +28,7 @@ public abstract class Event {
 
 	/**
 	 * Constructor for an Event with a data payload.
-	 * 
+	 *
 	 * @param name
 	 *            the name of this Event.
 	 * @param payload
@@ -51,7 +51,7 @@ public abstract class Event {
 	 * with the payload set to empty map. Use this only when you need an Event
 	 * which carries no additional data beyond its' name, as you cannot add data
 	 * to the payload of empty events after initialization.
-	 * 
+	 *
 	 * @param name
 	 *            the name of this Event.
 	 * @param origin
@@ -73,7 +73,7 @@ public abstract class Event {
     public Event(Context origin) {
         this.children = new HashSet<Event>();
         this.parent = null;
-        this.name = this.getClass().getName();
+        this.name = this.getClass().getSimpleName();
         this.origin = origin;
         this.payload = new Payload();
         this.valid = true;
@@ -92,7 +92,7 @@ public abstract class Event {
     public Event(Map<String, Object> payload, Context origin) {
         this.children = new HashSet<Event>();
         this.parent = null;
-        this.name = this.getClass().getName();
+        this.name = this.getClass().getSimpleName();
         this.payload = new Payload(payload);
         this.origin = origin;
         this.valid = true;
@@ -107,7 +107,7 @@ public abstract class Event {
     public Event(Context origin, Tile location) {
         this.children = new HashSet<Event>();
         this.parent = null;
-        this.name = this.getClass().getName();
+        this.name = this.getClass().getSimpleName();
         this.origin = origin;
         this.payload = new Payload(location);
         this.valid = true;
@@ -128,12 +128,12 @@ public abstract class Event {
     public Event(Map<String, Object> payload, Context origin, Tile location) {
         this.children = new HashSet<Event>();
         this.parent = null;
-        this.name = this.getClass().getName();
+        this.name = this.getClass().getSimpleName();
         this.payload = new Payload(payload, location);
         this.origin = origin;
         this.valid = true;
     }
-	
+
 	public Event(String name, Context origin, Tile location) {
 		this.children = new HashSet<Event>();
 		this.parent = null;
@@ -156,11 +156,11 @@ public abstract class Event {
 	 * <p>The method that is called to actually perform the thing done by an Event.
 	 * Should be called as part of the event loop, when an event is finally...
 	 * you know, evented.</p>
-	 * 
+	 *
 	 * <p>NOTE that this occurs <i>after</i> the event has been propagated, and
 	 * also NOTE that this method will *not* be called on an invalidated Event.
 	 * (Event code shouldn't have to worry whether or not they're invalid)</p>
-	 * 
+	 *
 	 * @throws ScriptException
 	 */
 	public abstract void evalEvent() throws ScriptException;
@@ -174,16 +174,16 @@ public abstract class Event {
 
 	/**
 	 * Gets this Event's payload.
-	 * 
+	 *
 	 * @return A shallow copy of this Event's data payload
 	 */
 	public Payload getPayload() {
 		return this.payload;
 	}
-	
+
 	/**
 	 * Inserts a String -> Object mapping into the Event's payload
-	 * 
+	 *
 	 * @param name
 	 *            the name to map to the new value
 	 * @param value
@@ -195,7 +195,7 @@ public abstract class Event {
 
 	/**
 	 * Inserts a Map<String,Object> into the payload
-	 * 
+	 *
 	 * @param additions
 	 *            the map to add to the payload.
 	 */
@@ -206,11 +206,11 @@ public abstract class Event {
 	public boolean stampExists(Property stampedBy) {
 		return payload.stampExists(stampedBy);
 	}
-	
-	public void stamp (Property stampedBy) { 
+
+	public void stamp (Property stampedBy) {
 		payload.stamp(stampedBy);
 	}
-	
+
 	public void unstamp(Property stampedBy) {
 		payload.unstamp(stampedBy);
 	}
@@ -228,7 +228,7 @@ public abstract class Event {
 
 	/**
 	 * Check the validity of this Event.
-	 * 
+	 *
 	 * @return true if this Event is valid, false if it has been invalidated.
 	 */
 	public boolean isValid() {
@@ -243,13 +243,13 @@ public abstract class Event {
 	 * evaluation. Method returns true IFF this process was successful. The
 	 * default implementation does this.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * In the event that firing Children from this Event is unsuccessful or
 	 * disallowed, the method should return false instead, and should not modify
 	 * the Event parameter, e.
 	 * </p>
-	 * 
+	 *
 	 * @param e
 	 *            The Event to fire
 	 * @return child The new child Event.
@@ -275,7 +275,7 @@ public abstract class Event {
 	public Event getParent() {
 		return this.parent;
 	}
-	
+
 	public String toString() {
 		return "Event: " + this.getName();
 	}
