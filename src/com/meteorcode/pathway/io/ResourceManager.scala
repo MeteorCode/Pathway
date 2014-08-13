@@ -40,35 +40,36 @@ class ResourceManager(private val directories: List[FileHandle],
   // it's okay for the Manager to be null because if it has a path,
   // it will never need to get the path from the ResourceManager
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
-  private var paths = Map[String, String]()
+  private var paths = walk(directories)
   private val cachedHandles = mutable.HashMap[String, FileHandle]()
-
   /**
-   * Recursively walk the filesystem down from a given FileHandle
-   * @param h the FileHandle tos eed the recursive walk
-   * @param fakePath the virtual path represented by h
+   * Recursively walk the filesystem down from each FileHandle in a list
+   * @param directories a list of FileHandles to seed the recursive walk
    */
-  private def walk(h: FileHandle, fakePath: String) {
+  private def walk(directories: List[FileHandle]) = {
+    val m = Map[String, String]()
+    directories.foreach{directory => walk(directory, directory.name, m)}
     // recursively walk the directories and cache the paths
-    h.list.foreach { f: FileHandle =>
-      f.extension match {
-        case "jar" =>
-          // virtual path for an archive is attached at /, so we don't add it to the paths
-          walk(new JarFileHandle("", f), "") // but we do add the paths to its' children
-        case "zip" =>
-          walk(new ZipFileHandle("", f), "") // walk all children of this dir
-        case _ =>
-          if (f.extension == "") {
-            paths += (fakePath + f.name -> f.physicalPath) // otherwise, add virtual path maps to real path
-          } else {
-            paths += (fakePath + f.name + "." + f.extension -> f.physicalPath) // otherwise, map virtual path to real
-          }
-          if (f.isDirectory) walk(f, fakePath + f.name + "/") // and walk (if it's a dir)
+    def walk(h: FileHandle, fakePath: String, m: Map[String, String]) {
+      h.list.foreach { f: FileHandle =>
+        f.extension match {
+          case "jar" =>
+            // virtual path for an archive is attached at /, so we don't add it to the paths
+            walk(new JarFileHandle("", f), "", m) // but we do add the paths to its' children
+          case "zip" =>
+            walk(new ZipFileHandle("", f), "", m) // walk all children of this dir
+          case _ =>
+            if (f.extension == "") {
+              m put (fakePath + f.name, f.physicalPath) // otherwise, add virtual path maps to real path
+            } else {
+              m put (fakePath + f.name + "." + f.extension, f.physicalPath) // otherwise, map virtual path to real
+            }
+            if (f.isDirectory) walk(f, fakePath + f.name + "/", m) // and walk (if it's a dir)
+        }
       }
     }
+    m
   }
-
-  directories.foreach { directory => walk(directory, directory.name)}
 
   /**
    * Request the virtual path for a given physical path.
