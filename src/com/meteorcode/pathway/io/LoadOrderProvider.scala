@@ -14,8 +14,9 @@ import scala.collection.mutable
 trait LoadOrderProvider {
   /**
    * Takes an unordered set of top-level paths and returns a list of those paths, ordered by load priority.
-   * @param paths a set of Strings representing top-level paths in the physical filesystem.
-   * @return a List of those paths ordered by their load priority
+   * @param paths a List of [[com.meteorcode.pathway.io.FileHandle FileHandle]] representing top-level roots in the
+   *              physical filesystem.
+   * @return a List of those FileHandles ordered by their load priority
    */
-  def orderPaths(paths: mutable.Set[String]): List[String]
+  def orderPaths(paths: List[FileHandle]): List[FileHandle]
 }
