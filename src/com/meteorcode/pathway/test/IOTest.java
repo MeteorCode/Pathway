@@ -35,7 +35,7 @@ public class IOTest {
 
     @Before
     public void setUp() {
-        r = new ResourceManager("build/resources/test");
+        r = new ResourceManager("build/resources/test", new AlphabeticLoadPolicy());
     }
 
     @Before public void initMocks() {
