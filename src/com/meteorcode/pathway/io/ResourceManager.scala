@@ -40,17 +40,17 @@ class ResourceManager(private val directories: List[FileHandle],
   // it's okay for the Manager to be null because if it has a path,
   // it will never need to get the path from the ResourceManager
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
-  private var paths = walk(directories)
-  private val cachedHandles = mutable.HashMap[String, FileHandle]()
+  private val paths = walk(directories)
+  private var cachedHandles = mutable.HashMap[String, FileHandle]()
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param directories a list of FileHandles to seed the recursive walk
    */
   private def walk(directories: List[FileHandle]) = {
-    val m = Map[String, String]()
+    val m = mutable.HashMap[String, String]()
     directories.foreach{directory => walk(directory, directory.name, m)}
     // recursively walk the directories and cache the paths
-    def walk(h: FileHandle, fakePath: String, m: Map[String, String]) {
+    def walk(h: FileHandle, fakePath: String, m: mutable.Map[String, String]) {
       h.list.foreach { f: FileHandle =>
         f.extension match {
           case "jar" =>
