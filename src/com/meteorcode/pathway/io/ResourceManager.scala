@@ -40,35 +40,39 @@ class ResourceManager(private val directories: List[FileHandle],
   // it's okay for the Manager to be null because if it has a path,
   // it will never need to get the path from the ResourceManager
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
-  private val paths = walk(directories)
-  private var cachedHandles = mutable.HashMap[String, FileHandle]()
+  private val (paths,topLevelPaths) = walk(directories)
+  private val cachedHandles = mutable.Map[String, FileHandle]()
+  private val loadOrder = policy.orderPaths(topLevelPaths)
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param directories a list of FileHandles to seed the recursive walk
    */
-  private def walk(directories: List[FileHandle]) = {
-    val m = mutable.HashMap[String, String]()
-    directories.foreach{directory => walk(directory, directory.name, m)}
+  private def walk(directories: List[FileHandle]): (mutable.Map[String, String], mutable.Set[String]) = {
+    var m = mutable.Map[String, String]()
+    var s = mutable.Set[String]()
+    directories.foreach{directory => walk(directory, directory.name, m, s)}
     // recursively walk the directories and cache the paths
-    def walk(h: FileHandle, fakePath: String, m: mutable.Map[String, String]) {
+    def walk(h: FileHandle, fakePath: String, m: mutable.Map[String, String], s: mutable.Set[String]) {
       h.list.foreach { f: FileHandle =>
         f.extension match {
           case "jar" =>
             // virtual path for an archive is attached at /, so we don't add it to the paths
-            walk(new JarFileHandle("", f), "", m) // but we do add the paths to its' children
+            s += f.physicalPath
+            walk(new JarFileHandle("", f), "", m,s) // but we do add the paths to its' children
           case "zip" =>
-            walk(new ZipFileHandle("", f), "", m) // walk all children of this dir
+            s += f.physicalPath
+            walk(new ZipFileHandle("", f), "", m,s) // walk all children of this dir
           case _ =>
             if (f.extension == "") {
               m put (fakePath + f.name, f.physicalPath) // otherwise, add virtual path maps to real path
             } else {
               m put (fakePath + f.name + "." + f.extension, f.physicalPath) // otherwise, map virtual path to real
             }
-            if (f.isDirectory) walk(f, fakePath + f.name + "/", m) // and walk (if it's a dir)
+            if (f.isDirectory) walk(f, fakePath + f.name + "/", m,s) // and walk (if it's a dir)
         }
       }
     }
-    m
+    (m,s)
   }
 
   /**

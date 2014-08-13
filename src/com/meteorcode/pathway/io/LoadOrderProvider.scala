@@ -1,4 +1,7 @@
 package com.meteorcode.pathway.io
+
+import scala.collection.mutable
+
 /**
  * Interface representing a policy provider for resolving load-order conflicts.
  * An implementation of this is consulted by a [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] to
@@ -14,5 +17,5 @@ trait LoadOrderProvider {
    * @param paths a set of Strings representing top-level paths in the physical filesystem.
    * @return a List of those paths ordered by their load priority
    */
-  def orderPaths(paths: Set[String]): List[String]
+  def orderPaths(paths: mutable.Set[String]): List[String]
 }

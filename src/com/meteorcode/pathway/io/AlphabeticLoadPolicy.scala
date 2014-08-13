@@ -1,4 +1,5 @@
 package com.meteorcode.pathway.io
+import scala.collection.mutable
 
 /**
  * Simple [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] implementation.
@@ -14,5 +15,5 @@ class AlphabeticLoadPolicy extends LoadOrderProvider {
    * @param paths a set of Strings representing top-level paths in the physical filesystem.
    * @return a List of those paths ordered by their load priority
    */
-  def orderPaths(paths: Set[String]): List[String] = paths.to[List].sortWith(_.toLowerCase < _.toLowerCase)
+  def orderPaths(paths: mutable.Set[String]): List[String] = paths.to[List].sortWith(_.toLowerCase < _.toLowerCase)
 }
