@@ -10,9 +10,9 @@ import com.meteorcode.pathway.io.FileHandle;
 
 /**
  * The means by which one obtains a ScriptContainer.
- * 
+ *
  * @author xyzzy
- * 
+ *
  */
 public class ScriptContainerFactory {
 
@@ -21,7 +21,7 @@ public class ScriptContainerFactory {
 
 	/**
 	 * ScriptContainer for Beanshell scripts.
-	 * 
+	 *
 	 * @author Hawk Weisman
 	 * @version 0.0.1
 	 * @since May 17th, 2014
@@ -50,7 +50,7 @@ public class ScriptContainerFactory {
 		/**
 		 * Init an new Beanshell ScriptContainer and link in a
 		 * ScriptEnvironment.
-		 * 
+		 *
 		 * @param environment
 		 *            the ScriptEnvironment to link in.
 		 * @throws ScriptException
@@ -74,7 +74,7 @@ public class ScriptContainerFactory {
 		 * generic ScriptException, with the exception's cause being the actual
 		 * exception thrown by the script.
 		 * </p>
-		 * 
+		 *
 		 * @param script
 		 *            The string of literal text to interpret as a script.
 		 * @return The object result of the evaluation, or null if there was no
@@ -110,9 +110,9 @@ public class ScriptContainerFactory {
 		 * generic ScriptException, with the exception's cause being the actual
 		 * exception thrown by the script.
 		 * </p>
-		 * 
+		 *
 		 * @param file
-		 *            a {@link com.meteorcode.io.FileHandle FileHandle}
+		 *            a {@link com.meteorcode.pathway.io.FileHandle FileHandle}
 		 *            containing the script to execute.
 		 * @return The object result of the evaluation, or null if there was no
 		 *         result.
@@ -120,7 +120,7 @@ public class ScriptContainerFactory {
 		 *             if an error takes place during script execution. The
 		 *             ScriptException wraps the native exceptions thrown by
 		 *             Beanshell.
-		 * @throws IOException 
+		 * @throws IOException
 		 * 				if an error takes place while accessing the FileHandle.
 		 * @see com.meteorcode.pathway.script.ScriptContainer#eval(FileHandle)
 		 */
@@ -143,14 +143,14 @@ public class ScriptContainerFactory {
 
 		/**
 		 * Put data into the scripting environment globally.
-		 * 
+		 *
 		 * @param scriptName
 		 *            The name of the variable exposed to scripts
 		 * @param object
 		 *            The object to bind to this variable name
 		 * @throws ScriptException
 		 *             if the injection attempt fails.
-		 * @see 
+		 * @see
 		 *      {com.meteorcode.spaceshipgame.script.ScriptContainer#injectObject
 		 *      (String , Object)
 		 * @see {bsh.Interpreter#set(String, Object)}
@@ -168,12 +168,12 @@ public class ScriptContainerFactory {
 
 		/**
 		 * Remove a variable put into the script environment.
-		 * 
+		 *
 		 * @param scriptName
 		 *            The name of the variable exposed to scripts
 		 * @throws ScriptException
 		 *             if the removal attempt fails.
-		 * @see 
+		 * @see
 		 *      {com.meteorcode.spaceshipgame.script.ScriptContainer#removeObject
 		 *      (String , Object)
 		 * @see {bsh.Interpreter#unset(String, Object)}
@@ -192,7 +192,7 @@ public class ScriptContainerFactory {
 		 * <p>
 		 * Accesses the contents of a variable in the script environment.
 		 * </p>
-		 * 
+		 *
 		 * @param variable
 		 *            the name of the script variable to access
 		 * @return the contents of the variable if it exists, null if the

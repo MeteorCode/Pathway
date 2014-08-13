@@ -15,7 +15,7 @@ object ModLoader {
 
   /**
    * Loads all mods in the target directory.
-   * @param directory A [[com.meteorcode.io.FileHandle]] representing the mods directory
+   * @param directory A [[com.meteorcode.pathway.io.FileHandle]] representing the mods directory
    * @throws IOException if the mods directory is invalid.
    */
   @throws(classOf[IOException])

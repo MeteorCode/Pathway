@@ -21,35 +21,35 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
 
   /**
    *
-   * Stamps this Payload with a [[com.meteorcode.model.Property]], marking that that Property has "seen"
+   * Stamps this Payload with a [[com.meteorcode.pathway.model.Property]], marking that that Property has "seen"
    * this Payload.
    *
    * A Property may only stamp a Payload once; attempting to stamp the same
    * Payload multiple times will do nothing past the initial stamping.
    *
    * @param stampedBy
-   *            the [[com.meteorcode.model.Property]] stamping this event.
+   *            the [[com.meteorcode.pathway.model.Property]] stamping this event.
    */
   def stamp(stampedBy: Property) = stamps += stampedBy
   def unstamp(stampedBy: Property) = stamps -= stampedBy
 
   /**
-   * Attempts to stamp this Payload with a [[com.meteorcode.model.Property]] if this Payload has not already been
+   * Attempts to stamp this Payload with a [[com.meteorcode.pathway.model.Property]] if this Payload has not already been
    * stamped by that Property, and returns false if the Payload has already been stamped.
-   * @param stampedBy the [[com.meteorcode.model.Property]] stamping this event.
+   * @param stampedBy the [[com.meteorcode.pathway.model.Property]] stamping this event.
    * @return false if this Payload was already stamped by that Property, true if not
    */
   def tryToStamp (stampedBy: Property) = if (stampExists(stampedBy)) { false } else { stamp(stampedBy); true }
   /**
-   * Checks to see if this Payload has been stamped by a [[com.meteorcode.model.Property]], marking that
+   * Checks to see if this Payload has been stamped by a [[com.meteorcode.pathway.model.Property]], marking that
    * that Property has "seen" this Payload
    *
    * @param stampedBy
-   *            the [[com.meteorcode.model.Property]] who's stamp is being searched for
+   *            the [[com.meteorcode.pathway.model.Property]] who's stamp is being searched for
    * @return true if that Property's stamp is present.
    */
   def stampExists(stampedBy: Property) = stamps.contains(stampedBy)
-  
+
   def where = location
   def x: Integer = { if (location == null) { null } else location.getPosition().getX }
   def y: Integer = { if (location == null) { null } else location.getPosition().getY }

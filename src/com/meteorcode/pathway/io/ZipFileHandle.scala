@@ -15,15 +15,19 @@ import java.util.zip.{ZipFile}
  * A FileHandle into the top level of a Zip archive (treated as a directory).
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
- * [[com.meteorcode.pathway.io.ResourceManager.handle()]]. The FileHandle system is supposed to allow you to treat files in
- * zip/zip archives as though they were on the filesystem as regular files, but this only works if you treat all files
- * you have to access as instances of [[com.meteorcode.pathway.io.FileHandle]]. If you  ever refer to files as
- * [[com.meteorcode.pathway.io.DesktopFileHandle]], [[com.meteorcode.pathway.io.ZipFileHandle]], or
- * [[com.meteorcode.pathway.io.ZipFileHandle]] explicitly in your code, you are doing the  Wrong Thing and negating a
- * whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
+ * [[com.meteorcode.pathway.io.ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
+ * allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only
+ * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.FileHandle FileHandle]].
+ * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
+ * [[com.meteorcode.pathway.io.ZipFileHandle, ZipFileHandle]], or
+ * [[com.meteorcode.pathway.io.JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
+ * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
+ * @param virtualPath The virtual path to the object this FileHandle represents
  * @param back A [[java.util.File]] representing the Zip archive to handle.
+ * @param manager the ResourceManager managing this FileHandle
  * @author Hawk Weisman
+ * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
 class ZipFileHandle (virtualPath: String,
                      private val back: File,

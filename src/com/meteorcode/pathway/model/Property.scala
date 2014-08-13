@@ -17,14 +17,14 @@ abstract class Property (initDrawID: Integer, initParent: Context){
   def eval(script: String) = parent.eval(script)
 
  /**
-  * Move the Property from the currently-occupied [[com.meteorcode.model.Context]] to a new Context.
+  * Move the Property from the currently-occupied [[com.meteorcode.pathway.model.Context]] to a new Context.
   *
   * Note that this assumes a Property may only occupy one Context at a
   * time. I'm assuming that this is correct behaviour, let me know if it
   * needs to be modified.
   *
   * @param newContext
-  *            the [[com.meteorcode.model.Context]] this Property is entering
+  *            the [[com.meteorcode.pathway.model.Context]] this Property is entering
   */
   def changeContext(newContext: Context) {
     if (parent != null)
@@ -36,8 +36,8 @@ abstract class Property (initDrawID: Integer, initParent: Context){
   /**
    * This method is triggered when the property is evented.
    * This should be filled with the correct behaviour by scripts that create Properties.
-   * @param publishedBy the [[com.meteorcode.model.Context]] on which the triggering event was pumped
-   * @param event the [[com.meteorcode.model.Event]] eventing this Property.
+   * @param publishedBy the [[com.meteorcode.pathway.model.Context]] on which the triggering event was pumped
+   * @param event the [[com.meteorcode.pathway.model.Event]] eventing this Property.
    */
   def onEvent(event: Event, publishedBy: Context): Boolean
   // This method is triggered when the Property is evented.

@@ -124,9 +124,9 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /** Writes the specified string to the file using the default charset.
     *
-    * Throws an [[java.io.IOException]] if the FileHandle represents something that is not writeable; yes, I am aware
-    * that having some of these methods return null and others throw exceptions is Wrong and I should feel Bad,
-    * I wanted them to return an [[scala.Option]], but Max wouldn't let me.
+    * Throws an [[java.io.IOException IOException ]] if the FileHandle represents something that is not writeable;
+    * yes, I am aware that having some of these methods return null and others throw exceptions is Wrong and I should
+    * feel Bad, I wanted them to return an [[scala.Option Option]], but Max wouldn't let me.
     *
     * @param string the string to write to the file
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
@@ -141,12 +141,12 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /** Writes the specified string to the file using the specified  charset.
     *
-    * Throws an [[java.io.IOException]] if the FileHandle represents something that is not writeable; yes, I am aware
-    * that having some of these methods return null and others throw exceptions is Wrong and I should feel Bad,
-    * I wanted them to return an [[scala.Option]], but Max wouldn't let me.
+    * Throws an [[java.io.IOException IOException]] if the FileHandle represents something that is not writeable;
+    * yes, I am aware  that having some of these methods return null and others throw exceptions is Wrong and I should
+    * feel Bad, I wanted them to return an [[scala.Option Option]], but Max wouldn't let me.
     *
     * @param string the string to write to the file
-    * @param charset the [[java.nio.charset.Charset]] to use while writing to the file
+    * @param charset the [[java.nio.charset.Charset Charset]] to use while writing to the file
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     * @throws IOException if this file is not writeable
     */
