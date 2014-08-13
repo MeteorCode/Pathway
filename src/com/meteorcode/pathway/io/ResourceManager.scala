@@ -15,14 +15,15 @@ import scala.collection.mutable
  *
  * @param directories A list of directories to be fused into the top level of the virtual filesystem.
  */
-class ResourceManager(private val directories: List[FileHandle]) {
+class ResourceManager(private val directories: List[FileHandle],
+                      private val policy: LoadOrderProvider) {
   /**
    * Constructor for a ResourceManager with a single managed directory.
    *
    * @param directory a FileHandle into the directory to manage.
    * @return a new ResourceManager managing the specified directory.
    */
-  def this(directory: FileHandle) = this(List(directory))
+  def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), policy)
 
   /**
    * Constructor for a ResourceManager with a String representing a path to the managed directory.
@@ -33,7 +34,7 @@ class ResourceManager(private val directories: List[FileHandle]) {
    * @param path the path to the directory to manage
    * @return a new ResourceManager managing the specified directory.
    */
-  def this(path: String) = this(new DesktopFileHandle("", path, null))
+  def this(path: String, policy: LoadOrderProvider) = this(new DesktopFileHandle("", path, null), policy)
 
 
   // it's okay for the Manager to be null because if it has a path,

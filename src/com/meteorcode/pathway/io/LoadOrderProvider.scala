@@ -1,0 +1,18 @@
+package com.meteorcode.pathway.io
+/**
+ * Interface representing a policy provider for resolving load-order conflicts.
+ * An implementation of this is consulted by a [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] to
+ * determine the correct priority order.
+ *
+ * Created by Hawk on 8/13/14.
+ *
+ * @see [[com.meteorcode.pathway.io.ResourceManager]]
+ */
+trait LoadOrderProvider {
+  /**
+   * Takes an unordered set of top-level paths and returns a list of those paths, ordered by load priority.
+   * @param paths a set of Strings representing top-level paths in the physical filesystem.
+   * @return a List of those paths ordered by their load priority
+   */
+  def orderPaths(paths: Set[String]): List[String]
+}
