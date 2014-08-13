@@ -34,9 +34,8 @@ class Context(protected var name: String) {
   protected var gameObjects = HashSet[GameObject]()
   protected var properties = HashSet[Property]()
   private var beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()
-  // TODO: This should really be requested from a global
-  // ScriptContainerFactory instance, but since that's not available, I'm
-  // doing it like this so that the class will run and be testable.
+  // TODO: This should really be requested from a global ScriptContainerFactory instance,
+  // but since that's not available, I'm doing it like this so that the class will run and be testable.
 
   def injectObject(name: String, toInject: Object) = beanshell.injectObject(name, toInject)
   def removeObject(name: String) = beanshell.removeObject(name)
@@ -93,10 +92,13 @@ class Context(protected var name: String) {
    * Pops off the top [[com.meteorcode.pathway.model.Event]] in the stack,  notifies any subscribed Properties, and then
    * evaluates that Event.
    *
-   * Each Property is given the opportunity to [[com.meteorcode.pathway.model.Event.invalidate]] the Event when they
-   * are notified. If no Property invalidates the Event, it will be evaluated once all Properties are notified.
+   * Each [[com.meteorcode.pathway.model.Property Property]] attached to this
+   * [[com.meteorcode.pathway.model.Context Context]] s given the opportunity to
+   * [[com.meteorcode.pathway.model.Event.invalidate invalidate()]] the Event when they are notified.
+   * If no Property invalidates the Event, it will be evaluated once all Properties have been notified.
    *
-   * @throws ScriptException if the Context's associated ScriptContainer encounters an error when evaluating the Event.
+   * @throws ScriptException if the Context's associated [[com.meteorcode.pathway.script.ScriptContainer]]
+   *                         encounters an error when evaluating the Event.
    */
   @throws(classOf[ScriptException])
   def pump {
