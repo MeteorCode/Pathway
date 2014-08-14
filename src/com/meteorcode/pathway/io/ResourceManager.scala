@@ -57,10 +57,19 @@ class ResourceManager protected (private val directories: List[FileHandle],
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(List(directory), Some(writeDir), policy)
 
+  /**
+   * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
+   * The write directory's virtual path will be automatically determined.
+   *
+   * @param path a String representing the path to the directory to manage.
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @param writePath a String representing the path into the write directory
+   * @return a new ResourceManager managing the specified directory.
+   */
   def this(path: String,                    // it's okay for the Manager to be null because if it has a path,
            writePath: String,               // it will never need to get the path from the ResourceManager
            policy: LoadOrderProvider) = this(List(new DesktopFileHandle("", path, null)),
-                                             Some(new DesktopFileHandle(writePath, writePath, null)),
+                                             Some(new DesktopFileHandle(writePath, writePath.replace(path, ""), null)),
                                              policy)
 
   def this(directories: List[FileHandle],
