@@ -63,13 +63,13 @@ class ResourceManager(private val directories: List[FileHandle],
             // virtual path for an archive is attached at /, so we don't add it to the paths
             val handle = new JarFileHandle("/", f)
             roots.add(handle) // but we do add it to the roots
-            walk(handle, "/", virtualPaths, roots) // and we add the paths to its' children
+            walk(handle, "", virtualPaths, roots) // and we add the paths to its' children
           case "zip" =>
             val handle = new ZipFileHandle("/", f)
             roots.add(handle)
-            walk(new ZipFileHandle("/", f), "/", virtualPaths, roots) // walk all children of this dir
+            walk(handle, "", virtualPaths, roots) // walk all children of this dir
           case _ =>
-            if (f.extension == "/") virtualPaths.add(fakePath + f.name) // add the path
+            if (f.extension == "") virtualPaths.add(fakePath + f.name) // add the path
             else virtualPaths.add(fakePath + f.name + "." + f.extension)
             if (f.isDirectory) walk(f, fakePath + f.name + "/", virtualPaths, roots)  // and walk (if it's a dir)
         }
@@ -84,26 +84,13 @@ class ResourceManager(private val directories: List[FileHandle],
 
     for (root <- orderedRoots) walk(root, map)
 
-    def walk(handle: FileHandle, m: mutable.Map[String, String]): Unit = {
-      handle.list.foreach(file =>
-        if (virtualPaths contains file.path) {
-          m += (file.path -> file.physicalPath)
-          if (file.isDirectory)
-            walk(file, m)
-        })
-    }
+    def walk(handle: FileHandle, m: mutable.Map[String, String]): Unit = handle.list.foreach {
+      file =>
+        m += (file.path -> file.physicalPath)
+        if (file.isDirectory) walk(file, m)
+      }
     map
   }
-
-  /**
-   * Request the virtual path for a given physical path.
-   *
-   * @param physicalPath a physical path in the filesystem
-   * @return the virtual path corresponding to that physical path.
-   * @deprecated As you can no longer make FileHandles with null paths, this should no longer be necessary.
-   */
-  protected[io] def getVirtualPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).getOrElse(
-    throw new IOException("Could not find virtual path corresponding to physical path" + physicalPath))
 
   /**
    * Request that the ResourceManager handle the file at a given path.
@@ -141,10 +128,10 @@ class ResourceManager(private val directories: List[FileHandle],
         case Some(ArchiveMatch(path, extension, name)) => extension match {
           case ".zip" =>
             val parent = new ZipFileHandle("/", new File(path + extension), this)
-            new ZipEntryFileHandle(parent.zipfile.getEntry(name), parent)
+            new ZipEntryFileHandle(fakePath, parent.zipfile.getEntry(name), parent)
           case ".jar" =>
             val parent = new JarFileHandle("/", new File(path + extension), this)
-            new JarEntryFileHandle(parent.jarfile.getJarEntry(name), parent)
+            new JarEntryFileHandle(fakePath, parent.jarfile.getJarEntry(name), parent)
         }
         case _ => new DesktopFileHandle(fakePath, realPath, this)
       }
