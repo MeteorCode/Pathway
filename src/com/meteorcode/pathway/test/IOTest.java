@@ -35,7 +35,11 @@ public class IOTest {
 
     @Before
     public void setUp() {
-        r = new ResourceManager("build/resources/test", new AlphabeticLoadPolicy());
+        r = new ResourceManager(
+                "build/resources/test",
+                "build/resources/test/testWriteDir",
+                new AlphabeticLoadPolicy()
+        );
     }
 
     @Before public void initMocks() {
@@ -45,7 +49,7 @@ public class IOTest {
     @After
     public void tearDown() throws IOException {
         // clean up the file so that it won't exist next time tests are run
-        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test", "test5.txt"));
+        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/writeDir/", "test5.txt"));
     }
 
     @Test
@@ -63,17 +67,14 @@ public class IOTest {
 
     @Test
     public void testWriting() throws IOException {
-        // Disabled because this behaviour is no longer correct.
         // TODO: Make the test class create a write dir, and make this test attempt to write to the write dir.
-        /*
-        underTest = r.handle("test5.txt");
+        underTest = r.handle("/testWriteDir/test5.txt");
         underTest.writeString("hello", false);
         assertEquals("hello", underTest.readString());
         assertTrue(underTest.write(8, true) instanceof BufferedOutputStream);
         assertTrue(underTest.write(true) instanceof OutputStream);
         assertTrue(underTest.write(8, false) instanceof BufferedOutputStream);
         assertTrue(underTest.write(false) instanceof OutputStream);
-        */
     }
 
     @Test
@@ -160,7 +161,7 @@ public class IOTest {
         FileHandle h2 = r.handle("/test1.txt");
         assertSame("FAIL: ResourceManager did not return cached FileHandle.", h1, h2);
     }
-    /*
+
     // This test was disabled as it expects incorrect write protection behavior
     // TODO: make this test happen isnide a write dir
     @Test
@@ -170,7 +171,7 @@ public class IOTest {
                 .thenThrow(new IOException("LOL FAKE STRING"));
         when(fakeFile.isDirectory()).thenReturn(false);
         when(fakeFile.exists()).thenReturn(false);
-        underTest = new DesktopFileHandle("lolfakepath", "lolfakepath", fakeFile, r);
+        underTest = new DesktopFileHandle("/testWriteDir/lolfakepath", "/testWriteDir/lolfakepath", fakeFile, r);
         assertFalse(underTest.writable());
         try {
             underTest.writable();
@@ -182,5 +183,4 @@ public class IOTest {
         verify(fakeFile, times(2)).exists();
         verify(fakeFile, times(2)).createNewFile();
     }
-    */
 }
