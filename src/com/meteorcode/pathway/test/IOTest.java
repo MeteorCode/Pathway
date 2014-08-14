@@ -40,6 +40,7 @@ public class IOTest {
                 "build/resources/test/testWriteDir",
                 new AlphabeticLoadPolicy()
         );
+        new File("build/resources/test/testDir/emptyTestDir").mkdir();
     }
 
     @Before public void initMocks() {
@@ -50,6 +51,9 @@ public class IOTest {
     public void tearDown() throws IOException {
         // clean up the write directory so that it won't exist next time tests are run
         Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/writeDir/"));
+
+        // clean up the empty test dir
+        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/emptyTestDir/"));
     }
 
     @Test
