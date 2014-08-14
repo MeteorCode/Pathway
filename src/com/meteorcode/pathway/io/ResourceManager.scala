@@ -69,7 +69,7 @@ class ResourceManager protected (private val directories: List[FileHandle],
   def this(path: String,                    // it's okay for the Manager to be null because if it has a path,
            writePath: String,               // it will never need to get the path from the ResourceManager
            policy: LoadOrderProvider) = this(List(new DesktopFileHandle("", path, null)),
-                                             Some(new DesktopFileHandle(writePath, writePath.replace(path, ""), null)),
+                                             Some(new DesktopFileHandle(writePath.replace(path, ""), writePath, null)),
                                              policy)
 
   def this(directories: List[FileHandle],
