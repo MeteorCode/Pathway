@@ -129,7 +129,7 @@ public class IOTest {
 
     @Test
     public void testDirFileHandle() throws IOException {
-        underTest = r.handle("/testDir/");
+        underTest = r.handle("/testDir");
         assertEquals("", underTest.extension());
         assertEquals("testDir", underTest.name());
         assertFalse("FAIL: Directory claimed to be writable.", underTest.writable());
