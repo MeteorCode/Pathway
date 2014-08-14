@@ -142,6 +142,7 @@ class ResourceManager protected (private val directories: List[FileHandle],
    * @param path The virtual path to the requested object
    * @return A [[com.meteorcode.pathway.io.FileHandle]] wrapping the object that exists at the requested path
    */
+  @throws(classOf[IOException])
   def handle(path: String): FileHandle = {
     if (cachedHandles.keySet contains path)
       cachedHandles.getOrElseUpdate(path, makeHandle(path))
