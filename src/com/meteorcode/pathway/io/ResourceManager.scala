@@ -126,6 +126,13 @@ class ResourceManager protected (private val directories: List[FileHandle],
   def getWritePath = if (writeDir.isDefined) writeDir.get.physicalPath else null
 
   /**
+   * Returns true if a given virtual path is writable, false if it is not.
+   * @param virtualPath a path in the virtual filesystem
+   * @return true if that path can be written to, false if it cannot
+   */
+  def isPathWritable(virtualPath: String) = if (writeDir.isDefined) (virtualPath.contains(getWritePath)) else false
+
+  /**
    * Request that the ResourceManager handle the file at a given path.
    *
    * ResourceManager attempts to cache all FileHandles requested, so if you request a FileHandle once and then
@@ -149,7 +156,7 @@ class ResourceManager protected (private val directories: List[FileHandle],
     val realPath: String = paths.get(fakePath) match {
       case s:Some[String] => s.get
       case None => // If the path is not in the tree, handle write attempts.
-        if (writeDir.isDefined && fakePath.contains(getWritePath)) {
+        if (isPathWritable(fakePath)) {
           paths += (fakePath -> (writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, "")))
           paths(fakePath)
         } else {

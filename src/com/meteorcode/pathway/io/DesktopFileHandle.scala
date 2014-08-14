@@ -93,15 +93,15 @@ class DesktopFileHandle (virtualPath: String,
    */
   @throws(classOf[IOException])
   def writable: Boolean = {
-    if (isDirectory)
-      false
-    else if (exists)
-      back.canWrite
-    else
-      try {
+    if (manager.isPathWritable(this.path)) {
+      if (isDirectory) false
+      else if (exists)
+        back.canWrite
+      else try {
         back.createNewFile()
-      } catch {
-        case up: IOException => if (up.getMessage == "Permission denied") false else throw up
-      }
+        } catch {
+          case up: IOException => if (up.getMessage == "Permission denied") false else throw up
+        }
+    } else false
   }
 }
