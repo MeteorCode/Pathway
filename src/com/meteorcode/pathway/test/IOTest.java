@@ -48,8 +48,8 @@ public class IOTest {
 
     @After
     public void tearDown() throws IOException {
-        // clean up the file so that it won't exist next time tests are run
-        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/writeDir/", "test5.txt"));
+        // clean up the write directory so that it won't exist next time tests are run
+        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/writeDir/"));
     }
 
     @Test
