@@ -17,7 +17,8 @@ import scala.collection.mutable.ListBuffer
  *
  * For security reasons, paths within the virtual filesystem are non-writable by default, unless they are within an
  * optional specified write directory. The write directory must be within one of the root directories of the virtual
- * filesystem, and must not be contained in an archive.
+ * filesystem, and must not be contained in an archive. Note that if the write directory doesn't exist when this
+ * ResourceManager is initialized, it will be created, along with any directories containing it, if necessary.
  *
  * @param directories A list of directories to be fused into the top level of the virtual filesystem.
  */
@@ -76,12 +77,13 @@ class ResourceManager protected (private val directories: List[FileHandle],
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
-
-
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
   private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
+  // if the write dir doesn't exist, we ought to create it
+  if (writeDir.get.exists == false)
+    if (writeDir.get.file.mkdirs() == false) throw new IOException("Specified write directory could not be created!")
 
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
