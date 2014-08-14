@@ -35,7 +35,12 @@ public class IOTest {
 
     @Before
     public void setUp() {
-        r = new ResourceManager("build/resources/test", new AlphabeticLoadPolicy());
+        r = new ResourceManager(
+                "build/resources/test",
+                "build/resources/test/testWriteDir",
+                new AlphabeticLoadPolicy()
+        );
+        new File("build/resources/test/testDir/emptyTestDir").mkdir();
     }
 
     @Before public void initMocks() {
@@ -44,8 +49,11 @@ public class IOTest {
 
     @After
     public void tearDown() throws IOException {
-        // clean up the file so that it won't exist next time tests are run
-        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test", "test5.txt"));
+        // clean up the write directory so that it won't exist next time tests are run
+        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/writeDir/"));
+
+        // clean up the empty test dir
+        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/emptyTestDir/"));
     }
 
     @Test
@@ -63,7 +71,8 @@ public class IOTest {
 
     @Test
     public void testWriting() throws IOException {
-        underTest = r.handle("test5.txt");
+        // TODO: Make the test class create a write dir, and make this test attempt to write to the write dir.
+        underTest = r.handle("/testWriteDir/test5.txt");
         underTest.writeString("hello", false);
         assertEquals("hello", underTest.readString());
         assertTrue(underTest.write(8, true) instanceof BufferedOutputStream);
@@ -73,9 +82,13 @@ public class IOTest {
     }
 
     @Test
-    public void testNonexistantFileHandle() throws IOException {
-        underTest = r.handle("testDir/I AM NOT A REAL FILE.txt");
-        assertNull(underTest.read());
+    public void testNonexistantFileHandle() {
+        try {
+            underTest = r.handle("testDir/I AM NOT A REAL FILE.txt");
+        } catch (IOException io) {
+            assertEquals("A filehandle to an empty path was requested, and the requested path was not writable",
+                    io.getMessage());
+        }
     }
 
     @Test
@@ -121,7 +134,7 @@ public class IOTest {
 
     @Test
     public void testDirFileHandle() throws IOException {
-        underTest = r.handle("/testDir/");
+        underTest = r.handle("/testDir");
         assertEquals("", underTest.extension());
         assertEquals("testDir", underTest.name());
         assertFalse("FAIL: Directory claimed to be writable.", underTest.writable());
@@ -147,12 +160,14 @@ public class IOTest {
     }
 
     @Test
-    public void testResourceManagerCaching() {
+    public void testResourceManagerCaching() throws IOException {
         FileHandle h1 = r.handle("/test1.txt");
         FileHandle h2 = r.handle("/test1.txt");
         assertSame("FAIL: ResourceManager did not return cached FileHandle.", h1, h2);
     }
 
+    // This test was disabled as it expects incorrect write protection behavior
+    // TODO: make this test happen isnide a write dir
     @Test
     public void testPermissionDenied () throws IOException {
         when(fakeFile.createNewFile())
@@ -160,7 +175,7 @@ public class IOTest {
                 .thenThrow(new IOException("LOL FAKE STRING"));
         when(fakeFile.isDirectory()).thenReturn(false);
         when(fakeFile.exists()).thenReturn(false);
-        underTest = new DesktopFileHandle("lolfakepath", "lolfakepath", fakeFile, r);
+        underTest = new DesktopFileHandle("/testWriteDir/lolfakepath", "/testWriteDir/lolfakepath", fakeFile, r);
         assertFalse(underTest.writable());
         try {
             underTest.writable();

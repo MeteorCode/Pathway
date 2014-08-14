@@ -15,17 +15,24 @@ import scala.collection.mutable.ListBuffer
  * in the virtual filesystem. For example, if we have a file foo.zip containing the path foo/images/spam.png and another
  * file bar.jar, containing bar/images/eggs.jpeg, the virtual directory bar/ contains spam.png and eggs.jpeg.
  *
+ * For security reasons, paths within the virtual filesystem are non-writable by default, unless they are within an
+ * optional specified write directory. The write directory must be within one of the root directories of the virtual
+ * filesystem, and must not be contained in an archive. Note that if the write directory doesn't exist when this
+ * ResourceManager is initialized, it will be created, along with any directories containing it, if necessary.
+ *
  * @param directories A list of directories to be fused into the top level of the virtual filesystem.
  */
-class ResourceManager(private val directories: List[FileHandle],
-                      private val policy: LoadOrderProvider) {
+class ResourceManager protected (private val directories: List[FileHandle],
+                                 private val writeDir: Option[FileHandle],
+                                 private val policy: LoadOrderProvider) {
   /**
    * Constructor for a ResourceManager with a single managed directory.
    *
    * @param directory a FileHandle into the directory to manage.
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
    * @return a new ResourceManager managing the specified directory.
    */
-  def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), policy)
+  def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), None, policy)
 
   /**
    * Constructor for a ResourceManager with a String representing a path to the managed directory.
@@ -34,17 +41,49 @@ class ResourceManager(private val directories: List[FileHandle],
    * FileHandle, use [[com.meteorcode.pathway.io.ResourceManager.handle]]  instead.
    *
    * @param path the path to the directory to manage
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
    * @return a new ResourceManager managing the specified directory.
    */
-  def this(path: String, policy: LoadOrderProvider) = this(new DesktopFileHandle("", path, null), policy)
+  def this(path: String, policy: LoadOrderProvider) = this(List(new DesktopFileHandle("", path, null)), None, policy)
 
+  /**
+   * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
+   *
+   * @param directory a FileHandle into the directory to manage.
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @param writeDir a FileHandle into the write directory
+   * @return a new ResourceManager managing the specified directory.
+   */
+  def this(directory: FileHandle,
+           writeDir: FileHandle,
+           policy: LoadOrderProvider) = this(List(directory), Some(writeDir), policy)
 
-  // it's okay for the Manager to be null because if it has a path,
-  // it will never need to get the path from the ResourceManager
+  /**
+   * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
+   * The write directory's virtual path will be automatically determined.
+   *
+   * @param path a String representing the path to the directory to manage.
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @param writePath a String representing the path into the write directory
+   * @return a new ResourceManager managing the specified directory.
+   */
+  def this(path: String,                    // it's okay for the Manager to be null because if it has a path,
+           writePath: String,               // it will never need to get the path from the ResourceManager
+           policy: LoadOrderProvider) = this(List(new DesktopFileHandle("", path, null)),
+                                             Some(new DesktopFileHandle(writePath.replace(path, ""), writePath, null)),
+                                             policy)
+
+  def this(directories: List[FileHandle],
+           writeDir: FileHandle,
+           policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
+
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
   private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
+  // if the write dir doesn't exist, we ought to create it
+  if (writeDir.get.exists == false)
+    if (writeDir.get.file.mkdirs() == false) throw new IOException("Specified write directory could not be created!")
 
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
@@ -93,6 +132,18 @@ class ResourceManager(private val directories: List[FileHandle],
   }
 
   /**
+   * @return the path to the designated write directory, or null if there is no write directory.
+   */
+  def getWritePath = if (writeDir.isDefined) writeDir.get.physicalPath else null
+
+  /**
+   * Returns true if a given virtual path is writable, false if it is not.
+   * @param virtualPath a path in the virtual filesystem
+   * @return true if that path can be written to, false if it cannot
+   */
+  def isPathWritable(virtualPath: String) = if (writeDir.isDefined) virtualPath.contains(writeDir.get.path) else false
+
+  /**
    * Request that the ResourceManager handle the file at a given path.
    *
    * ResourceManager attempts to cache all FileHandles requested, so if you request a FileHandle once and then
@@ -102,6 +153,7 @@ class ResourceManager(private val directories: List[FileHandle],
    * @param path The virtual path to the requested object
    * @return A [[com.meteorcode.pathway.io.FileHandle]] wrapping the object that exists at the requested path
    */
+  @throws(classOf[IOException])
   def handle(path: String): FileHandle = {
     if (cachedHandles.keySet contains path)
       cachedHandles.getOrElseUpdate(path, makeHandle(path))
@@ -116,12 +168,14 @@ class ResourceManager(private val directories: List[FileHandle],
     val realPath: String = paths.get(fakePath) match {
       case s:Some[String] => s.get
       case None => // If the path is not in the tree, handle write attempts.
-        //TODO: define a better write location, directories(0) may not always be correct
-        paths += (fakePath -> (directories(0).physicalPath + "/" + fakePath))
-        paths(fakePath)
+        if (isPathWritable(fakePath)) {
+          paths += (fakePath -> (writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, "")))
+          paths(fakePath)
+        } else {
+          throw new IOException("A filehandle to an empty path was requested, and the requested path was not writable")
+        }
     }
     realPath.split('.').drop(1).lastOption match {
-        //TODO: Handle write attempts into archives by uncompressing the archive, writing the file, and recompressing
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
       case _ => ArchiveMatch.findFirstIn(realPath) match {
