@@ -50,13 +50,13 @@ public class IOTest {
 
     @Test
     public void testFileHandle() throws IOException {
-        underTest = r.handle("test1.txt");
+        underTest = r.handle("/test1.txt");
         assertEquals("txt", underTest.extension());
         assertEquals("test1", underTest.name());
-        assertEquals("hi!", underTest.readString());
+        assertTrue(underTest.readString().contains("test1.txt"));
         assertFalse(underTest.isDirectory());
         assertEquals(Collections.emptyList(), underTest.list());
-        assertTrue(underTest.writable());
+        assertFalse(underTest.writable());
         assertTrue(underTest.read(8) instanceof BufferedInputStream);
         assertTrue(underTest.read() instanceof InputStream);
     }
@@ -80,7 +80,7 @@ public class IOTest {
 
     @Test
     public void testZippedFileHandle() throws IOException {
-        underTest = r.handle("zippedtest.txt");
+        underTest = r.handle("/zippedtest.txt");
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "also hi!", underTest.readString());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
@@ -100,19 +100,19 @@ public class IOTest {
 
     @Test
     public void testJarFileHandle() throws IOException {
-        underTest = r.handle("test6.txt");
+        underTest = r.handle("/test6.txt");
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "Continued hi.", underTest.readString());
         assertFalse(underTest.writable());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
-        underTest = r.handle("testJarDir/test7.md");
+        underTest = r.handle("/testJarDir/test7.md");
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
         assertEquals("FAIL: Zipped file readString() returned wrong thing.", "Hi continues.", underTest.readString());
         assertFalse(underTest.writable());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
         assertEquals(underTest.list(), Collections.emptyList());
         assertEquals("build/resources/test/testJar.jar/testJarDir/test7.md", underTest.physicalPath());
-        underTest = r.handle("testJarDir");
+        underTest = r.handle("/testJarDir/");
         assertTrue(underTest.isDirectory());
         assertFalse(underTest.writable());
         assertNull(underTest.write(true));
@@ -121,7 +121,7 @@ public class IOTest {
 
     @Test
     public void testDirFileHandle() throws IOException {
-        underTest = r.handle("testDir");
+        underTest = r.handle("/testDir/");
         assertEquals("", underTest.extension());
         assertEquals("testDir", underTest.name());
         assertFalse("FAIL: Directory claimed to be writable.", underTest.writable());
@@ -132,14 +132,14 @@ public class IOTest {
 
     @Test
     public void testEmptyDir() throws IOException {
-        underTest = r.handle("testDir/emptyTestDir");
+        underTest = r.handle("/testDir/emptyTestDir");
         java.util.List l = underTest.list();
         assertEquals("FAIL: empty test dir didn't return empty list", l, Collections.emptyList());
     }
 
     @Test
     public void testZipFileHandle () throws IOException {
-        underTest = r.handle("zippedtest.zip");
+        underTest = r.handle("/zippedtest.zip");
         String name = underTest.name();
         assertTrue("FAIL: got " + name + " expected /", name.equals("zippedtest"));
         assertTrue(underTest.isDirectory());
@@ -148,8 +148,8 @@ public class IOTest {
 
     @Test
     public void testResourceManagerCaching() {
-        FileHandle h1 = r.handle("test1.txt");
-        FileHandle h2 = r.handle("test1.txt");
+        FileHandle h1 = r.handle("/test1.txt");
+        FileHandle h2 = r.handle("/test1.txt");
         assertSame("FAIL: ResourceManager did not return cached FileHandle.", h1, h2);
     }
 
