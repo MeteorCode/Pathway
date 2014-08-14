@@ -1,9 +1,11 @@
 package com.meteorcode.pathway.io
 
-import java.io.File
+import java.io.{File, IOException}
 
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
@@ -40,40 +42,55 @@ class ResourceManager(private val directories: List[FileHandle],
   // it's okay for the Manager to be null because if it has a path,
   // it will never need to get the path from the ResourceManager
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
-  private val (paths,topLevelPaths) = walk(directories)
+  private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
-  private val loadOrder = policy.orderPaths(topLevelPaths)
+
+
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param directories a list of FileHandles to seed the recursive walk
    */
-  private def walk(directories: List[FileHandle]): (mutable.Map[String, String], mutable.Set[String]) = {
-    var m = mutable.Map[String, String]()
-    var s = mutable.Set[String]()
-    directories.foreach{directory => walk(directory, directory.name, m, s)}
+  private def collectVirtualPaths(directories: List[FileHandle]): (List[String], List[FileHandle]) = {
+    val roots = new ListBuffer[FileHandle]
+    val virtualPaths = new ListBuffer[String]
+    directories.foreach{directory => walk(directory, directory.name, virtualPaths, roots)}
     // recursively walk the directories and cache the paths
-    def walk(h: FileHandle, fakePath: String, m: mutable.Map[String, String], s: mutable.Set[String]) {
-      h.list.foreach { f: FileHandle =>
-        f.extension match {
+    def walk(h: FileHandle, fakePath: String, virtualPaths: ListBuffer[String], roots: ListBuffer[FileHandle]) {
+      for (f <- h.list) f.extension match {
           case "jar" =>
             // virtual path for an archive is attached at /, so we don't add it to the paths
-            s += f.physicalPath
-            walk(new JarFileHandle("", f), "", m,s) // but we do add the paths to its' children
+            roots.add(f) // but we do add it to the roots
+            walk(new JarFileHandle("", f), "", virtualPaths, roots) // and we add the paths to its' children
           case "zip" =>
-            s += f.physicalPath
-            walk(new ZipFileHandle("", f), "", m,s) // walk all children of this dir
+            roots.add(f)
+            walk(new ZipFileHandle("", f), "", virtualPaths, roots) // walk all children of this dir
           case _ =>
-            if (f.extension == "") {
-              m put (fakePath + f.name, f.physicalPath) // otherwise, add virtual path maps to real path
-            } else {
-              m put (fakePath + f.name + "." + f.extension, f.physicalPath) // otherwise, map virtual path to real
-            }
-            if (f.isDirectory) walk(f, fakePath + f.name + "/", m,s) // and walk (if it's a dir)
+            if (f.extension == "") virtualPaths.add(fakePath + f.name) // add the path
+            else virtualPaths.add(fakePath + f.name + "." + f.extension)
+            if (f.isDirectory) walk(f, fakePath + f.name + "/", virtualPaths, roots)  // and walk (if it's a dir)
         }
       }
+    (virtualPaths.toList, roots.toList)
     }
-    (m,s)
+
+  private def buildVirtualFS(pathsAndRoots: (List[String], List[FileHandle])): mutable.Map[String, String] = {
+    val virtualPaths = pathsAndRoots._1
+    val orderedRoots = policy.orderPaths(pathsAndRoots._2) // have the load-order policy rank all the roots
+    val map = mutable.Map[String, String]()
+
+    for (root <- orderedRoots) walk(root, map)
+
+    def walk(handle: FileHandle, m: mutable.Map[String, String]): Unit = {
+      handle.list.foreach(file =>
+        if (virtualPaths contains file.path) {
+          m += (file.path -> file.physicalPath)
+          if (file.isDirectory)
+            walk(file, m)
+        })
+    }
+    map
   }
+
 
   /**
    * Request the virtual path for a given physical path.
@@ -82,7 +99,8 @@ class ResourceManager(private val directories: List[FileHandle],
    * @return the virtual path corresponding to that physical path.
    * @deprecated As you can no longer make FileHandles with null paths, this should no longer be necessary.
    */
-  protected[io] def getVirtualPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).get
+  protected[io] def getVirtualPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).getOrElse(
+    throw new IOException("Could not find virtual path corresponding to physical path" + physicalPath))
 
   /**
    * Request that the ResourceManager handle the file at a given path.
