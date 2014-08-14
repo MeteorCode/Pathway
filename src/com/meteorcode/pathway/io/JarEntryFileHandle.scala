@@ -38,13 +38,16 @@ import java.util.Collections
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
-class JarEntryFileHandle (private val entry: JarEntry,
+class JarEntryFileHandle (virtualPath: String,
+                          private val entry: JarEntry,
                           private val parent: JarFileHandle,
                           private val back: File,
                           manager: ResourceManager)
-  extends JarFileHandle(parent.path + "/" + entry.getName, back, manager) {
+  extends JarFileHandle(virtualPath, back, manager) {
 
-  def this(entry: JarEntry, parent: JarFileHandle) = this(entry, parent, parent.file, parent.manager)
+  def this(virtualPath: String,
+           entry: JarEntry,
+           parent: JarFileHandle) = this(virtualPath, entry, parent, parent.file, parent.manager)
 
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
@@ -86,7 +89,7 @@ class JarEntryFileHandle (private val entry: JarEntry,
         while (entries.hasMoreElements) {
           val e = entries.nextElement
           if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new JarEntryFileHandle(e, parent))
+            result.add(new JarEntryFileHandle(this.path + e.getName.split("/").last, e, parent))
         }
         result
       } catch {

@@ -75,7 +75,7 @@ class JarFileHandle (virtualPath: String,
       while (entries.hasMoreElements) {
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new JarEntryFileHandle(e, this))
+          result.add(new JarEntryFileHandle(this.path + e.getName, e, this))
         }
       }
       jarfile = new JarFile(back) // reset the archive

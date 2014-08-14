@@ -105,7 +105,7 @@ class ZipFileHandle (virtualPath: String,
       while (entries.hasMoreElements) {
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new ZipEntryFileHandle(e, this))
+          result.add(new ZipEntryFileHandle(this.path + e.getName, e, this))
         }
       }
       zipfile = new ZipFile(back) // reset the archive

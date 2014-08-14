@@ -42,7 +42,7 @@ abstract class FileHandle(protected val virtualPath: String,
     * All paths are treated as into Unix-style paths for cross-platform purposes.
     * @return the virtual path to the filesystem uobject wrapped by this FileHandle
     */
-  def path: String = if (virtualPath != null) virtualPath else manager.getVirtualPath(physicalPath)
+  def path: String = virtualPath
 
   /**
    * Returns the physical path to the actual filesystem object represented by this FileHandle.

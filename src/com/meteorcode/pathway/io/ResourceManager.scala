@@ -1,9 +1,11 @@
 package com.meteorcode.pathway.io
 
-import java.io.File
+import java.io.{File, IOException}
 
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
@@ -15,14 +17,15 @@ import scala.collection.mutable
  *
  * @param directories A list of directories to be fused into the top level of the virtual filesystem.
  */
-class ResourceManager(private val directories: List[FileHandle]) {
+class ResourceManager(private val directories: List[FileHandle],
+                      private val policy: LoadOrderProvider) {
   /**
    * Constructor for a ResourceManager with a single managed directory.
    *
    * @param directory a FileHandle into the directory to manage.
    * @return a new ResourceManager managing the specified directory.
    */
-  def this(directory: FileHandle) = this(List(directory))
+  def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), policy)
 
   /**
    * Constructor for a ResourceManager with a String representing a path to the managed directory.
@@ -33,50 +36,61 @@ class ResourceManager(private val directories: List[FileHandle]) {
    * @param path the path to the directory to manage
    * @return a new ResourceManager managing the specified directory.
    */
-  def this(path: String) = this(new DesktopFileHandle("", path, null))
+  def this(path: String, policy: LoadOrderProvider) = this(new DesktopFileHandle("", path, null), policy)
 
 
   // it's okay for the Manager to be null because if it has a path,
   // it will never need to get the path from the ResourceManager
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
-  private var paths = Map[String, String]()
-  private val cachedHandles = mutable.HashMap[String, FileHandle]()
+  private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
+  private val cachedHandles = mutable.Map[String, FileHandle]()
+
 
   /**
-   * Recursively walk the filesystem down from a given FileHandle
-   * @param h the FileHandle tos eed the recursive walk
-   * @param fakePath the virtual path represented by h
+   * Recursively walk the filesystem down from each FileHandle in a list
+   * @param directories a list of FileHandles to seed the recursive walk
    */
-  private def walk(h: FileHandle, fakePath: String) {
+  private def collectVirtualPaths(directories: List[FileHandle]): (List[String], List[FileHandle]) = {
+    val roots = new ListBuffer[FileHandle]
+    val virtualPaths = new ListBuffer[String]
+    directories.foreach{directory => roots.add(directory)
+                                     walk(directory, "/", virtualPaths, roots)
+                        }
     // recursively walk the directories and cache the paths
-    h.list.foreach { f: FileHandle =>
-      f.extension match {
-        case "jar" =>
-          // virtual path for an archive is attached at /, so we don't add it to the paths
-          walk(new JarFileHandle("", f), "") // but we do add the paths to its' children
-        case "zip" =>
-          walk(new ZipFileHandle("", f), "") // walk all children of this dir
-        case _ =>
-          if (f.extension == "") {
-            paths += (fakePath + f.name -> f.physicalPath) // otherwise, add virtual path maps to real path
-          } else {
-            paths += (fakePath + f.name + "." + f.extension -> f.physicalPath) // otherwise, map virtual path to real
-          }
-          if (f.isDirectory) walk(f, fakePath + f.name + "/") // and walk (if it's a dir)
+    def walk(h: FileHandle, fakePath: String, virtualPaths: ListBuffer[String], roots: ListBuffer[FileHandle]) {
+      for (f <- h.list) f.extension match {
+          case "jar" =>
+            // virtual path for an archive is attached at /, so we don't add it to the paths
+            val handle = new JarFileHandle("/", f)
+            roots.add(handle) // but we do add it to the roots
+            walk(handle, "", virtualPaths, roots) // and we add the paths to its' children
+          case "zip" =>
+            val handle = new ZipFileHandle("/", f)
+            roots.add(handle)
+            walk(handle, "", virtualPaths, roots) // walk all children of this dir
+          case _ =>
+            if (f.extension == "") virtualPaths.add(fakePath + f.name) // add the path
+            else virtualPaths.add(fakePath + f.name + "." + f.extension)
+            if (f.isDirectory) walk(f, fakePath + f.name + "/", virtualPaths, roots)  // and walk (if it's a dir)
+        }
       }
+    (virtualPaths.toList, roots.toList)
     }
+
+  private def buildVirtualFS(pathsAndRoots: (List[String], List[FileHandle])): mutable.Map[String, String] = {
+    val virtualPaths = pathsAndRoots._1
+    val orderedRoots = policy.orderPaths(pathsAndRoots._2) // have the load-order policy rank all the roots
+    val map = mutable.Map[String, String]()
+
+    for (root <- orderedRoots) walk(root, map)
+
+    def walk(handle: FileHandle, m: mutable.Map[String, String]): Unit = handle.list.foreach {
+      file =>
+        m += (file.path -> file.physicalPath)
+        if (file.isDirectory) walk(file, m)
+      }
+    map
   }
-
-  directories.foreach { directory => walk(directory, directory.name)}
-
-  /**
-   * Request the virtual path for a given physical path.
-   *
-   * @param physicalPath a physical path in the filesystem
-   * @return the virtual path corresponding to that physical path.
-   * @deprecated As you can no longer make FileHandles with null paths, this should no longer be necessary.
-   */
-  protected[io] def getVirtualPath(physicalPath: String): String = paths.map(_.swap).get(physicalPath).get
 
   /**
    * Request that the ResourceManager handle the file at a given path.
@@ -114,10 +128,10 @@ class ResourceManager(private val directories: List[FileHandle]) {
         case Some(ArchiveMatch(path, extension, name)) => extension match {
           case ".zip" =>
             val parent = new ZipFileHandle("/", new File(path + extension), this)
-            new ZipEntryFileHandle(parent.zipfile.getEntry(name), parent)
+            new ZipEntryFileHandle(fakePath, parent.zipfile.getEntry(name), parent)
           case ".jar" =>
             val parent = new JarFileHandle("/", new File(path + extension), this)
-            new JarEntryFileHandle(parent.jarfile.getJarEntry(name), parent)
+            new JarEntryFileHandle(fakePath, parent.jarfile.getJarEntry(name), parent)
         }
         case _ => new DesktopFileHandle(fakePath, realPath, this)
       }
