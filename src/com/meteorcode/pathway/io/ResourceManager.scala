@@ -139,7 +139,7 @@ class ResourceManager protected (private val directories: List[FileHandle],
    * @param virtualPath a path in the virtual filesystem
    * @return true if that path can be written to, false if it cannot
    */
-  def isPathWritable(virtualPath: String) = if (writeDir.isDefined) (virtualPath.contains(getWritePath)) else false
+  def isPathWritable(virtualPath: String) = if (writeDir.isDefined) virtualPath.contains(writeDir.get.path) else false
 
   /**
    * Request that the ResourceManager handle the file at a given path.
