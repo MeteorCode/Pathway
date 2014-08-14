@@ -36,13 +36,16 @@ import java.util.Collections
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
-class ZipEntryFileHandle (private val entry: ZipEntry,
+class ZipEntryFileHandle (virtualPath: String,
+                          private val entry: ZipEntry,
                           private val parent: ZipFileHandle,
                           private val back: File,
                           manager: ResourceManager)
-  extends ZipFileHandle(parent.path + "/" + entry.getName, back, manager) {
+  extends ZipFileHandle(virtualPath, back, manager) {
 
-  def this(entry: ZipEntry, parent: ZipFileHandle) = this(entry, parent, parent.file, parent.manager)
+  def this(virtualPath: String,
+           entry: ZipEntry,
+           parent: ZipFileHandle) = this(virtualPath, entry, parent, parent.file, parent.manager)
 
   /**
    * @return  the physical path to the actual filesystem object represented by this FileHandle.
@@ -89,7 +92,7 @@ class ZipEntryFileHandle (private val entry: ZipEntry,
         while (entries.hasMoreElements) {
           val e = entries.nextElement
           if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new ZipEntryFileHandle(e, parent))
+            result.add(new ZipEntryFileHandle(this.path + e.getName.split("/").last, e, parent))
         }
         result
       } catch {

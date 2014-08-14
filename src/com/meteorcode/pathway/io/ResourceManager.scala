@@ -53,19 +53,23 @@ class ResourceManager(private val directories: List[FileHandle],
   private def collectVirtualPaths(directories: List[FileHandle]): (List[String], List[FileHandle]) = {
     val roots = new ListBuffer[FileHandle]
     val virtualPaths = new ListBuffer[String]
-    directories.foreach{directory => walk(directory, directory.name, virtualPaths, roots)}
+    directories.foreach{directory => roots.add(directory)
+                                     walk(directory, "/", virtualPaths, roots)
+                        }
     // recursively walk the directories and cache the paths
     def walk(h: FileHandle, fakePath: String, virtualPaths: ListBuffer[String], roots: ListBuffer[FileHandle]) {
       for (f <- h.list) f.extension match {
           case "jar" =>
             // virtual path for an archive is attached at /, so we don't add it to the paths
-            roots.add(f) // but we do add it to the roots
-            walk(new JarFileHandle("", f), "", virtualPaths, roots) // and we add the paths to its' children
+            val handle = new JarFileHandle("/", f)
+            roots.add(handle) // but we do add it to the roots
+            walk(handle, "/", virtualPaths, roots) // and we add the paths to its' children
           case "zip" =>
-            roots.add(f)
-            walk(new ZipFileHandle("", f), "", virtualPaths, roots) // walk all children of this dir
+            val handle = new ZipFileHandle("/", f)
+            roots.add(handle)
+            walk(new ZipFileHandle("/", f), "/", virtualPaths, roots) // walk all children of this dir
           case _ =>
-            if (f.extension == "") virtualPaths.add(fakePath + f.name) // add the path
+            if (f.extension == "/") virtualPaths.add(fakePath + f.name) // add the path
             else virtualPaths.add(fakePath + f.name + "." + f.extension)
             if (f.isDirectory) walk(f, fakePath + f.name + "/", virtualPaths, roots)  // and walk (if it's a dir)
         }
@@ -90,7 +94,6 @@ class ResourceManager(private val directories: List[FileHandle],
     }
     map
   }
-
 
   /**
    * Request the virtual path for a given physical path.
