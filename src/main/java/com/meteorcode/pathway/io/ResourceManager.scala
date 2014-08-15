@@ -2,7 +2,6 @@ package com.meteorcode.pathway.io
 
 import java.io.{File, IOException}
 
-import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -33,6 +32,15 @@ class ResourceManager protected (private val directories: List[FileHandle],
    * @return a new ResourceManager managing the specified directory.
    */
   def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), None, policy)
+
+  /**
+   * Constructor for a ResourceManager with a list of managed directories.
+   *
+   * @param directories a list of FileHandles into the directories to manage.
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @return a new ResourceManager managing the specified directory.
+   */
+  def this(directories: java.util.List[FileHandle], policy: LoadOrderProvider) = this(directories, None, policy)
 
   /**
    * Constructor for a ResourceManager with a String representing a path to the managed directory.
