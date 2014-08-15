@@ -92,22 +92,53 @@ jacocoTestReport {
 }
 
 ext {
-    assetsDir = new File("assets");
+    assetsDir = file("assets");
     appName = "Pathway"
 }
 
-task dist(type: Jar) {
+/////////////////////////////////////////////////////////////////////////
+// ARCHIVE TASKS:
+// $ gradle pathwayJar - archive the main Pathway compiled jarfile
+// $ gradle sourcesJar - archive the main sources (not test)
+// $ gradle javadocJar - archive JavaDoc documentation
+// $ gradle scaladocJar - archive ScalaDoc documentation
+/////////////////////////////////////////////////////////////////////////
+task pathwayJar(type: Jar) {
+    description "Bundle Pathway library jarfile for distribution."
     //noinspection GroovyAssignabilityCheck
     dependsOn classes
     //noinspection GroovyAssignabilityCheck
     dependsOn test
-    description "Bundle Pathway library jarfile for distribution."
 
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
     from {configurations.compile.collect {zipTree(it)}}
     //noinspection GroovyAssignabilityCheck
     from files(project.assetsDir);
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    description "Archive source into a jarfile."
+    classifier = 'sources'
+    from sourceSets.main.scala
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    description "Archive JavaDoc documentation into a jarfile."
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+task scaladocJar(type: Jar, dependsOn: scaladoc) {
+    description "Archive ScalaDoc documentation into a jarfile."
+    classifier = 'scaladoc'
+    from scaladoc.destinationDir
+}
+
+artifacts {
+    archives pathwayJar
+    archives sourcesJar
+    archives javadocJar
+    archives scaladocJar
 }
 
 tasks.withType(ScalaCompile) {
@@ -117,22 +148,10 @@ tasks.withType(ScalaCompile) {
 
 sourceCompatibility = 1.7
 
-sourceSets {
-    main {
-        scala {
-          srcDirs = ["src"]
-          exclude "**/test/**"
-        }
-    }
-    test {
-        scala {
-          srcDirs = ["src"]
-        }
-        resources {
-        	srcDirs = ["testres"]
-        }
-    }
-}
+sourceSets.main.scala.srcDir "src/main/java"
+sourceSets.main.java.srcDirs = []
+sourceSets.test.scala.srcDir "src/test/java"
+sourceSets.test.java.srcDirs = []
 
 jar {
     //noinspection GroovyAssignabilityCheck
