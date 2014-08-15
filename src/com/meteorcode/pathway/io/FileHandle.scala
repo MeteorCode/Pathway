@@ -163,20 +163,27 @@ abstract class FileHandle(protected val virtualPath: String,
    * @param siblingName the name of the sibling file to handle
    * @return a FileHandle into the sibling of this file with the specified name
    */
-  def sibling(siblingName: String): FileHandle = manager.handle(path.replace(name + extension, siblingName))
+  def sibling(siblingName: String): FileHandle = manager.handle(path.replace(
+    if (extension == "") name else name + "." + extension, siblingName)
+  )
 
   /**
    * Return a FileHandle into the parent of this file.
    * @return a FileHandle into the parent of this file.
    */
-  def parent: FileHandle = manager.handle(path.replace(name + extension, ""))
+  def parent: FileHandle = manager.handle(path.replace(
+    if (extension == "") "/" + name else "/" + name + "." + extension, "")
+  )
 
   /**
    * Returns a FileHandle into the a child of this file with the specified name
    * @param childName the name of the child file to handle
    * @return a FileHandle into the child of this file with the specified name
    */
-  def child(childName: String): FileHandle = manager.handle(path + childName)
+  def child(childName: String): FileHandle = {
+    manager.handle(path + "/" + childName)
+  }
+
 
 
   /**
