@@ -112,6 +112,23 @@ public class IOTest {
     }
 
     @Test
+    // Tests for the sibling(), parent(), and child() methods
+    public void testFamilyTree() throws IOException {
+        underTest = r.handle("/testDir");
+        assertEquals("FAIL: Child fileHandle didn't contain expected string, got "
+                + underTest.child("test3.txt").readString() + ", expected \"yet again hi\".",
+                underTest.child("test3.txt").readString(), "yet again hi");
+        assertEquals("FAIL: Child fileHandle didn't contain expected string, got "
+                        + underTest.child("test4.txt").readString() + ", expected \"still hi\".",
+                underTest.child("test4.txt").readString(), "still hi");
+        underTest = r.handle("/testDir/test3.txt");
+        assertEquals("FAIL: Parent fileHandle didn't equal expected fileHandle",
+                underTest.parent(), r.handle("/testDir"));
+        assertEquals("FAIL: Sibling fileHandle didn't equal expected FileHandle",
+                underTest.sibling("test4.txt"), r.handle("/testDir/test4.txt"));
+    }
+
+    @Test
     public void testJarFileHandle() throws IOException {
         underTest = r.handle("/test6.txt");
         assertFalse("FAIL: File in zip archive claimed to be a directory.", underTest.isDirectory());
@@ -166,8 +183,6 @@ public class IOTest {
         assertSame("FAIL: ResourceManager did not return cached FileHandle.", h1, h2);
     }
 
-    // This test was disabled as it expects incorrect write protection behavior
-    // TODO: make this test happen isnide a write dir
     @Test
     public void testPermissionDenied () throws IOException {
         when(fakeFile.createNewFile())
