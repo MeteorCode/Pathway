@@ -25,7 +25,7 @@ public class ClasspathFileHandle extends FileHandle {
 	 * during construction.
 	 * @param physicalPath The physicalPath to grab.
 	 */
-	protected ClasspathFileHandle(String physicalPath, String virtualPath, ResourceManager manager) {
+	protected ClasspathFileHandle(String physicalPath, String virtualPath, ResourceManager manager) throws IOException {
         super(virtualPath, manager);
 		this.opath = physicalPath;
         this.manager = manager;         //FIXME: dumb Scala/Java interop behaviour, apparently this class doesn't
@@ -34,6 +34,8 @@ public class ClasspathFileHandle extends FileHandle {
 		try {
 			back = new File(url.toURI());
 		} catch (URISyntaxException e) {
+            throw new IOException("Could not instantiate ClasspathFileHandle for path " + virtualPath +
+                    ", a URISyntaxException occurred.", e);
 		}
 	}
 
@@ -62,7 +64,7 @@ public class ClasspathFileHandle extends FileHandle {
 	}
 
 	@Override
-	public List<FileHandle> list() {
+	public List<FileHandle> list() throws IOException {
 		if(back != null && back.isDirectory()) {
 			ArrayList<FileHandle> r = new ArrayList<FileHandle>();
 			for(String s : back.list()) {
@@ -88,9 +90,24 @@ public class ClasspathFileHandle extends FileHandle {
 		return null;
 	}
 
-	@Override public String readString() throws IOException{
+    @Override
+    public long length() {
+        if (isDirectory())
+            return 0;
+        else return back.length();
+    }
+
+    @Override
+    public boolean delete() {
+        if (!writable())
+            return false;
+        else
+            return back.delete();
+    }
+
+    @Override public String readString() throws IOException{
 		if(back != null && !back.isDirectory()) {
-			StringBuffer b = new StringBuffer("");
+			StringBuilder b = new StringBuilder("");
 			Scanner s = new Scanner(this.read());
 			while(s.hasNextLine()) {
 				b.append(s.nextLine());

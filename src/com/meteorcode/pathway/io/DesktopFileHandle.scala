@@ -64,6 +64,8 @@ class DesktopFileHandle (virtualPath: String,
     * */
   def isDirectory: Boolean = back.isDirectory
 
+  def length = if (isDirectory) 0 else back.length
+
   /**
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
@@ -78,6 +80,8 @@ class DesktopFileHandle (virtualPath: String,
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
   def physicalPath: String = realPath
+
+  def delete = if(writable && exists) back.delete else false
 
   /**
    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.

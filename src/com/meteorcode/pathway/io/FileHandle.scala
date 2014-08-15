@@ -75,6 +75,7 @@ abstract class FileHandle(protected val virtualPath: String,
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
    */
+  @throws(classOf[IOException])
   def list: util.List[FileHandle]
 
   /**
@@ -169,6 +170,26 @@ abstract class FileHandle(protected val virtualPath: String,
    * @return a FileHandle into the parent of this file.
    */
   def parent: FileHandle = manager.handle(path.replace(name + extension, ""))
+
+  /**
+   * Returns a FileHandle into the a child of this file with the specified name
+   * @param childName the name of the child file to handle
+   * @return a FileHandle into the child of this file with the specified name
+   */
+  def child(childName: String): FileHandle = manager.handle(path + childName)
+
+
+  /**
+   * Returns the length of this file in bytes, or 0 if this FileHandle is a directory or does not exist
+   * @return the length of the file in bytes, or 0 if this FileHandle is a directory or does not exist
+   */
+  def length: Long
+
+  /**
+   * Delete this file if it exists and is writable.
+   * @return true if this file was successfully deleted, false if it could not be deleted
+   */
+  def delete: Boolean
 
   override def toString = this.getClass.getSimpleName + ": " + path
 

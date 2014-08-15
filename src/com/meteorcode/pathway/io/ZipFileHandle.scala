@@ -5,11 +5,8 @@ File,
 IOException,
 InputStream
 }
-import java.util.{
-List,
-ArrayList
-}
-import java.util.zip.{ZipFile}
+import java.util
+import java.util.zip.ZipFile
 
 /**
  * A FileHandle into the top level of a Zip archive (treated as a directory).
@@ -89,13 +86,17 @@ class ZipFileHandle (virtualPath: String,
   /** Returns true if this FileHandle represents something that can be written to */
   def writable = false // Zips can never be written to (at least by java.util.zip)
 
+  def length = if (isDirectory) 0 else back.length
+
+  def delete = if(writable && exists) back.delete else false
+
   /**
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
    */
   @throws(classOf[IOException])
-  def list: List[FileHandle] = {
-    var result = new ArrayList[FileHandle]
+  def list: util.List[FileHandle] = {
+    var result = new util.ArrayList[FileHandle]
     try {
       val entries = zipfile.entries
       // furthermore, I also loathe java.util.zip for making me use the braindead

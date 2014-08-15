@@ -10,10 +10,7 @@ ZipEntry,
 ZipException,
 ZipFile
 }
-import java.util.{
-List,
-ArrayList
-}
+import java.util
 import java.util.Collections
 
 /**

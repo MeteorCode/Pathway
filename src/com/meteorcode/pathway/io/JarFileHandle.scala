@@ -5,10 +5,7 @@ File,
 InputStream,
 IOException
 }
-import java.util.{
-List,
-ArrayList
-}
+import java.util
 import java.util.jar.JarFile
 
 /**
@@ -63,13 +60,17 @@ class JarFileHandle (virtualPath: String,
    */
   def writable = false
 
+  def length = if (isDirectory) 0 else back.length
+
+  def delete = if(writable && exists) back.delete else false
+
   /**
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
    */
   @throws(classOf[IOException])
-  def list: List[FileHandle] = {
-    var result = new ArrayList[FileHandle]
+  def list: util.List[FileHandle] = {
+    var result = new util.ArrayList[FileHandle]
     try {
       val entries = jarfile.entries
       while (entries.hasMoreElements) {
@@ -87,7 +88,7 @@ class JarFileHandle (virtualPath: String,
 
   /**
    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
-   * @throws java.io.IOException
+   * @throws java.io.IOException if something went wrong while writing
    * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
    */
   @throws(classOf[IOException])
