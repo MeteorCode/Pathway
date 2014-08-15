@@ -81,9 +81,13 @@ class ResourceManager protected (private val directories: List[FileHandle],
   private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
-  // if the write dir doesn't exist, we ought to create it
-  if (writeDir.get.exists == false)
-    if (writeDir.get.file.mkdirs() == false) throw new IOException("Specified write directory could not be created!")
+  // if there's a write directory, prepare it for use.
+  if (writeDir.isDefined) {
+    if (!writeDir.get.exists)   // if the write dir doesn't exist, we ought to create it
+      if (!writeDir.get.file.mkdirs()) throw new IOException("Specified write directory could not be created!")
+    if (writeDir.get.manager == null) writeDir.get.manager = this
+  }
+
 
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
@@ -93,6 +97,7 @@ class ResourceManager protected (private val directories: List[FileHandle],
     val roots = new ListBuffer[FileHandle]
     val virtualPaths = new ListBuffer[String]
     directories.foreach{directory => roots.add(directory)
+                                     if (directory.manager == null) directory.manager = this
                                      walk(directory, "/", virtualPaths, roots)
                         }
     // recursively walk the directories and cache the paths

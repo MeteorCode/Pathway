@@ -20,7 +20,7 @@ import scala.collection.JavaConversions._
  * @author Hawk Weisman
  */
 abstract class FileHandle(protected val virtualPath: String,
-                          protected[io] val manager: ResourceManager) {
+                          protected[io] var manager: ResourceManager) {
   /** Returns true if the file exists. */
   def exists: Boolean
 
@@ -80,7 +80,7 @@ abstract class FileHandle(protected val virtualPath: String,
   /**
    * @return a list containing FileHandles to the contents of this FileHandle with the specified suffix, or an
    *         an empty list if this file is not a directory or does not have contents.
-   * @param suffix
+   * @param suffix the the specified suffix.
    */
   def list(suffix: String): util.List[FileHandle] = list.filter(entry => entry.path.endsWith(suffix))
 
@@ -157,5 +157,30 @@ abstract class FileHandle(protected val virtualPath: String,
     throw new IOException("FileHandle " + path + " is not writeable.")
   }
 
-  override def toString = path
+  /**
+   * Returns a FileHandle into the a sibling of this file with the specified name
+   * @param siblingName the name of the sibling file to handle
+   * @return a FileHandle into the sibling of this file with the specified name
+   */
+  def sibling(siblingName: String): FileHandle = manager.handle(path.replace(name + extension, siblingName))
+
+  /**
+   * Return a FileHandle into the parent of this file.
+   * @return a FileHandle into the parent of this file.
+   */
+  def parent: FileHandle = manager.handle(path.replace(name + extension, ""))
+
+  override def toString = this.getClass.getSimpleName + ": " + path
+
+  /**
+   * Overriden equality method for FileHandles. Returns true if the other FileHandle is:
+   *  1. the same path as this Filehandle
+   *  2. the same subclass of FileHandle as this FileHandle
+   * @param other another object
+   * @return true if other is a FileHandle of the same class and path as this
+   */
+  override def equals(other: Any) = other match {
+    case handle: FileHandle => (handle.path == path) && (handle.getClass == this.getClass)
+    case _ => false
+  }
 }

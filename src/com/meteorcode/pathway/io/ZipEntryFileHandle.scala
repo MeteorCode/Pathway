@@ -29,7 +29,7 @@ import java.util.Collections
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * @param entry  the [[java.util.zip.ZipEntry]] representing the file
- * @param parent a reference to the the [[java.util.zip.ZipFile]] containing the ZipEntry - this is necessary so that
+ * @param parentZipfile a reference to the the [[java.util.zip.ZipFile]] containing the ZipEntry - this is necessary so that
  *               we can do things like list the children of a directory in a Zip archive.
  * @param back the [[java.util.File]] that backs this FileHandle
  * @param manager the ResourceManager managing the virtual filesystem containing this FileHandle
@@ -38,7 +38,7 @@ import java.util.Collections
  */
 class ZipEntryFileHandle (virtualPath: String,
                           private val entry: ZipEntry,
-                          private val parent: ZipFileHandle,
+                          private val parentZipfile: ZipFileHandle,
                           private val back: File,
                           manager: ResourceManager)
   extends ZipFileHandle(virtualPath, back, manager) {
@@ -50,10 +50,10 @@ class ZipEntryFileHandle (virtualPath: String,
   /**
    * @return  the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] def physicalPath = if (parent.physicalPath.endsWith(".zip")) {
-    parent.physicalPath + "/" + entry.getName
+  override protected[io] def physicalPath = if (parentZipfile.physicalPath.endsWith(".zip")) {
+    parentZipfile.physicalPath + "/" + entry.getName
   } else {
-    parent.physicalPath + entry.getName
+    parentZipfile.physicalPath + entry.getName
   }
 
   /**
@@ -68,7 +68,7 @@ class ZipEntryFileHandle (virtualPath: String,
     */
   @throws(classOf[IOException])
   override def read: InputStream = {
-    if (!exists || isDirectory) return null
+    if (!exists || isDirectory) null
     else try {
       zipfile.getInputStream(entry)
     } catch {
@@ -83,16 +83,16 @@ class ZipEntryFileHandle (virtualPath: String,
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
    */
-  override def list: List[FileHandle] = {
+  override def list: util.List[FileHandle] = {
     if (isDirectory) {
-      var result = new ArrayList[FileHandle]
+      var result = new util.ArrayList[FileHandle]
       zipfile = new ZipFile(back) // reset the zipfile
       try {
         val entries = zipfile.entries
         while (entries.hasMoreElements) {
           val e = entries.nextElement
           if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new ZipEntryFileHandle(this.path + e.getName.split("/").last, e, parent))
+            result.add(new ZipEntryFileHandle(this.path + e.getName.split("/").last, e, parentZipfile))
         }
         result
       } catch {
