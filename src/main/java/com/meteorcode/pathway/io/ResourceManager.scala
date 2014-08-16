@@ -136,7 +136,8 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     val orderedRoots = policy.orderPaths(pathsAndRoots._2) // have the load-order policy rank all the roots
     val map = mutable.Map[String, String]()
 
-    for (root <- orderedRoots) walk(root, map)
+    for (root <- orderedRoots.reverse)
+      walk(root, map)
 
     def walk(handle: FileHandle, m: mutable.Map[String, String]): Unit = handle.list.foreach {
       file =>
