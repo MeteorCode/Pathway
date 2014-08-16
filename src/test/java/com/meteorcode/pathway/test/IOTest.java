@@ -64,7 +64,7 @@ public class IOTest {
         underTest = r.handle("/test1.txt");
         assertEquals("txt", underTest.extension());
         assertEquals("test1", underTest.name());
-        assertTrue(underTest.readString().contains("test1.txt"));
+        assertEquals("hi!", underTest.readString());
         assertFalse(underTest.isDirectory());
         assertEquals(Collections.emptyList(), underTest.list());
         assertFalse(underTest.writable());
