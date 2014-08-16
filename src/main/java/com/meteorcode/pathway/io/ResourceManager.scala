@@ -2,6 +2,8 @@ package com.meteorcode.pathway.io
 
 import java.io.{File, IOException}
 
+import java.util
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -21,7 +23,7 @@ import scala.collection.mutable.ListBuffer
  *
  * @param directories A list of directories to be fused into the top level of the virtual filesystem.
  */
-class ResourceManager protected (private val directories: List[FileHandle],
+class ResourceManager protected (private val directories: util.List[FileHandle],
                                  private val writeDir: Option[FileHandle],
                                  private val policy: LoadOrderProvider) {
   /**
@@ -40,7 +42,7 @@ class ResourceManager protected (private val directories: List[FileHandle],
    * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
    * @return a new ResourceManager managing the specified directory.
    */
-  def this(directories: java.util.List[FileHandle], policy: LoadOrderProvider) = this(directories, None, policy)
+  def this(directories: util.List[FileHandle], policy: LoadOrderProvider) = this(directories, None, policy)
 
   /**
    * Constructor for a ResourceManager with a String representing a path to the managed directory.
@@ -81,7 +83,7 @@ class ResourceManager protected (private val directories: List[FileHandle],
                                              Some(new DesktopFileHandle(writePath.replace(path, ""), writePath, null)),
                                              policy)
 
-  def this(directories: List[FileHandle],
+  def this(directories: util.List[FileHandle],
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
@@ -101,7 +103,7 @@ class ResourceManager protected (private val directories: List[FileHandle],
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param directories a list of FileHandles to seed the recursive walk
    */
-  private def collectVirtualPaths(directories: List[FileHandle]): (List[String], List[FileHandle]) = {
+  private def collectVirtualPaths(directories: util.List[FileHandle]): (List[String], List[FileHandle]) = {
     val roots = new ListBuffer[FileHandle]
     val virtualPaths = new ListBuffer[String]
     directories.foreach{directory => roots.add(directory)
