@@ -16,7 +16,10 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -201,5 +204,16 @@ public class IOTest {
         verify(fakeFile, times(2)).isDirectory();
         verify(fakeFile, times(2)).exists();
         verify(fakeFile, times(2)).createNewFile();
+    }
+
+    @Test
+    public void testLoadOrder() throws IOException {
+        List<FileHandle> directories = new ArrayList<FileHandle>(
+                Arrays.asList(new DesktopFileHandle("", "build/resources/test/loadOrder/b", null),
+                              new DesktopFileHandle("", "build/resources/test/loadOrder/a", null),
+                              new DesktopFileHandle("", "build/resources/test/loadOrder/c", null)));
+        ResourceManager testManager = new ResourceManager(directories, new AlphabeticLoadPolicy());
+        underTest = testManager.handle("/testLoadOrder.txt");
+        assertEquals("I AM CORRECT", underTest.readString());
     }
 }
