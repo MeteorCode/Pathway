@@ -15,5 +15,7 @@ class AlphabeticLoadPolicy extends LoadOrderProvider {
    * @param paths a set of Strings representing top-level paths in the physical filesystem.
    * @return a List of those paths ordered by their load priority
    */
-  def orderPaths(paths: List[FileHandle]): List[FileHandle] = paths.sortWith(_.name.toLowerCase < _.name.toLowerCase)
+  def orderPaths(paths: List[FileHandle]): List[FileHandle] = paths.sortWith(
+    _.physicalPath.split("/").last.toLowerCase < _.physicalPath.split("/").last
+  )
 }
