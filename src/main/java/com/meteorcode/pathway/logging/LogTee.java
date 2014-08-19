@@ -1,56 +1,71 @@
 package com.meteorcode.pathway.logging;
 
 /**
- * This class used to have documentation.
- * Quite a lot of it
- * And then Eclipse crashed, and I had
- * to rewrite this class from scratch.
- * So uh.... I guess this is a
- * //TODO: finish this documentation
- * huh.
+ * LogTee is a simple log multiplexer:
+ * It itself is a LogDestination, but any logs which
+ * are published to it are sent to both of its child
+ * LogDestinations.
+ *
+ * LogTee does not write anywhere on its own.
+ *
  * @author xyzzy
  *
  */
-public class LogTee {
-	ConcurrentCache<String> cache;
-	
-	public LogTee(int cacheSize) {
-		this.cache = new ConcurrentCache<String>(cacheSize);
-	}
-	
-	public void debug(String message) {
-		debugPrint(getContextTag(), message);
-		
-		cache.insert(getContextTag() + ": " + message);
-	}
-	
-	public void debug(String message, Throwable e) {
-		debugPrint(getContextTag(), message, e);
-		
-		cache.insert(getContextTag() + ": " + message);
-		cache.insert("With: " + e.getClass().getName() + " // " + e.getMessage());
-		StackTraceElement[] st = e.getStackTrace();
-		for(int i = 0; i < ((st.length < 50)? st.length : 50); i++) {
-			cache.insert(st.toString());
-		}
-		
-		if(st.length >= 50) {
-			cache.insert("and more...\n\n");
-		}
-	}
-	
-	private static void debugPrint(String tag, String message) {
-	    debugPrint(tag, message, null);
-	}
-	
-	private static void debugPrint(String tag, String message, Throwable t) {
-	    System.err.println("> " + tag + "; " + message);
-	    if(t != null) {
-	        t.printStackTrace();
-	    }
-	}
-	
-	private static String getContextTag() {
-		return Thread.currentThread().getName();
-	}
+public class LogTee implements LogDestination {
+	LogDestination a, b;
+
+    /**
+     * Creates the default LogTee, which writes out to
+     * an anonymous cache and also to System.out
+     */
+    public LogTee() {
+        this.a = new CacheLog();
+        this.b = new SysOutLog();
+    }
+
+    /**
+     * Multiplexes two custom LogDestinations provided to the LogTee.
+     * @param a The first custom destination
+     * @param b The second custom destination
+     */
+    public LogTee(LogDestination a, LogDestination b) {
+        this.a = a;
+        this.b = b;
+    }
+
+    public void log(String message) {
+        a.log(message);
+        b.log(message);
+    }
+
+    public void log(String tag, String message) {
+        a.log(tag, message);
+        b.log(tag, message);
+    }
+
+    public void log(String message, Throwable t) {
+        a.log(message, t);
+        b.log(message, t);
+    }
+
+    public void log(String tag, String message, Throwable t) {
+        a.log(tag, message, t);
+        b.log(tag, message, t);
+    }
+
+    /**
+     * Returns the first LogDestination which is being written to by this LogTee
+     * @return A LogDestination
+     */
+    public LogDestination getA() {
+        return this.a;
+    }
+
+    /**
+     * Returns the second LogDestination which is being written to by this LogTee
+     * @return A LogDestination
+     */
+    public LogDestination getB() {
+        return this.b;
+    }
 }
