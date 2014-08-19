@@ -72,6 +72,12 @@ local.properties
 # External tool builders
 .externalToolBuilders/
 
+##########
+# IDEA
+##########
+.idea/**
+**.iml
+
 # Gradle-able
 **/.classpath
 **.project
