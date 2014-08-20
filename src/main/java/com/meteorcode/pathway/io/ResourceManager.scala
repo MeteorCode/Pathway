@@ -89,10 +89,10 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
+  private var logger = LoggerFactory.getLogger()
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
   private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
-  private val logger = LoggerFactory.getLogger
 
   // if there's a write directory, prepare it for use.
   if (writeDir.isDefined) {
