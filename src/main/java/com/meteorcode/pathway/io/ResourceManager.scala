@@ -4,6 +4,8 @@ import java.io.{File, IOException}
 
 import java.util
 
+import com.meteorcode.pathway.logging.LoggerFactory
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -90,12 +92,14 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
   private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
+  private val logger = LoggerFactory.getLogger
 
   // if there's a write directory, prepare it for use.
   if (writeDir.isDefined) {
     if (!writeDir.get.exists)   // if the write dir doesn't exist, we ought to create it
       if (!writeDir.get.file.mkdirs()) throw new IOException("Specified write directory could not be created!")
     if (writeDir.get.manager == null) writeDir.get.manager = this
+    logger.log("write directory: " + writeDir.get.physicalPath)
   }
 
 
@@ -112,6 +116,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
                         }
     // recursively walk the directories and cache the paths
     def walk(h: FileHandle, fakePath: String, virtualPaths: ListBuffer[String], roots: ListBuffer[FileHandle]) {
+      logger.log("walking directory " + h.physicalPath)
       for (f <- h.list) f.extension match {
           case "jar" =>
             // virtual path for an archive is attached at /, so we don't add it to the paths
@@ -141,6 +146,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
 
     def walk(handle: FileHandle, m: mutable.Map[String, String]): Unit = handle.list.foreach {
       file =>
+        logger.log("associated virtual path " + file.path + " with physical path " + file.physicalPath)
         m += (file.path -> file.physicalPath)
         if (file.isDirectory) walk(file, m)
       }
@@ -181,11 +187,14 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
   }
 
   private def makeHandle(fakePath: String): FileHandle = {
+    logger.log(this.toString, "making a FileHandle for " + fakePath)
     val realPath: String = paths.get(fakePath) match {
       case s:Some[String] => s.get
       case None => // If the path is not in the tree, handle write attempts.
+        logger.log("handling write attempt to empty path " + fakePath)
         if (isPathWritable(fakePath)) {
           paths += (fakePath -> (writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, "")))
+          logger.log("successfully handled write attempt")
           paths(fakePath)
         } else {
           throw new IOException("A filehandle to an empty path was requested, and the requested path was not writable")

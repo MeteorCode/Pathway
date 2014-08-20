@@ -14,7 +14,7 @@ object LoggerFactory {
    * Sets the logger that this stores a reference to.
    * @param logger The new logger
    */
-  def setLogger(logger: LogDestination) = this.logger = logger
+  def setLogger(logger: LogDestination) = { this.logger = logger }
 
   /**
    * Returns a reference to the game's global logger
