@@ -114,9 +114,10 @@ class Context(protected var name: String) {
     if (!eventStack.isEmpty()) {
       val e = eventStack.top
       // publish top event to all subscribed Properties
-      for (p <- properties if e.isValid)
+      for (p <- properties if e.isValid) {
         logger.log(this.name + " Context", "publishing" + e + " to " + p)
-        if(!p.onEvent(e, this)) return
+        if (!p.onEvent(e, this)) return
+      }
       // if no Property invalidated the top event, then we can evaluate it.
       if (e == eventStack.top) {
         if (eventStack.top.isValid) {
