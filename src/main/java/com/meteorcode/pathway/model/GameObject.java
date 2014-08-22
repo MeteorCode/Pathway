@@ -1,5 +1,7 @@
 package com.meteorcode.pathway.model;
 
+import com.meteorcode.pathway.logging.LoggerFactory;
+import com.meteorcode.pathway.logging.LogDestination;
 import com.meteorcode.pathway.model.Context;
 import scala.None;
 import scala.Option;
@@ -13,6 +15,7 @@ import scala.Option;
 public abstract class GameObject {
 	private Long gameID;
 	protected Context parent;
+    protected LogDestination logger = LoggerFactory.getLogger();
 
 	/**
 	 * Constructor for a GameObject with a specified gameID.
@@ -79,6 +82,7 @@ public abstract class GameObject {
 	 *            the Context this GameObject is entering
 	 */
 	public void changeContext(Context newContext) {
+        logger.log(this.toString(), "moving to " + newContext.name());
 		if (parent != null) {
 			parent.removeGameObject(this);
 		}
