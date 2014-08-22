@@ -1,10 +1,13 @@
 package com.meteorcode.pathway.model
 
+import com.meteorcode.pathway.logging.LoggerFactory
+
 import scala.collection.mutable.Subscriber
 
 abstract class Property (initDrawID: Integer, initParent: Context){
   var parent = initParent
   var drawID = initDrawID
+  protected val logger = LoggerFactory.getLogger
   if (this.parent != null) { parent.subscribe(this) }
 
   def this(initParent: Context) = this(null, initParent) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs

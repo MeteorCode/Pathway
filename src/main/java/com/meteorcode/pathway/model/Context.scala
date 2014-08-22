@@ -121,8 +121,10 @@ class Context(protected var name: String) {
       // if no Property invalidated the top event, then we can evaluate it.
       if (e == eventStack.top) {
         if (eventStack.top.isValid) {
+          logger.log(this.name + " Context", eventStack.top + " is valid, evaluating")
           eventStack.pop.evalEvent
         } else {
+          logger.log(this.name + " Context", eventStack.top + " is invalid, ignoring")
           eventStack.pop
         }
       }

@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.meteorcode.pathway.logging.LogDestination;
+import com.meteorcode.pathway.logging.LoggerFactory;
 import com.meteorcode.pathway.model.Context;
 import com.meteorcode.pathway.script.ScriptException;
 
@@ -25,6 +27,7 @@ public abstract class Event {
 	private boolean valid;
 	protected Context origin;
 	protected Context target;
+    protected LogDestination logger = LoggerFactory.getLogger();
 
 	/**
 	 * Constructor for an Event with a data payload.
@@ -190,6 +193,7 @@ public abstract class Event {
 	 *            the value to insert into the payload
 	 */
 	public void patchPayload(String name, Object value) {
+        logger.log(this.name, "added " + name + "->" + value + " to payload");
 		payload.patch(name,value);
 	}
 
@@ -200,19 +204,24 @@ public abstract class Event {
 	 *            the map to add to the payload.
 	 */
 	public void patchPayload(Map<String, Object> additions) {
+        logger.log(this.name, "added " + additions + " to payload");
 		payload.patch(additions);
 	}
 
 	public boolean stampExists(Property stampedBy) {
-		return payload.stampExists(stampedBy);
+
+        return payload.stampExists(stampedBy);
 	}
 
 	public void stamp (Property stampedBy) {
-		payload.stamp(stampedBy);
+		logger.log(stampedBy.toString(), "stamped " + this.name);
+        payload.stamp(stampedBy);
 	}
 
 	public void unstamp(Property stampedBy) {
-		payload.unstamp(stampedBy);
+
+        logger.log(stampedBy.toString(), "unstamped " + this.name);
+        payload.unstamp(stampedBy);
 	}
 
 	/**
@@ -220,6 +229,7 @@ public abstract class Event {
 	 */
 	public void invalidate() {
 		this.valid = false;
+        logger.log(this.name, "invalidated");
 		if (this.children.isEmpty() == false) {
 			for (Event child : children)
 				child.invalidate();
@@ -255,6 +265,7 @@ public abstract class Event {
 	 * @return child The new child Event.
 	 */
 	public boolean fireEventChild(Event e) {
+        logger.log(this.name, "fired child event " + e.name);
 		e.parent = this;
 		this.children.add(e);
 		this.origin.fireEvent(e);
