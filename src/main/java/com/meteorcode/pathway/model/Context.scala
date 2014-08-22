@@ -6,6 +6,7 @@ import java.util.{
   List,
   ArrayList
 }
+import com.meteorcode.pathway.logging.LoggerFactory
 import com.meteorcode.pathway.script.{
   ScriptContainer,
   ScriptContainerFactory,
@@ -33,6 +34,7 @@ class Context(protected var name: String) {
   protected var eventStack = Stack[Event]()
   protected var gameObjects = HashSet[GameObject]()
   protected var properties = HashSet[Property]()
+  private val logger = LoggerFactory.getLogger
   private var beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()
   // TODO: This should really be requested from a global ScriptContainerFactory instance,
   // but since that's not available, I'm doing it like this so that the class will run and be testable.
@@ -59,14 +61,20 @@ class Context(protected var name: String) {
    * @throws ScriptException
    */
   @throws(classOf[ScriptException])
-  def eval(script: String) = beanshell.eval(script)
+  def eval(script: String) = {
+    logger.log(this.name + "Context", "evaluating script:\n" + script)
+    beanshell.eval(script)
+  }
 
   /**
    * Evals a file against this Context's ScriptContainer
    * @throws ScriptException
    */
   @throws(classOf[ScriptException])
-  def eval(file: FileHandle) = beanshell.eval(file)
+  def eval(file: FileHandle) = {
+    logger.log(this.name + "Context", "evaluating script from file: " + file)
+    beanshell.eval(file)
+  }
 
   /**
    * @return A shallow copy of the current EventStack.
@@ -85,6 +93,7 @@ class Context(protected var name: String) {
    */
   def fireEvent(e: Event) {
     e.setTarget(this)
+    logger.log(this.name + " Context", "fired event " + e)
     eventStack.push(e)
   }
 
@@ -106,6 +115,7 @@ class Context(protected var name: String) {
       val e = eventStack.top
       // publish top event to all subscribed Properties
       for (p <- properties if e.isValid)
+        logger.log(this.name + " Context", "publishing" + e + " to " + p)
         if(!p.onEvent(e, this)) return
       // if no Property invalidated the top event, then we can evaluate it.
       if (e == eventStack.top) {
@@ -118,5 +128,5 @@ class Context(protected var name: String) {
     }
   }
 
-  override def toString(): String = "[" + name + " Context]" + viewEventStack();
+  override def toString(): String = "[" + name + " Context" + "]" + viewEventStack()
 }
