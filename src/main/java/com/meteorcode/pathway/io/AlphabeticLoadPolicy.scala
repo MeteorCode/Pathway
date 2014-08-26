@@ -1,4 +1,7 @@
 package com.meteorcode.pathway.io
+
+import java.io.File
+
 import scala.collection.mutable
 
 /**
@@ -16,6 +19,6 @@ class AlphabeticLoadPolicy extends LoadOrderProvider {
    * @return a List of those paths ordered by their load priority
    */
   def orderPaths(paths: List[FileHandle]): List[FileHandle] = paths.sortWith(
-    _.physicalPath.split("/").last.toLowerCase < _.physicalPath.split("/").last
+    _.physicalPath.split(File.separatorChar).last.toLowerCase < _.physicalPath.split(File.separatorChar).last
   )
 }
