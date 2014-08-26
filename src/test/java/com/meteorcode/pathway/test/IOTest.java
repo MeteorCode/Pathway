@@ -144,7 +144,9 @@ public class IOTest {
         assertFalse(underTest.writable());
         assertNull("FAIL: Zipped file write() was not null.", underTest.write(true));
         assertEquals(underTest.list(), Collections.emptyList());
-        assertEquals("build/resources/test/testJar.jar/testJarDir/test7.md", underTest.physicalPath());
+        assertEquals(
+                "FAIL: expected physical path + \"build/resources/test/testJar.jar/testJarDir/test7.md\", got: \"" + underTest.physicalPath() + "\"",
+                "build/resources/test/testJar.jar/testJarDir/test7.md", underTest.physicalPath());
         underTest = r.handle("/testJarDir/");
         assertTrue(underTest.isDirectory());
         assertFalse(underTest.writable());
@@ -214,6 +216,7 @@ public class IOTest {
                               new DesktopFileHandle("", "build/resources/test/loadOrder/c", null)));
         ResourceManager testManager = new ResourceManager(directories, new AlphabeticLoadPolicy());
         underTest = testManager.handle("/testLoadOrder.txt");
-        assertEquals("Expected \"I AM CORRECT\", got " + underTest.readString(), "I AM CORRECT", underTest.readString());
+        assertEquals("FAIL: Expected \"I AM CORRECT\", got \"" + underTest.readString() + "\"",
+                "I AM CORRECT", underTest.readString());
     }
 }
