@@ -52,7 +52,7 @@ class JarEntryFileHandle (virtualPath: String,
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] def physicalPath = parentJarfile.physicalPath + File.separator + entry.getName
+  override protected[io] def physicalPath = parentJarfile.physicalPath + "/" + entry.getName
 
   /**
    * @return true if this file is a directory, false otherwise

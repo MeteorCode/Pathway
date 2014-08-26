@@ -48,7 +48,7 @@ class ZipEntryFileHandle (virtualPath: String,
    * @return  the physical path to the actual filesystem object represented by this FileHandle.
    */
   override protected[io] def physicalPath = if (parentZipfile.physicalPath.endsWith(".zip")) {
-    parentZipfile.physicalPath + File.separator + entry.getName
+    parentZipfile.physicalPath + "/" + entry.getName
   } else {
     parentZipfile.physicalPath + entry.getName
   }
