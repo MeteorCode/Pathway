@@ -29,8 +29,8 @@ object ModLoader {
       logger.log("Could not load mods directory " + directory + ", did not exist.")
     // otherwise, get all the jarfiles from the directory and load them
     logger.log("loading mods from " + directory)
-    beanshell injectObject("ResourceManager",directory.manager)
+    beanshell injectObject("file",directory.manager)
     directory.list("init.java").foreach { initScript => beanshell.eval(initScript) }
-    beanshell removeObject("ResourceManager") //unset so that next time this is called, a different manager is set
+    beanshell removeObject("file") //unset so that next time this is called, a different manager is set
   }
 }
