@@ -214,6 +214,6 @@ public class IOTest {
                               new DesktopFileHandle("", "build/resources/test/loadOrder/c", null)));
         ResourceManager testManager = new ResourceManager(directories, new AlphabeticLoadPolicy());
         underTest = testManager.handle("/testLoadOrder.txt");
-        assertEquals("I AM CORRECT", underTest.readString());
+        assertEquals("Expected \"I AM CORRECT\", got " + underTest.readString(), "I AM CORRECT", underTest.readString());
     }
 }
