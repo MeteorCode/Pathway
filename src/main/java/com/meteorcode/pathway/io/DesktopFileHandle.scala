@@ -31,9 +31,10 @@ import scala.collection.JavaConversions._
  * @author Hawk Weisman
  */
 class DesktopFileHandle (virtualPath: String,
-                         private val realPath: String,
+                         realPath: String,
                          private val back: File,
                          manager: ResourceManager) extends FileHandle(virtualPath, manager) {
+  private val physPath = realPath.replace('/', File.separatorChar)
 
 
   def this(virtualPath: String,
@@ -79,7 +80,7 @@ class DesktopFileHandle (virtualPath: String,
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  def physicalPath: String = realPath
+  def physicalPath: String = physPath
 
   def delete = if(writable && exists) back.delete else false
 
