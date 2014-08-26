@@ -146,7 +146,7 @@ public class IOTest {
         assertEquals(underTest.list(), Collections.emptyList());
         assertEquals(
                 "FAIL: expected physical path + \"build/resources/test/testJar.jar/testJarDir/test7.md\", got: \"" + underTest.physicalPath() + "\"",
-                "build/resources/test/testJar.jar/testJarDir/test7.md", underTest.physicalPath());
+                "build/resources/test/testJar.jar/testJarDir/test7.md", underTest.physicalPath().replace(File.separator, "/"));
         underTest = r.handle("/testJarDir/");
         assertTrue(underTest.isDirectory());
         assertFalse(underTest.writable());
