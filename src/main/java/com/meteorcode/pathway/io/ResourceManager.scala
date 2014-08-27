@@ -90,17 +90,17 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
   private var logger = LoggerFactory.getLogger()
-  private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
-  private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
-  private val cachedHandles = mutable.Map[String, FileHandle]()
-
-  // if there's a write directory, prepare it for use.
-  if (writeDir.isDefined) {
+  private val writeHandle: FileHandle = if (writeDir.isDefined) {
     if (!writeDir.get.exists)   // if the write dir doesn't exist, we ought to create it
       if (!writeDir.get.file.mkdirs()) throw new IOException("Specified write directory could not be created!")
     if (writeDir.get.manager == null) writeDir.get.manager = this
     logger.log(this.toString, "write directory: " + writeDir.get.physicalPath)
-  }
+    new RedirectFileHandle(writeDir.get, "write")
+  } else null
+
+  private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
+  private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
+  private val cachedHandles = mutable.Map[String, FileHandle]()
 
 
   /**
@@ -133,6 +133,10 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
             if (f.isDirectory) walk(f, fakePath + f.name + "/", virtualPaths, roots)  // and walk (if it's a dir)
         }
       }
+    if (writeDir.isDefined) {
+      walk(writeHandle, "write", virtualPaths, roots)
+      roots.add(writeHandle)
+    }
     (virtualPaths.toList, roots.toList)
     }
 
@@ -163,7 +167,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
    * @param virtualPath a path in the virtual filesystem
    * @return true if that path can be written to, false if it cannot
    */
-  def isPathWritable(virtualPath: String) = if (writeDir.isDefined) virtualPath.contains(writeDir.get.path) else false
+  def isPathWritable(virtualPath: String) = if (writeDir.isDefined) virtualPath.contains("write/") else false
 
   /**
    * Request that the ResourceManager handle the file at a given path.
