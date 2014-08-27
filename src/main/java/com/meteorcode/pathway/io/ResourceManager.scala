@@ -14,16 +14,22 @@ import scala.collection.mutable.ListBuffer
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
  * as though they were directories.
  *
- * Archives are attached at /" in the virtual filesystem, and directories within archives are "fused" into one directory
- * in the virtual filesystem. For example, if we have a file foo.zip containing the path foo/images/spam.png and another
- * file bar.jar, containing bar/images/eggs.jpeg, the virtual directory bar/ contains spam.png and eggs.jpeg.
+ * Root directories and archives archives are attached at `/` in the virtual filesystem, and directories within archives
+ * are "fused" into one directory in the virtual filesystem. For example, if we have a file `foo.zip` containing the
+ * path `foo/images/spam.png` and a directory `bar` containing `bar/images/eggs.jpeg`, the virtual directory `images/`
+ * contains `spam.png` and `eggs.jpeg`.
  *
  * For security reasons, paths within the virtual filesystem are non-writable by default, unless they are within an
- * optional specified write directory. The write directory must be within one of the root directories of the virtual
- * filesystem, and must not be contained in an archive. Note that if the write directory doesn't exist when this
+ * optional specified write directory. The write directory may exist at any writable physical path, but it will always
+ * be attached at `/write/` in the virtual filesystem. Note that if the write directory doesn't exist when this
  * ResourceManager is initialized, it will be created, along with any directories containing it, if necessary.
  *
- * @param directories A list of directories to be fused into the top level of the virtual filesystem.
+ * @param directories A list of FileHandles into the directories to be fused into the top level roots of the virtual
+ *                    filesystem.
+ * @param writeDir An optional FileHandle into the specified write directory. The write directory's virtual path will be
+ *                 set to `/write/`.
+ * @param policy A [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] representing the game's load-order
+ *               policy.
  */
 class ResourceManager protected (private val directories: util.List[FileHandle],
                                  private val writeDir: Option[FileHandle],
