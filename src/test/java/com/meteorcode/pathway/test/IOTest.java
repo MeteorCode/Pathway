@@ -40,7 +40,7 @@ public class IOTest {
     public void setUp() {
         r = new ResourceManager(
                 "build/resources/test",
-                "build/resources/test/testWriteDir",
+                "build/resources/test/write",
                 new AlphabeticLoadPolicy()
         );
         new File("build/resources/test/testDir/emptyTestDir").mkdir();
@@ -53,7 +53,8 @@ public class IOTest {
     @After
     public void tearDown() throws IOException {
         // clean up the write directory so that it won't exist next time tests are run
-        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/writeDir/"));
+        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/write/test5.txt"));
+        Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/write/"));
 
         // clean up the empty test dir
         Files.deleteIfExists(FileSystems.getDefault().getPath("build/resources/test/emptyTestDir/"));
@@ -75,7 +76,7 @@ public class IOTest {
     @Test
     public void testWriting() throws IOException {
         // TODO: Make the test class create a write dir, and make this test attempt to write to the write dir.
-        underTest = r.handle("/testWriteDir/test5.txt");
+        underTest = r.handle("/write/test5.txt");
         underTest.writeString("hello", false);
         assertEquals("hello", underTest.readString());
         assertTrue(underTest.write(8, true) instanceof BufferedOutputStream);
@@ -195,7 +196,7 @@ public class IOTest {
                 .thenThrow(new IOException("LOL FAKE STRING"));
         when(fakeFile.isDirectory()).thenReturn(false);
         when(fakeFile.exists()).thenReturn(false);
-        underTest = new DesktopFileHandle("/testWriteDir/lolfakepath", "/testWriteDir/lolfakepath", fakeFile, r);
+        underTest = new DesktopFileHandle("/write/lolfakepath", "/write/lolfakepath", fakeFile, r);
         assertFalse(underTest.writable());
         try {
             underTest.writable();
