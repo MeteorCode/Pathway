@@ -145,7 +145,7 @@ task scaladocJar(type: Jar, dependsOn: scaladoc) {
     from scaladoc.destinationDir
 }
 
-task sparks(dependsOn: assemble, type: JavaExec) {
+task sparks(dependsOn: classes, type: JavaExec) {
     main = "com.meteorcode.pathway.samples.Sparks"
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
