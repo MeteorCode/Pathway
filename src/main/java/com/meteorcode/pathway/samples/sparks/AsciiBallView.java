@@ -1,13 +1,13 @@
-package com.meteorcode.pathway.sparkstest;
+package com.meteorcode.pathway.samples.sparks;
 
 import com.meteorcode.pathway.model.Context;
 import com.meteorcode.pathway.model.GameObject;
 
-public class ShittyAsciiBallView {
+public class AsciiBallView {
 	Context model;
 	private int width, height;
 	
-	public ShittyAsciiBallView(int width, int height, Context model) {
+	public AsciiBallView(int width, int height, Context model) {
 		this.width = width;
 		this.height = height;
 		this.model = model;

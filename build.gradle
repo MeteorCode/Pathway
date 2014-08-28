@@ -8,16 +8,14 @@
 /*
  * Gets the version name from the latest Git tag
  */
-def getVersionName = { ->
+/*def getVersionName = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'git', 'describe', '--tags'
         standardOutput = stdout
     }
     return stdout.toString().trim()
-}
-
-version = getVersionName()
+}*/
 
 apply plugin: "java"
 apply plugin: "scala"
@@ -106,6 +104,7 @@ jacocoTestReport {
 ext {
     assetsDir = file("assets");
     appName = "Pathway"
+    version = "1.1a" //getVersionName()
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -144,6 +143,14 @@ task scaladocJar(type: Jar, dependsOn: scaladoc) {
     description "Archive ScalaDoc documentation into a jarfile."
     classifier = 'scaladoc'
     from scaladoc.destinationDir
+}
+
+task sparks(dependsOn: assemble, type: JavaExec) {
+    main = "com.meteorcode.pathway.samples.Sparks"
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    workingDir = project.getProjectDir()
+    ignoreExitValue = true
 }
 
 artifacts {

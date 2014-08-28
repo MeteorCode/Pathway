@@ -1,4 +1,4 @@
-package com.meteorcode.pathway.sparkstest;
+package com.meteorcode.pathway.samples.sparks;
 
 import com.meteorcode.pathway.model.Context;
 import com.meteorcode.pathway.model.Event;

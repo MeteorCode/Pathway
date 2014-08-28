@@ -1,4 +1,4 @@
-package com.meteorcode.pathway.sparkstest;
+package com.meteorcode.pathway.samples.sparks;
 
 import java.util.Random;
 

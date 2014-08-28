@@ -3,6 +3,7 @@ package com.meteorcode.pathway.test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.meteorcode.pathway.logging.LoggerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,7 @@ public class IOTest {
 
     @Before
     public void setUp() {
+        LoggerFactory.getLogger().log("Test");
         r = new ResourceManager(
                 "build/resources/test",
                 "build/resources/test/write",
