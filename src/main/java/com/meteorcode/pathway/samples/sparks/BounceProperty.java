@@ -3,6 +3,11 @@ package com.meteorcode.pathway.samples.sparks;
 import com.meteorcode.pathway.model.Context;
 import com.meteorcode.pathway.model.Event;
 
+/**
+ * BounceProperty is a Property which validates MoveEvents on the event stack.
+ * BounceProperty will filter MoveEvents on Balls which are out of bounds,
+ * instead sending them back and changing their velocity in order to bounce them.
+ */
 public class BounceProperty extends com.meteorcode.pathway.model.Property {
 
 	private int maxWidth, maxHeight;
