@@ -8,14 +8,14 @@
 /*
  * Gets the version name from the latest Git tag
  */
-/*def getVersionName = { ->
+def getVersionName = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'git', 'describe', '--tags'
         standardOutput = stdout
     }
     return stdout.toString().trim()
-}*/
+}
 
 apply plugin: "java"
 apply plugin: "scala"
@@ -85,7 +85,7 @@ javadoc {
 
     // tell JavaDoc to include the genjavadoc-created files in its' fileset.
     source = fileTree(dir: "src", include: '**/*.java', exclude: '**/test/**') + fileTree("$buildDir/genjavadoc")
-    options.addStringOption("quiet")
+    //options.addStringOption("quiet")
 }
 
 test {
@@ -104,7 +104,7 @@ jacocoTestReport {
 ext {
     assetsDir = file("assets");
     appName = "Pathway"
-    version = "1.1a" //getVersionName()
+    version = getVersionName()
 }
 
 /////////////////////////////////////////////////////////////////////////
