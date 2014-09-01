@@ -24,4 +24,4 @@ Pathway's event engine and scripting system are its' primary features, but it al
 
   + **File I/O**: Pathway's FileHandle system abstracts away file input and output, including support for cross-platform file I/O and Zip/Jar archives.
   + **Modules and Modpacks**: Pathway is designed to be highly modular, and support for game mods and expansion packs is built-in. This allows developers to release new content for Pathway games easily, and for players to create mods to customize the game to their liking.
-  + **Multiplayer**: Pathway supports multi-player games right out of the box.
+  + **Multiplayer**: Pathway hopes to support multi-player games right out of the box (in the future).
