@@ -185,7 +185,7 @@ public abstract class Event {
 	}
 
 	/**
-	 * Inserts a String -> Object mapping into the Event's payload
+	 * Inserts a String to Object mapping into the Event's payload
 	 *
 	 * @param name
 	 *            the name to map to the new value
@@ -198,7 +198,7 @@ public abstract class Event {
 	}
 
 	/**
-	 * Inserts a Map<String,Object> into the payload
+	 * Inserts a Map of Strings to Objects into the payload
 	 *
 	 * @param additions
 	 *            the map to add to the payload.

@@ -16,8 +16,8 @@ public class Ball extends GameObject {
      * The method ensures that the ball will be inside the given rectangle of space,
      * and all of the other ball parameters are generated randomly, such as velocity
      * and radius.
-     * @param width The maximum width of the area that the ball may be inside. Note that width must be > 0
-     * @param height The maximum height of the area that the ball may be inside. Note that the height must be > 0
+     * @param width The maximum width of the area that the ball may be inside. Note that width must be &gt; 0
+     * @param height The maximum height of the area that the ball may be inside. Note that the height must &gt; than 0
      */
 	public Ball(int width, int height) {
 		Random r = new Random();

@@ -57,7 +57,7 @@ public class ConcurrentCache<T> {
 
 	/**
 	 * Unwinds the cache, returning a copy of it's contents.
-	 * @return a new List<T> containing the state of the cache's contents
+	 * @return a new List containing the state of the cache's contents
 	 */
 	public List<T> unwind() {
 		List<T> result = new ArrayList<T>();
