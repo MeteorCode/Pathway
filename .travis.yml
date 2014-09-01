@@ -1,2 +1,5 @@
 language: java
 script: gradle build
+branches:
+  except:
+    - /^v\d/
