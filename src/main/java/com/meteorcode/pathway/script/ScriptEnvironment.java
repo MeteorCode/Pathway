@@ -19,6 +19,7 @@ import java.util.Map;
 public class ScriptEnvironment {
 	private Map<String, Object> bindings;
 	private List<ScriptContainer> containers;
+    private String onLink = null;
 
 	/**
 	 * Constructor for a blank ScriptEnvironment.
@@ -40,6 +41,35 @@ public class ScriptEnvironment {
 		this.bindings.putAll(initialBindings);
 		this.containers = new ArrayList<ScriptContainer>();
 	}
+
+    /**
+     * Constructor for a ScriptEnvironment with no initial bindings and an onLink script.
+     * @param onLink
+     *            A String containing a script to be executed when the ScriptEnvironment
+     *            is linked to a ScriptContainer.
+     */
+    public ScriptEnvironment(String onLink) {
+        this.bindings = new HashMap<String, Object>();
+        this.containers = new ArrayList<ScriptContainer>();
+        this.onLink = onLink;
+    }
+
+    /**
+     * Constructor for a ScriptEnvironment with initial bindings and an onLink script.
+     *
+     * @param initialBindings
+     *            A mapping of variable names to objects that will be used as
+     *            the initial bindings for the ScriptEnvironment.
+     * @param onLink
+     *            A String containing a script to be executed when the ScriptEnvironment
+     *            is linked to a ScriptContainer.
+     */
+    public ScriptEnvironment(Map<String, Object> initialBindings, String onLink) {
+        this.bindings = new HashMap<String, Object>();
+        this.bindings.putAll(initialBindings);
+        this.containers = new ArrayList<ScriptContainer>();
+        this.onLink = onLink;
+    }
 
 	/**
 	 * Adds a new binding to the ScriptEnvironment. If the ScriptEnvironment is
@@ -88,7 +118,8 @@ public class ScriptEnvironment {
 
 	/**
 	 * Links this environment with a ScriptContainer, injecting this
-	 * environment's bindings into the container.
+	 * environment's bindings into the container. The onLink script will be executed
+     * if it is present.
 	 * <p>
 	 * If the target ScriptContainer is already linked to this environment, this
 	 * method silently does nothing.
@@ -105,6 +136,8 @@ public class ScriptEnvironment {
 			for (Map.Entry<String, Object> i : bindings.entrySet())
 				container.injectObject(i.getKey(), i.getValue());
 		}
+        if (onLink != null)
+            container.eval(onLink);
 	}
 
 	/**
