@@ -7,14 +7,17 @@ import com.meteorcode.pathway.logging.LoggerFactory
 
 import scala.collection.JavaConversions._
 import java.io.IOException
-import com.meteorcode.pathway.script.{ScriptContainerFactory, ScriptContainer}
+import com.meteorcode.pathway.script.{ScriptEnvironment, ScriptContainerFactory, ScriptContainer}
 
 /**
  * @author Hawk Weisman
  */
 object ModLoader {
-  private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()
+  private val env = new ScriptEnvironment("require(path) { return container.eval(files.handle(path)) }")
+  private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstanceWithEnvironment(env)
+  env.addBinding("container", beanshell)
   private val logger = LoggerFactory.getLogger
+
 
   /**
    * Loads all mods in the target directory.
@@ -35,8 +38,7 @@ object ModLoader {
       logger.log("Could not load mods directory " + directory + ", did not exist.")
     // otherwise, get all the jarfiles from the directory and load them
     logger.log("loading mods from " + directory)
-    beanshell injectObject("files",directory.manager)
+    env.addBinding("files",directory.manager)
     directory.list("init.java").foreach { initScript => beanshell.eval(initScript) }
-    beanshell removeObject("files") //unset so that next time this is called, a different manager is set
   }
 }
