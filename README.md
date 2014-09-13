@@ -24,9 +24,7 @@ Pathway's event engine and scripting system are its' primary features, but it al
 
 These features are currently in Beta form, and are therefore not yet entirely complete.
 
-  + **File I/O**: Pathway's FileHandle system abstracts away file input and output, including support for cross-platform file I/O and Zip/Jar archives. This module's architecture, focused on pure abstraction, allows you to mount nearly any kind of
-vaguely file shaped system into the game, including for example databases or HTTP connections, as long as you can implement
-a Java object of the FileHandle type.
+  + **File I/O**: Pathway's FileHandle system abstracts away file input and output, including support for cross-platform file I/O and transparent access to the contents of Zip/Jar archives. This module's architecture, focused on pure abstraction, allows you to mount nearly any kind of vaguely file shaped system into the game, including for example databases or HTTP connections, as long as you can implement the FileHandle API for that system.
   + **Modules and Modpacks**: Pathway is designed to be highly modular, and support for game mods and expansion packs is built-in. This allows developers to release new content for Pathway games easily, and for players to create mods to customize the game to their liking. The nature of the File I/O subsystem also makes incremental updates a given, simply by supplying
 a module with the relevant files changed. **Please note the Module system is not yet finished in this early beta release**
 
