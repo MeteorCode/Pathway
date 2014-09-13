@@ -28,7 +28,7 @@ These features are currently in Beta form, and are therefore not yet entirely co
 vaguely file shaped system into the game, including for example databases or HTTP connections, as long as you can implement
 a Java object of the FileHandle type.
   + **Modules and Modpacks**: Pathway is designed to be highly modular, and support for game mods and expansion packs is built-in. This allows developers to release new content for Pathway games easily, and for players to create mods to customize the game to their liking. The nature of the File I/O subsystem also makes incremental updates a given, simply by supplying
-a module with the relevant files changed. **Please note the Module system is as-yet unfinished in this early alpha release**
+a module with the relevant files changed. **Please note the Module system is not yet finished in this early beta release**
 
 Future Work
 -----------
