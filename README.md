@@ -3,7 +3,7 @@ MeteorCode Pathway
 
 [![Build Status](https://travis-ci.org/MeteorCode/Pathway.svg?branch=master)](https://travis-ci.org/MeteorCode/Pathway) | [Documentation & Tutorials](https://github.com/MeteorCode/Pathway/wiki)
 
-MeteorCode Pathway is an open-source event-driven game engine for JVM platforms. It is intended primarily for turn-based role-playing and strategy games, but is flexible enough for use in any type of game. 
+MeteorCode Pathway is an open-source event-driven game engine for JVM platforms. It is intended primarily for turn-based role-playing and strategy games, but is flexible enough for use in any type of game.
 
 Event-Driven Game Engine?
 -------------------------
@@ -22,6 +22,20 @@ Other Features
 
 Pathway's event engine and scripting system are its' primary features, but it also provides other helpful features to game developers.
 
-  + **File I/O**: Pathway's FileHandle system abstracts away file input and output, including support for cross-platform file I/O and Zip/Jar archives.
-  + **Modules and Modpacks**: Pathway is designed to be highly modular, and support for game mods and expansion packs is built-in. This allows developers to release new content for Pathway games easily, and for players to create mods to customize the game to their liking.
-  + **Multiplayer**: Pathway hopes to support multi-player games right out of the box (in the future).
+These features are currently in Beta form, and are therefore not yet entirely complete.
+
+  + **File I/O**: Pathway's FileHandle system abstracts away file input and output, including support for cross-platform file I/O and Zip/Jar archives. This module's architecture, focused on pure abstraction, allows you to mount nearly any kind of
+vaguely file shaped system into the game, including for example databases or HTTP connections, as long as you can implement
+a Java object of the FileHandle type.
+  + **Modules and Modpacks**: Pathway is designed to be highly modular, and support for game mods and expansion packs is built-in. This allows developers to release new content for Pathway games easily, and for players to create mods to customize the game to their liking. The nature of the File I/O subsystem also makes incremental updates a given, simply by supplying
+a module with the relevant files changed.
+
+Future Work
+-----------
+
+Pathway intends to eventually include a great deal of helper and game related functions, hopefully eventually rivaling
+the feature sets of other modern game engines and SDKs. To that end, planned features include:
+
+  + **Multiplayer**: Pathway hopes to support multi-player games right out of the box for any games and modules which
+utilize the Pathway API.
+  + **Zero-Load**: Pathway will eventually include an intelligent, dependency-aware asset management system built with games in mind. The *Zero-Load* architecture will then, if used correctly, enable games to be virtually load-screen free at almost any scale with minimal work from the developer.
