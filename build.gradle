@@ -50,6 +50,10 @@ configurations {
     scalaCompilerPlugins { transitive = false }
 }
 
+tasks.withType(ScalaDoc) {
+    scalaDocOptions.setAdditionalParameters(["-doc-external-doc"])
+}
+
 dependencies {
 
     compile "org.scala-lang:scala-library:2.11.0"
