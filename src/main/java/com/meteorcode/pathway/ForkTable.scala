@@ -32,4 +32,6 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends mutable.HashMa
 
   def fork(): ForkTable[K, V] = new ForkTable[K,V](parent = this)
 
+  override def contains(key: K): Boolean = (findEntry(key) != null) || parent != null && (parent contains key)
+
 }
