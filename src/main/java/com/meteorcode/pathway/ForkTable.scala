@@ -30,4 +30,6 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends mutable.HashMa
     else Some(e.value)
   }
 
+  def fork(): ForkTable[K, V] = new ForkTable[K,V](parent = this)
+
 }
