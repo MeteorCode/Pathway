@@ -6,41 +6,39 @@ import scala.collection.mutable
  * Scala re-implementation of Max's ClobberTable
  * Created by hawk on 10/15/14.
  */
-class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends mutable.HashMap[K, V] {
+class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K, V] {
   val whiteouts = mutable.Set[K]()
+  val back      = mutable.HashMap[K, V]()
 
   override def put(key: K, value: V): Option[V] = {
-    val e = findOrAddEntry(key, value)
     if (whiteouts contains key) whiteouts -= key
-    if (e eq null) None
-    else {
-      val v = e.value
-      e.value = value
-      Some(v)
-    }
+    back.put(key, value)
   }
 
-  override def get(key: K): Option[V] = {
-    if (whiteouts contains key) None
-    val e = findEntry(key)
-    if (e eq null) {
-      if (parent != null) parent.get(key)
-      else None
-    }
-    else Some(e.value)
+  override def get(key: K): Option[V] = if (whiteouts contains key) {
+    None
+  } else if { (parent != null && parent contains key ) {
+    parent get key
+  } else {
+    back get key
   }
 
   override def remove(key: K): Option[V] = {
-    val e = removeEntry(key)
-    if (e ne null) Some(e.value)
+    if (back contains key) {
+      back remove key
+    }
     else {
-      whiteouts += key
+      if (parent contains key) whiteouts += key
       None
     }
   }
 
-  def fork(): ForkTable[K, V] = new ForkTable[K,V](parent = this)
+  override def +=(kv: (K, V)): ForkTable[K, V] = { put(key, value); this}
+  override def -=(key :K): ForkTable[K, V] = { remove(key); this}
+  override def iterator = back.iterator
+  override def contains(key: K): Boolean = back contains key || (parent != null && (parent contains key))
 
-  override def contains(key: K): Boolean = (findEntry(key) != null) || parent != null && (parent contains key)
+  def fork(): ForkTable[K, V] = new ForkTable[K,V](parent = this)
+  def apply(key: K) = back(K)
 
 }
