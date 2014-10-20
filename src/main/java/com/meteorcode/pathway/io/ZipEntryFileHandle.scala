@@ -91,7 +91,7 @@ class ZipEntryFileHandle (virtualPath: String,
         while (entries.hasMoreElements) {
           val e = entries.nextElement
           if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new ZipEntryFileHandle(this.path + e.getName.split("/").last, e, parentZipfile))
+            result.add(new ZipEntryFileHandle(this.path + e.getName.split("/").last, e, parentZipfile, this.token))
         }
         result
       } catch {
