@@ -33,12 +33,12 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K,
     }
   }
 
-  override def +=(kv: (K, V)): ForkTable[K, V] = { put(key, value); this}
+  override def +=(kv: (K, V)): ForkTable[K, V] = { put(kv._1, kv._2); this}
   override def -=(key :K): ForkTable[K, V] = { remove(key); this}
   override def iterator = back.iterator
-  override def contains(key: K): Boolean = back contains key || (parent != null && (parent contains key))
+  override def contains(key: K): Boolean = (back contains key) || (parent != null && (parent contains key))
 
   def fork(): ForkTable[K, V] = new ForkTable[K,V](parent = this)
-  def apply(key: K) = back(K)
+  def apply(key: K) = back(key)
 
 }
