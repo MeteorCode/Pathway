@@ -30,6 +30,15 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends mutable.HashMa
     else Some(e.value)
   }
 
+  override def remove(key: K): Option[V] = {
+    val e = removeEntry(key)
+    if (e ne null) Some(e.value)
+    else {
+      whiteouts += key
+      None
+    }
+  }
+
   def fork(): ForkTable[K, V] = new ForkTable[K,V](parent = this)
 
   override def contains(key: K): Boolean = (findEntry(key) != null) || parent != null && (parent contains key)

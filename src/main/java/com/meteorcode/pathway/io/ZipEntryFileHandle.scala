@@ -37,12 +37,14 @@ class ZipEntryFileHandle (virtualPath: String,
                           private val entry: ZipEntry,
                           private val parentZipfile: ZipFileHandle,
                           private val back: File,
-                          manager: ResourceManager)
-  extends ZipFileHandle(virtualPath, back, manager) {
+                          manager: ResourceManager,
+                          token: IOAccessToken)
+  extends ZipFileHandle(virtualPath, back, manager, token) {
 
   def this(virtualPath: String,
            entry: ZipEntry,
-           parent: ZipFileHandle) = this(virtualPath, entry, parent, parent.file, parent.manager)
+           parent: ZipFileHandle,
+           token: IOAccessToken) = this(virtualPath, entry, parent, parent.file, parent.manager, token)
 
   /**
    * @return  the physical path to the actual filesystem object represented by this FileHandle.

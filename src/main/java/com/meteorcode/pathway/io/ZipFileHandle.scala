@@ -28,7 +28,8 @@ import java.util.zip.ZipFile
  */
 class ZipFileHandle (virtualPath: String,
                      private val back: File,
-                     manager: ResourceManager) extends FileHandle(virtualPath, manager) {
+                     manager: ResourceManager,
+                     token: IOAccessToken) extends FileHandle(virtualPath, manager, token) {
   /*
   Let's take a moment to discuss how Java's Zip API is Not My Favourite Thing.
 
@@ -56,9 +57,12 @@ class ZipFileHandle (virtualPath: String,
   */
   protected[io] var zipfile = new ZipFile(file)
 
-  def this(fileHandle: FileHandle) = this(fileHandle.path, fileHandle.file, fileHandle.manager)
+  def this(fileHandle: FileHandle,
+           token: IOAccessToken) = this(fileHandle.path, fileHandle.file, fileHandle.manager, token)
 
-  def this(virtualPath: String, fileHandle: FileHandle) = this(virtualPath, fileHandle.file, fileHandle.manager)
+  def this(virtualPath: String,
+          fileHandle: FileHandle,
+          token: IOAccessToken) = this(virtualPath, fileHandle.file, fileHandle.manager, token)
 
   /**
    * Returns a [[java.io.File]] that represents this file handle.
@@ -106,7 +110,7 @@ class ZipFileHandle (virtualPath: String,
       while (entries.hasMoreElements) {
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new ZipEntryFileHandle(this.path + e.getName, e, this))
+          result.add(new ZipEntryFileHandle(this.path + e.getName, e, this, this.token))
         }
       }
       zipfile = new ZipFile(back) // reset the archive

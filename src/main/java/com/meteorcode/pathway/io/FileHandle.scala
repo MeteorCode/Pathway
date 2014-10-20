@@ -14,13 +14,20 @@ import java.nio.charset.Charset
 import scala.io.Source
 import scala.collection.JavaConversions._
 
+protected class IOAccessToken
+
 /**
  * An abstraction wrapping a file in the filesystem.
  *
  * @author Hawk Weisman
  */
 abstract class FileHandle(protected val virtualPath: String,
-                          protected[io] var manager: ResourceManager) {
+                          protected[io] var manager: ResourceManager,
+                          protected val token: IOAccessToken) {
+
+  if (token != FileHandle.correctToken) { // validate that the access token is from a valid source
+    throw new SecurityException("Could not create FileHande with bad security access token.")
+  }
   /** Returns true if the file exists. */
   def exists: Boolean
 
@@ -211,4 +218,8 @@ abstract class FileHandle(protected val virtualPath: String,
     case handle: FileHandle => (handle.path == path) && (handle.getClass == this.getClass)
     case _ => false
   }
+}
+
+object FileHandle {
+  protected val correctToken = new IOAccessToken
 }

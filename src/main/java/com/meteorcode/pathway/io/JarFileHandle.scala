@@ -29,11 +29,14 @@ import java.util.jar.JarFile
  */
 class JarFileHandle (virtualPath: String,
                      private val back: File,
-                     manager: ResourceManager) extends FileHandle(virtualPath, manager) {
+                     manager: ResourceManager,
+                     token: IOAccessToken) extends FileHandle(virtualPath, manager, token) {
   // I also hate java.util.jar
   protected[io] var jarfile = new JarFile(back)
 
-  def this(virtualPath: String, fileHandle: FileHandle) = this(virtualPath, fileHandle.file, fileHandle.manager)
+  def this(virtualPath: String,
+          fileHandle: FileHandle,
+          token: IOAccessToken) = this(virtualPath, fileHandle.file, fileHandle.manager, token)
 
   /**
    * @return the [[java.io.File]] backing this file handle, or null if this file is inside a Jar or Zip archive.
@@ -76,7 +79,7 @@ class JarFileHandle (virtualPath: String,
       while (entries.hasMoreElements) {
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new JarEntryFileHandle(this.path + e.getName, e, this))
+          result.add(new JarEntryFileHandle(this.path + e.getName, e, this, this.token))
         }
       }
       jarfile = new JarFile(back) // reset the archive
