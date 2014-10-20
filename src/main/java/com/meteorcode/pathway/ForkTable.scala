@@ -1,14 +1,15 @@
 package com.meteorcode.pathway
 
-import scala.collection.mutable
+import scala.collection.mutable.{HashMap, Set}
+import scala.collection.AbstractMap
 
 /**
  * Scala re-implementation of Max's ClobberTable
  * Created by hawk on 10/15/14.
  */
 class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K, V] {
-  val whiteouts = mutable.Set[K]()
-  val back      = mutable.HashMap[K, V]()
+  val whiteouts = Set[K]()
+  val back      = HashMap[K, V]()
 
   override def put(key: K, value: V): Option[V] = {
     if (whiteouts contains key) whiteouts -= key
@@ -17,7 +18,7 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K,
 
   override def get(key: K): Option[V] = if (whiteouts contains key) {
     None
-  } else if (parent != null && parent contains key ) {
+  } else if (parent != null && (parent contains key) ) {
     parent get key
   } else {
     back get key
@@ -36,7 +37,7 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K,
   override def +=(kv: (K, V)): ForkTable[K, V] = { put(kv._1, kv._2); this}
   override def -=(key :K): ForkTable[K, V] = { remove(key); this}
   override def iterator = back.iterator
-  override def contains(key: K): Boolean = (back contains key) || (parent != null && (parent contains key))
+  override def contains(key: K): Boolean = (back contains key) || ( parent != null && (parent contains key) )
 
   def fork(): ForkTable[K, V] = new ForkTable[K,V](parent = this)
   def apply(key: K) = back(key)
