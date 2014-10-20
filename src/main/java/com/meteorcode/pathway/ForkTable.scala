@@ -17,7 +17,7 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K,
 
   override def get(key: K): Option[V] = if (whiteouts contains key) {
     None
-  } else if { (parent != null && parent contains key ) {
+  } else if (parent != null && parent contains key ) {
     parent get key
   } else {
     back get key
