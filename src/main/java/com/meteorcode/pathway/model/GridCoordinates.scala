@@ -13,7 +13,7 @@ class GridCoordinates(val x: Integer, val y: Integer) {
   def getX = x
   def getY = y
 
-  override def toString() = "(" + x + ", " + y + ")"
+  override def toString() = s"($x, $y)"
   override def equals(other: Any) = {
     if (other.isInstanceOf[GridCoordinates]) {
       (this.x == other.asInstanceOf[GridCoordinates].getX && this.y == other.asInstanceOf[GridCoordinates].getY)
