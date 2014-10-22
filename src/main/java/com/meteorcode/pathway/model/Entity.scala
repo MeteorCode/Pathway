@@ -46,6 +46,6 @@ class Entity(gameID: Option[Long]) extends GameObject(gameID) {
   def getCoordinates: GridCoordinates = coordinates
   def getLocation: Tile = grid.getTileAt(coordinates)
   def getName = new String(name)
-  override def toString = "Entity " + getName + " at " + getCoordinates
+  override def toString = s"Entity $name at $coordinates"
 
 }
