@@ -52,18 +52,12 @@ abstract class FileHandle(protected val virtualPath: String,
   /**
    * @return The filename extension of the object wrapped by this FileHandle, or emptystring if there is no extension.
    */
-  def extension: String = path.split('.').drop(1).lastOption match {
-    case s: Some[String] => s.get
-    case None => ""
-  }
+  def extension: String = path.split('.').drop(1).lastOption.getOrElse("")
 
   /**
    * @return the name of this object, without the filename extension and path.
    */
-  def name: String = path.split('/').lastOption match {
-    case s: Some[String] => s.get.split('.').head
-    case None => "/"
-  }
+  def name: String = path.split('/').lastOption.getOrElse("/").split('.').head
 
   /**
    * Returns the [[java.io.File]] backing this file handle.

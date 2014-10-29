@@ -198,18 +198,17 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
 
   private def makeHandle(fakePath: String): FileHandle = {
     logger.log(this.toString, "making a FileHandle for " + fakePath)
-    val realPath: String = paths.get(fakePath) match {
-      case s:Some[String] => s.get
-      case None => // If the path is not in the tree, handle write attempts.
-        logger.log(this.toString, "handling write attempt to empty path " + fakePath)
-        if (isPathWritable(fakePath)) {
-          paths += (fakePath -> (writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, "")))
-          logger.log(this.toString, "successfully handled write attempt")
-          paths(fakePath)
-        } else {
-          throw new IOException("A filehandle to an empty path was requested, and the requested path was not writable")
-        }
+    val realPath: String = paths.getOrElse(fakePath, {
+      logger.log(this.toString, "handling write attempt to empty path " + fakePath)
+      if (isPathWritable(fakePath)) {
+        paths += (fakePath -> (writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, "")))
+        logger.log(this.toString, "successfully handled write attempt")
+        paths(fakePath)
+      } else {
+        throw new IOException("A filehandle to an empty path was requested, and the requested path was not writable")
+      }
     }
+    )
     realPath.split('.').drop(1).lastOption match {
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
