@@ -24,17 +24,21 @@ class UtilLogWrapper(protected val logger: Logger) extends LogDestination {
   /**
    * Log a String, with optional Throwable (such as an exception), and default context
    * to this destination.
+   * Throwables are logged to SEVERE by default.
+   * 
    * @param message The message to log
    * @param t The Throwable to add to the log
    */
-  def log(message: String, t: Throwable) = logger.log(Level.INFO, message, t)
+  def log(message: String, t: Throwable) = logger.log(Level.SEVERE, message, t)
 
   /**
-   * Log a message with context and Throwable attached.
+   * Log a message with context and Throwable attached. 
+   * Throwables are logged to SEVERE by default.
+   * 
    * @param tag The context tag to label this log with
    * @param message The message to log
    * @param t The Throwable to add to the log
    */
-  def log(tag: String, message: String, t: Throwable) = logger.log(Level.INFO, tag + ": " + message, t)
+  def log(tag: String, message: String, t: Throwable) = logger.log(Level.SEVERE, tag + ": " + message, t)
 
 }
