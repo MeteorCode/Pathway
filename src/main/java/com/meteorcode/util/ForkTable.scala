@@ -37,10 +37,10 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K,
 
   def chainContains(key: K): Boolean = (back contains key) || ((!(whiteouts contains key)) && parent != null && (parent chainContains key))
 
-  override def contains(key: K): Boolean = (back contains key)
+  override def contains(key: K): Boolean = back contains key
 
   override def apply(key: K) = back(key)
 
   def fork(): ForkTable[K, V] = new ForkTable[K, V](parent = this)
-  def prettyprint(indentLevel: Int) = (" "*(indentLevel)) + this.keys.foldLeft[String](""){(acc, key) => acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"}
+  def prettyprint(indentLevel: Int) = (" "*indentLevel) + this.keys.foldLeft[String](""){(acc, key) => acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"}
 }
