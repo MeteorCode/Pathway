@@ -95,7 +95,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
-  private lazy var logger = LoggerFactory.getLogger()
+  private lazy val logger = LoggerFactory.getLogger()
   private lazy val writeHandle: FileHandle = if (writeDir.isDefined) {
     if (!writeDir.get.exists)   // if the write dir doesn't exist, we ought to create it
       if (!writeDir.get.file.mkdirs()) throw new IOException("Specified write directory could not be created!")
