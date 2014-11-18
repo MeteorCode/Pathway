@@ -3,10 +3,12 @@ package com.meteorcode.common
 import scala.collection.{AbstractMap, DefaultMap, mutable}
 
 /**
- * Scala re-implementation of Max's ClobberTable˚
+ * Scala re-implementation of Max's ClobberTable
+ *
+ *
  * Created by hawk on 10/15/14.
  */
-class ForkTable[K, V](var parent: ForkTable[K, V] = null) extends AbstractMap[K, V] with DefaultMap[K, V] {
+class ForkTable[K, V](override var parent: Option[ForkTable[K, V]] = None) extends AbstractMap[K, V] with DefaultMap[K, V] with Scope {
   val whiteouts = mutable.Set[K]()
   val back = mutable.HashMap[K, V]()
 
@@ -20,8 +22,8 @@ class ForkTable[K, V](var parent: ForkTable[K, V] = null) extends AbstractMap[K,
     None
   } else if (this.contains(key)) {
     back get key
-  } else if(parent != null && (parent chainContains key)) {
-    parent get key
+  } else if(parent.isDefined && (parent.get chainContains key)) {
+    parent.get get key
   } else {
     None
   }
@@ -29,21 +31,33 @@ class ForkTable[K, V](var parent: ForkTable[K, V] = null) extends AbstractMap[K,
   def remove(key: K): Option[V] = {
     if (back contains key) {
       back remove key
-    }
-    else {
-      if (parent contains key) whiteouts += key
-      None
+    } else {
+      if (parent.isDefined && (parent.get contains key)) {
+        whiteouts += key
+        parent.get get key
+      } else {
+        None
+      }
     }
   }
 
   override def iterator = back.iterator
 
-  def chainContains(key: K): Boolean = (back contains key) || ((!(whiteouts contains key)) && parent != null && (parent chainContains key))
+  /**
+   * Returns true if this contains the selected key OR if any of its' parents contains the key
+   * @param key the key to search for
+   * @return true if this or any of its' parents contains the selected key.
+   */
+  def chainContains(key: K): Boolean = (back contains key) || ((!(whiteouts contains key)) && parent.isDefined && (parent.get chainContains key))
 
   override def contains(key: K): Boolean = back contains key
+  override def exists(p: ((K, V)) => Boolean) = back exists p
 
   override def apply(key: K) = back(key)
 
-  def fork(): ForkTable[K, V] = new ForkTable[K, V](parent = this)
-  def prettyprint(indentLevel: Int) = (" "*indentLevel) + this.keys.foldLeft[String](""){(acc, key) => acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"}
+  override def fork: ForkTable[K, V] = new ForkTable[K, V](Some(this))
+
+  override def toString = this.prettyPrint(0)
+
+  def prettyPrint(indentLevel: Int) = (" "*indentLevel) + this.keys.foldLeft[String](""){(acc, key) => acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"}
 }
