@@ -1,12 +1,12 @@
-package com.meteorcode.util
+package com.meteorcode.common
 
-import scala.collection.{mutable, DefaultMap, AbstractMap}
+import scala.collection.{AbstractMap, DefaultMap, mutable}
 
 /**
  * Scala re-implementation of Max's ClobberTable˚
  * Created by hawk on 10/15/14.
  */
-class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K, V] with DefaultMap[K, V] {
+class ForkTable[K, V](var parent: ForkTable[K, V] = null) extends AbstractMap[K, V] with DefaultMap[K, V] {
   val whiteouts = mutable.Set[K]()
   val back = mutable.HashMap[K, V]()
 
@@ -15,12 +15,15 @@ class ForkTable[K, V](val parent: ForkTable[K, V] = null) extends AbstractMap[K,
     back.put(key, value)
   }
 
+
   override def get(key: K): Option[V] = if (whiteouts contains key) {
     None
-  } else if (parent != null && (parent contains key)) {
+  } else if (this.contains(key)) {
+    back get key
+  } else if(parent != null && (parent chainContains key)) {
     parent get key
   } else {
-    back get key
+    None
   }
 
   def remove(key: K): Option[V] = {
