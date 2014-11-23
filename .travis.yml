@@ -5,7 +5,7 @@ branches:
   - /^v\d/
 after_success:
   - gradle jacocoTestReport coveralls
-  - .travis/initiate-publish.sh
+  - .travis/publish.sh
 env:
   global:
     secure: gjz7bI9ROGjG7S8wW3dwabGBsdi0wsYhcSM6UTwd9JA2GeJXCJVg3uVPd1GAg5iY8elmWhB+aOh7o8b6FdLaFTaz5qTuUWBShNzYgi16glCIpD0yk9d0GASnSxV3SJmnJyTvsYukjkxvrJ6aOwQGZTTJ1+7gudKHwXjYVcVgWk0=
