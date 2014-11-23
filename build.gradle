@@ -22,6 +22,7 @@ apply plugin: "scala"
 apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "jacoco"
+apply plugin: "com.github.kt3k.coveralls"
 
 buildscript {
     repositories {
@@ -32,6 +33,7 @@ buildscript {
     dependencies {
         classpath 'org.beanshell:bsh:2+'
         classpath fileTree(dir: 'corelib', include: '*.jar')
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
     }
 }
 
@@ -102,6 +104,10 @@ test {
 jacocoTestReport {
     doFirst {
         classDirectories = fileTree(dir: "${buildDir}/classes/main/").exclude(jacocoExcludes)
+    }
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
     }
 }
 
