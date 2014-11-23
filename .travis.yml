@@ -3,3 +3,5 @@ script: gradle build
 branches:
   except:
     - /^v\d/
+after_success:
+  - ./gradlew jacocoTestReport coveralls
