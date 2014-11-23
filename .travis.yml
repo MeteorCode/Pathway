@@ -4,4 +4,4 @@ branches:
   except:
     - /^v\d/
 after_success:
-  - ./gradlew jacocoTestReport coveralls
+  - gradle jacocoTestReport coveralls
