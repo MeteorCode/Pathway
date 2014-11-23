@@ -1,7 +1,7 @@
 MeteorCode Pathway
 ==================
 
-[![Build Status](https://travis-ci.org/MeteorCode/Pathway.svg?branch=master)](https://travis-ci.org/MeteorCode/Pathway) | [Documentation & Tutorials](https://github.com/MeteorCode/Pathway/wiki)
+[![Build Status](https://travis-ci.org/MeteorCode/Pathway.svg?branch=master)](https://travis-ci.org/MeteorCode/Pathway)[![Coverage Status](https://img.shields.io/coveralls/hawkw/deebee.svg)] | [Documentation & Tutorials](https://github.com/MeteorCode/Pathway/wiki)
 
 MeteorCode Pathway is an open-source event-driven game engine for JVM platforms. It is intended primarily for turn-based role-playing and strategy games, but is flexible enough for use in any type of game.
 
