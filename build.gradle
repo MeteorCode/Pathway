@@ -72,7 +72,7 @@ dependencies {
 }
 
 // stuff that should not have a JaCoCo test report generated
-def jacocoExcludes = [ '**/test/**', '**/*Test*', '**/*$*', '**/ModLoader*']
+def jacocoExcludes = [ '**/test/**', '**/*Test*', '**/*$*', '**/ModLoader*', '**/sparks/**']
 
 
 /////////////////////////////////////////////////////////////////////////
