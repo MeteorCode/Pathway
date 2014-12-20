@@ -21,6 +21,6 @@ deploy:
     - build/libs/pathway-javadoc.jar
     - build/libs/pathway-sources.jar
   skip_cleanup: true
-    on:
-      tags: true
-      all_branches: true
+  on:
+    tags: true
+    all_branches: true
