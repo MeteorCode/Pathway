@@ -4,8 +4,23 @@ branches:
   except:
   - /^v\d/
 after_success:
-  - gradle jacocoTestReport coveralls
-  - .travis/publish.sh
+- gradle jacocoTestReport coveralls
 env:
   global:
     secure: gjz7bI9ROGjG7S8wW3dwabGBsdi0wsYhcSM6UTwd9JA2GeJXCJVg3uVPd1GAg5iY8elmWhB+aOh7o8b6FdLaFTaz5qTuUWBShNzYgi16glCIpD0yk9d0GASnSxV3SJmnJyTvsYukjkxvrJ6aOwQGZTTJ1+7gudKHwXjYVcVgWk0=
+before_deploy:
+  - gradle assemble
+  - .travis/publish.sh
+deploy:
+  provider: releases
+  api_key:
+    secure: L6BZnOGDMk1SasV9sxkEOd4gQkKJiaewCLJ6TVZa4E40kIKnZ1L1knxVssgk2v/a5NAcJggLsdU+QJ4AmM2LpCbnMWARHghwMc4W94RUsMPwYizYGBIp4a3MsGPcQ4CgjWN/v1UIpuxHVjyxfEt+4HS6hkQfW6uMXFj14MtVTH4=
+  file:
+    - build/libs/pathway.jar
+    - build/libs/pathway-scaladoc.jar
+    - build/libs/pathway-javadoc.jar
+    - build/libs/pathway-sources.jar
+  skip_cleanup: true
+    on:
+      tags: true
+      all_branches: true
