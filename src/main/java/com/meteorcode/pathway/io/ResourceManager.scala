@@ -106,10 +106,10 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
   } else null
 
   private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
-  private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
+  private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
-
+/*
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param directories a list of FileHandles to seed the recursive walk
@@ -163,16 +163,18 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
       }
     map
   }
-
-  private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,FileHandle] = {
-    val fs = new ForkTable[String,FileHandle]
-    def _walk(current: FileHandle, fs: ForkTable[String,FileHandle]): ForkTable[String,FileHandle] = current match {
+*/
+  private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,String] = {
+    val fs = new ForkTable[String,String]
+    def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case a: FileHandle if a.isDirectory =>
+        fs.put(current.path, current.physicalPath)
         val newfs = fs.fork
         for(child <- a.list) { _walk(child, newfs) }
         newfs
-      case _ => fs.add(current.path -> current); fs
+      case _: FileHandle => fs.put(current.path, current.physicalPath); fs
     }
+    dirs.foldLeft(fs)((tab, fh) => _walk(fh, tab))
   }
 
   /**
@@ -215,7 +217,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
       case None => // If the path is not in the tree, handle write attempts.
         logger.log(this.toString, "handling write attempt to empty path " + fakePath)
         if (isPathWritable(fakePath)) {
-          paths += (fakePath -> (writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, "")))
+          paths.put(fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
           logger.log(this.toString, "successfully handled write attempt")
           paths(fakePath)
         } else {
