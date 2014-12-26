@@ -33,15 +33,19 @@ import scala.collection.JavaConversions._
 class DesktopFileHandle (virtualPath: String,
                          realPath: String,
                          private val back: File,
-                         manager: ResourceManager,
-                         token: IOAccessToken) extends FileHandle(virtualPath, manager, token) {
+                         manager: ResourceManager//,
+                         //token: IOAccessToken
+                          ) extends FileHandle(virtualPath, manager//, token
+) {
   private val physPath = realPath.replace('/', File.separatorChar)
 
 
   def this(virtualPath: String,
            realPath: String,
-           manager: ResourceManager,
-           token:IOAccessToken) = this (virtualPath, realPath, new File(realPath), manager, token)
+           manager: ResourceManager//,
+           //token:IOAccessToken
+            ) = this (virtualPath, realPath, new File(realPath), manager//, token
+  )
   //def this(physicalPath: String, manager: ResourceManager) = this(null, physicalPath, manager)
 
   /**
@@ -76,7 +80,8 @@ class DesktopFileHandle (virtualPath: String,
   def list: java.util.List[FileHandle] = {
     if (isDirectory) {
       for (item <- back.list.toList)
-        yield new DesktopFileHandle(path + "/" + item, physicalPath + "/" + item, manager, this.token)
+        yield new DesktopFileHandle(path + "/" + item, physicalPath + "/" + item, manager//, this.token
+        )
     } else Collections.emptyList()
   }
 

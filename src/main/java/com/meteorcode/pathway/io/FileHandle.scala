@@ -22,12 +22,14 @@ protected class IOAccessToken
  * @author Hawk Weisman
  */
 abstract class FileHandle(protected val virtualPath: String,
-                          protected[io] var manager: ResourceManager,
-                          protected val token: IOAccessToken) {
+                          protected[io] var manager: ResourceManager//,
+                          //protected val token: IOAccessToken // todo: implement
+                           ) {
+  // TODO: Implement
+  //if (token != FileHandle.correctToken) { // validate that the access token is from a valid source
+  //  throw new SecurityException("Could not create FileHande with bad security access token.")
+  //}
 
-  if (token != FileHandle.correctToken) { // validate that the access token is from a valid source
-    throw new SecurityException("Could not create FileHande with bad security access token.")
-  }
   /** Returns true if the file exists. */
   def exists: Boolean
 

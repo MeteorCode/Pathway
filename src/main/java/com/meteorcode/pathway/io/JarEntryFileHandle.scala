@@ -42,9 +42,12 @@ class JarEntryFileHandle (virtualPath: String,
                           private val entry: JarEntry,
                           private val parentJarfile: JarFileHandle,
                           private val back: File,
-                          manager: ResourceManager,
-                          token: IOAccessToken)
-  extends JarFileHandle(virtualPath, back, manager, token) {
+                          manager: ResourceManager//,
+                          //token: IOAccessToken
+                          )
+  extends JarFileHandle(virtualPath, back, manager
+    //, token
+  ) {
 
   def this(virtualPath: String,
            entry: JarEntry,

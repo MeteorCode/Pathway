@@ -1,6 +1,6 @@
 package com.meteorcode.pathway.io
 
-import java.io.{File, OutputStream, InputStream}
+import java.io.{IOException, File, OutputStream, InputStream}
 import java.util
 
 /**
@@ -9,8 +9,10 @@ import java.util
  * Created by hawk on 8/27/14.
  */
 protected[io] class RedirectFileHandle (protected val wrapped: FileHandle,
-                                        virtualPath: String,
-                                        token: IOAccessToken) extends FileHandle(virtualPath, wrapped.manager, token) {
+                                        virtualPath: String//,
+                                        //token: IOAccessToken
+                                        ) extends FileHandle(virtualPath, wrapped.manager//, token
+                                        ) {
   /** Returns true if the file exists. */
   override def exists: Boolean = wrapped.exists
 

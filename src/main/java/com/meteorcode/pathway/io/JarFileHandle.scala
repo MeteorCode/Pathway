@@ -29,8 +29,10 @@ import java.util.jar.JarFile
  */
 class JarFileHandle (virtualPath: String,
                      private val back: File,
-                     manager: ResourceManager,
-                     token: IOAccessToken) extends FileHandle(virtualPath, manager, token) {
+                     manager: ResourceManager//,
+                     //token: IOAccessToken
+                      ) extends FileHandle(virtualPath, manager//,token
+                      ) {
   // I also hate java.util.jar
   protected[io] var jarfile = new JarFile(back)
 
@@ -79,7 +81,12 @@ class JarFileHandle (virtualPath: String,
       while (entries.hasMoreElements) {
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new JarEntryFileHandle(this.path + e.getName, e, this, this.token))
+          result.add(new JarEntryFileHandle(
+            this.path + e.getName,
+            e,
+            this//,
+            //this.token
+          ))
         }
       }
       jarfile = new JarFile(back) // reset the archive
