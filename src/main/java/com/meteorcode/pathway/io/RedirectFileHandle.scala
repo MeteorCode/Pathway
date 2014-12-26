@@ -44,7 +44,7 @@ protected[io] class RedirectFileHandle (protected val wrapped: FileHandle,
   /** Returns true if this file is a directory.
     *
     * Note that this may return false if a directory exists but is empty.
-    * This is Not My Fault, it's [[util.File]] behaviour.
+    * This is Not My Fault, it's [[java.io.File]] behaviour.
     *
     * @return true if this file is a directory, false otherwise
     **/

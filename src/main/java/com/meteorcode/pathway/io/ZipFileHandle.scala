@@ -21,7 +21,7 @@ import java.util.zip.ZipFile
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * @param virtualPath The virtual path to the object this FileHandle represents
- * @param back A [[java.util.File]] representing the Zip archive to handle.
+ * @param back A [[java.io.File]] representing the Zip archive to handle.
  * @param manager the ResourceManager managing this FileHandle
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
@@ -85,7 +85,7 @@ class ZipFileHandle (virtualPath: String,
   /** Returns true if this file is a directory.
     *
     * Note that this may return false if a directory exists but is empty.
-    * This is Not My Fault, it's [[java.util.File]] behaviour.
+    * This is Not My Fault, it's [[java.io.File]] behaviour.
     *
     * @return true if this file is a directory, false otherwise
     */

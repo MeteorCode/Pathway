@@ -4,6 +4,7 @@ import java.io.{File, IOException}
 
 import java.util
 
+import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.logging.LoggerFactory
 
 import scala.collection.JavaConversions._
@@ -161,6 +162,17 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
         if (file.isDirectory) walk(file, m)
       }
     map
+  }
+
+  private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,FileHandle] = {
+    val fs = new ForkTable[String,FileHandle]
+    def _walk(current: FileHandle, fs: ForkTable[String,FileHandle]): ForkTable[String,FileHandle] = current match {
+      case a: FileHandle if a.isDirectory =>
+        val newfs = fs.fork
+        for(child <- a.list) { _walk(child, newfs) }
+        newfs
+      case _ => fs.add(current.path -> current); fs
+    }
   }
 
   /**

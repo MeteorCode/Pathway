@@ -28,7 +28,7 @@ import java.util.Collections
  * @param entry  the [[java.util.zip.ZipEntry]] representing the file
  * @param parentZipfile a reference to the the [[java.util.zip.ZipFile]] containing the ZipEntry - this is necessary so that
  *               we can do things like list the children of a directory in a Zip archive.
- * @param back the [[java.util.File]] that backs this FileHandle
+ * @param back the [[java.io.File]] that backs this FileHandle
  * @param manager the ResourceManager managing the virtual filesystem containing this FileHandle
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]

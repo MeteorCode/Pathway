@@ -25,7 +25,7 @@ import scala.collection.JavaConversions._
  *
  * @param virtualPath
  * the virtual path to the file in the fake filesystem
- * @param back a [[java.util.File]] representing the file in the filesystem
+ * @param back a [[java.io.File]] representing the file in the filesystem
  * @param manager
  * An [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] managing this FileHandle
  * @author Hawk Weisman
@@ -65,7 +65,7 @@ class DesktopFileHandle (virtualPath: String,
   /** Returns true if this file is a directory.
     *
     * Note that this may return false if a directory exists but is empty.
-    * This is Not My Fault, it's [[java.util.File]] behaviour.
+    * This is Not My Fault, it's [[java.io.File]] behaviour.
     *
     * @return true if this file is a directory, false otherwise
     * */
