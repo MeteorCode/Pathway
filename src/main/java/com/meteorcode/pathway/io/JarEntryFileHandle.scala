@@ -51,8 +51,10 @@ class JarEntryFileHandle (virtualPath: String,
 
   def this(virtualPath: String,
            entry: JarEntry,
-           parent: JarFileHandle,
-           token: IOAccessToken) = this(virtualPath, entry, parent, parent.file, parent.manager, token)
+           parent: JarFileHandle//,
+           //token: IOAccessToken
+           ) = this(virtualPath, entry, parent, parent.file, parent.manager//, token
+  )
 
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
@@ -94,7 +96,8 @@ class JarEntryFileHandle (virtualPath: String,
         while (entries.hasMoreElements) {
           val e = entries.nextElement
           if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new JarEntryFileHandle(this.path + e.getName.split("/").last, e, parentJarfile, this.token))
+            result.add(new JarEntryFileHandle(this.path + e.getName.split("/").last, e, parentJarfile//, this.token
+            ))
         }
         result
       } catch {

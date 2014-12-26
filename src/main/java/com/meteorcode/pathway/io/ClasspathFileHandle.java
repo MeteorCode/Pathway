@@ -111,6 +111,9 @@ public class ClasspathFileHandle extends FileHandle {
         else
             return back.delete();
     }
+    @Override public String virtualPath() {
+        return this.virtualPath;
+    }
 
     @Override public String readString() throws IOException{
 		if(back != null && !back.isDirectory()) {

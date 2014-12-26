@@ -37,8 +37,10 @@ class JarFileHandle (virtualPath: String,
   protected[io] var jarfile = new JarFile(back)
 
   def this(virtualPath: String,
-          fileHandle: FileHandle,
-          token: IOAccessToken) = this(virtualPath, fileHandle.file, fileHandle.manager, token)
+          fileHandle: FileHandle//,
+          //token: IOAccessToken
+            ) = this(virtualPath, fileHandle.file, fileHandle.manager//, token
+  )
 
   /**
    * @return the [[java.io.File]] backing this file handle, or null if this file is inside a Jar or Zip archive.
