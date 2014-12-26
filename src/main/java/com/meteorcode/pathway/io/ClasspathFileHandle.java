@@ -27,9 +27,12 @@ public class ClasspathFileHandle extends FileHandle {
 	 */
 	protected ClasspathFileHandle(String physicalPath,
 																String virtualPath,
-																ResourceManager manager,
-																IOAccessToken token) throws IOException {
-        super(virtualPath, manager, token);
+																ResourceManager manager//,
+																//IOAccessToken token
+    ) throws IOException {
+        super(virtualPath, manager
+                //, token
+        );
 		this.opath = physicalPath;
         this.manager = manager;         //FIXME: dumb Scala/Java interop behaviour, apparently this class doesn't
         this.virtualPath = virtualPath; //have access to fields of the superclass
@@ -71,7 +74,8 @@ public class ClasspathFileHandle extends FileHandle {
 		if(back != null && back.isDirectory()) {
 			ArrayList<FileHandle> r = new ArrayList<FileHandle>();
 			for(String s : back.list()) {
-				r.add(new ClasspathFileHandle(this.opath + "/" + s, this.path() + "/" + s, this.manager, this.token));
+				r.add(new ClasspathFileHandle(this.opath + "/" + s, this.path() + "/" + s, this.manager//, this.token
+				));
 			}
 			return r;
 		} else {
