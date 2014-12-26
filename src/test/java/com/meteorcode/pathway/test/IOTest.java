@@ -92,7 +92,7 @@ public class IOTest {
         try {
             underTest = r.handle("testDir/I AM NOT A REAL FILE.txt");
         } catch (IOException io) {
-            assertEquals("A filehandle to an empty path was requested, and the requested path was not writable",
+            assertEquals("A filehandle to an empty path (testDir/I AM NOT A REAL FILE.txt) was requested, and the requested path was not writable",
                     io.getMessage());
         }
     }

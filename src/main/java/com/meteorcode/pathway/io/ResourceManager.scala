@@ -215,13 +215,13 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     val realPath: String = paths.get(fakePath) match {
       case s:Some[String] => s.get
       case None => // If the path is not in the tree, handle write attempts.
-        logger.log(this.toString, "handling write attempt to empty path " + fakePath)
+        logger.log(this.toString, s"handling write attempt to empty path $fakePath")
         if (isPathWritable(fakePath)) {
           paths.put(fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
           logger.log(this.toString, "successfully handled write attempt")
           paths(fakePath)
         } else {
-          throw new IOException("A filehandle to an empty path was requested, and the requested path was not writable")
+          throw new IOException(s"A filehandle to an empty path ($fakePath) was requested, and the requested path was not writable")
         }
     }
     realPath.split('.').drop(1).lastOption match {
