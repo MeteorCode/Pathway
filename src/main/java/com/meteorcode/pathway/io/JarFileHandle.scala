@@ -22,7 +22,7 @@ import java.util.jar.JarFile
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * @param virtualPath The virtual path to the object this FileHandle represents
- * @param back A [[java.util.File]] representing the Jar archive to handle.
+ * @param back A [[java.io.File]] representing the Jar archive to handle.
  * @param manager the ResourceManager managing this FileHandle
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]

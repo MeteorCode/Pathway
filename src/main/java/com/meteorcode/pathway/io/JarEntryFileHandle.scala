@@ -30,10 +30,10 @@ import java.util.Collections
  * [[com.meteorcode.pathway.io.JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
- * @param entry  the [[java.util.zip.JarEntry]] representing the file
- * @param parentJarfile a reference to the the [[java.util.zip.JarFile]] containing the JarEntry - this is necessary so that
+ * @param entry  the [[java.util.jar.JarEntry]] representing the file
+ * @param parentJarfile a reference to the the [[java.util.jar.JarFile]] containing the JarEntry - this is necessary so that
  *               we can do things like list the children of a directory in a Jar archive.
- * @param back the [[java.util.File]] that backs this FileHandle
+ * @param back the [[java.io.File]] that backs this FileHandle
  * @param manager the ResourceManager managing the virtual filesystem containing this FileHandle
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
