@@ -8,6 +8,7 @@ import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.logging.LoggerFactory
 
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -165,7 +166,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
   }
 */
   private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,String] = {
-    val fs = new ForkTable[String,String]
+    var fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case a: FileHandle if a.isDirectory =>
         fs.put(current.path, current.physicalPath)
@@ -174,7 +175,11 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
         newfs
       case _: FileHandle => fs.put(current.path, current.physicalPath); fs
     }
-    dirs.foldLeft(fs)((tab, fh) => _walk(fh, tab))
+    fs = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
+    writeDir match { // TODO: this is where we could "freeze" the un-writedir'd map
+      case Some(dir) => _walk(dir, fs)
+      case _ => fs
+    }
   }
 
   /**
