@@ -1,6 +1,7 @@
 package com.meteorcode.pathway.io
 
 import scala.collection.mutable
+import scala.collection.JavaConversions._
 
 /**
  * An example of a load-order policy that uses a configuration file to determine load order.
@@ -35,7 +36,7 @@ class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) exte
    * @param paths a set of Strings representing top-level paths in the physical filesystem.
    * @return a List of those paths ordered by their load priority
    */
-  def orderPaths(paths: List[FileHandle]): List[FileHandle] = {
+  def orderPaths(paths: java.util.List[FileHandle]): java.util.List[FileHandle] = {
     var result = List[FileHandle]()
     for (path <- order)
       result = result :+ paths.find{f => f.physicalPath == path}.get
