@@ -59,13 +59,15 @@ class ZipFileHandle (virtualPath: String,
   */
   protected[io] var zipfile = new ZipFile(file)
 
-  def this(fileHandle: FileHandle,
-           token: IOAccessToken) = this(fileHandle.path, fileHandle.file, fileHandle.manager//, token
+  def this(fileHandle: FileHandle//,
+           //token: IOAccessToken
+            ) = this(fileHandle.path, fileHandle.file, fileHandle.manager//, token
   )
 
   def this(virtualPath: String,
-          fileHandle: FileHandle,
-          token: IOAccessToken) = this(virtualPath, fileHandle.file, fileHandle.manager//, token
+          fileHandle: FileHandle//,
+          //token: IOAccessToken
+            ) = this(virtualPath, fileHandle.file, fileHandle.manager//, token
   )
 
   /**
