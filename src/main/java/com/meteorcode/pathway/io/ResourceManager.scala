@@ -221,7 +221,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
       case s:Some[String] => s.get
       case None => // If the path is not in the tree, handle write attempts.
         logger.log(this.toString, s"handling write attempt to empty path $fakePath")
-        if (isPathWritable(fakePath)) {
+        if (isPathWritable(writeDir.get.physicalPath + fakePath)) {
           paths.put(fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
           logger.log(this.toString, "successfully handled write attempt")
           paths(fakePath)
