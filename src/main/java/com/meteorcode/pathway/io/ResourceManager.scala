@@ -170,8 +170,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case a: FileHandle if a.isDirectory =>
         fs.put(current.path, current.physicalPath)
-        val newfs = fs.fork
-        policy.orderPaths(a.list).foldRight(fs)((fh, tab) => _walk(fh, tab))
+        policy.orderPaths(a.list).foldRight(fs.fork)((fh, tab) => _walk(fh, tab))
       case _: FileHandle => fs.put(current.path, current.physicalPath); fs
     }
     fs = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
