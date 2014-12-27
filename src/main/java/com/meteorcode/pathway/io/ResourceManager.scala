@@ -109,61 +109,10 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
   private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
-/*
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
-   * @param directories a list of FileHandles to seed the recursive walk
+   * @param dirs a list of FileHandles to seed the recursive walk
    */
-  private def collectVirtualPaths(directories: util.List[FileHandle]): (List[String], List[FileHandle]) = {
-    val roots = new ListBuffer[FileHandle]
-    val virtualPaths = new ListBuffer[String]
-    directories.foreach{directory => roots.add(directory)
-                                     if (directory.manager == null) directory.manager = this
-                                     walk(directory, "/", virtualPaths, roots)
-                        }
-    // recursively walk the directories and cache the paths
-    def walk(h: FileHandle, fakePath: String, virtualPaths: ListBuffer[String], roots: ListBuffer[FileHandle]) {
-      logger.log(this.toString, "walking directory " + h.physicalPath)
-      for (f <- h.list) f.extension match {
-          case "jar" =>
-            // virtual path for an archive is attached at /, so we don't add it to the paths
-            val handle = new JarFileHandle("/", f)
-            roots.add(handle) // but we do add it to the roots
-            walk(handle, "", virtualPaths, roots) // and we add the paths to its' children
-          case "zip" =>
-            val handle = new ZipFileHandle("/", f)
-            roots.add(handle)
-            walk(handle, "", virtualPaths, roots) // walk all children of this dir
-          case _ =>
-            if (f.extension == "") virtualPaths.add(fakePath + f.name) // add the path
-            else virtualPaths.add(fakePath + f.name + "." + f.extension)
-            if (f.isDirectory) walk(f, fakePath + f.name + "/", virtualPaths, roots)  // and walk (if it's a dir)
-        }
-      }
-    if (writeDir.isDefined) {
-      walk(writeHandle, "write", virtualPaths, roots)
-      roots.add(writeHandle)
-    }
-    (virtualPaths.toList, roots.toList)
-    }
-
-  private def buildVirtualFS(pathsAndRoots: (List[String], List[FileHandle])): mutable.Map[String, String] = {
-    val virtualPaths = pathsAndRoots._1
-    val orderedRoots = policy.orderPaths(pathsAndRoots._2) // have the load-order policy rank all the roots
-    val map = mutable.Map[String, String]()
-
-    for (root <- orderedRoots.reverse)
-      walk(root, map)
-
-    def walk(handle: FileHandle, m: mutable.Map[String, String]): Unit = handle.list.foreach {
-      file =>
-        logger.log(this.toString, "associated virtual path " + file.path + " with physical path " + file.physicalPath)
-        m += (file.path -> file.physicalPath)
-        if (file.isDirectory) walk(file, m)
-      }
-    map
-  }
-*/
   private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,String] = {
     var fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
@@ -244,5 +193,14 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     }
   }
 
-  override def toString = "ResourceManager" + (for { d <- directories } yield { d.physicalPath.split(File.separatorChar).last }).toString.replace("ArrayBuffer", "")
+  override def toString = "ResourceManager" + (
+    for { d <- directories } yield {
+      d
+        .physicalPath
+        .split(File.separatorChar)
+        .last
+    }
+    )
+    .toString()
+    .replace("ArrayBuffer", "")
 }
