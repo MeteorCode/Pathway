@@ -177,11 +177,11 @@ public class IOTest {
 
     @Test
     public void testZipFileHandle () throws IOException {
-        underTest = r.handle("/zippedtest.zip");
+        underTest = r.handle("/zippedtest.txt");
         String name = underTest.name();
         assertTrue("FAIL: got " + name + " expected /", name.equals("zippedtest"));
-        assertTrue(underTest.isDirectory());
-        assertNull(underTest.read());
+        assertFalse(underTest.isDirectory());
+        assertEquals(underTest.readString(), "also hi!");
     }
 
     @Test
