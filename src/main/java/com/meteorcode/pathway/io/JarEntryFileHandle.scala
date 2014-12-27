@@ -30,10 +30,10 @@ import java.util.Collections
  * [[com.meteorcode.pathway.io.JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
- * @param entry  the [[java.util.zip.JarEntry]] representing the file
- * @param parentJarfile a reference to the the [[java.util.zip.JarFile]] containing the JarEntry - this is necessary so that
+ * @param entry  the [[java.util.jar.JarEntry]] representing the file
+ * @param parentJarfile a reference to the the [[java.util.jar.JarFile]] containing the JarEntry - this is necessary so that
  *               we can do things like list the children of a directory in a Jar archive.
- * @param back the [[java.util.File]] that backs this FileHandle
+ * @param back the [[java.io.File]] that backs this FileHandle
  * @param manager the ResourceManager managing the virtual filesystem containing this FileHandle
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
@@ -42,12 +42,19 @@ class JarEntryFileHandle (virtualPath: String,
                           private val entry: JarEntry,
                           private val parentJarfile: JarFileHandle,
                           private val back: File,
-                          manager: ResourceManager)
-  extends JarFileHandle(virtualPath, back, manager) {
+                          manager: ResourceManager//,
+                          //token: IOAccessToken
+                          )
+  extends JarFileHandle(virtualPath, back, manager
+    //, token
+  ) {
 
   def this(virtualPath: String,
            entry: JarEntry,
-           parent: JarFileHandle) = this(virtualPath, entry, parent, parent.file, parent.manager)
+           parent: JarFileHandle//,
+           //token: IOAccessToken
+           ) = this(virtualPath, entry, parent, parent.file, parent.manager//, token
+  )
 
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
@@ -89,7 +96,8 @@ class JarEntryFileHandle (virtualPath: String,
         while (entries.hasMoreElements) {
           val e = entries.nextElement
           if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new JarEntryFileHandle(this.path + e.getName.split("/").last, e, parentJarfile))
+            result.add(new JarEntryFileHandle(this.path + e.getName.split("/").last, e, parentJarfile//, this.token
+            ))
         }
         result
       } catch {

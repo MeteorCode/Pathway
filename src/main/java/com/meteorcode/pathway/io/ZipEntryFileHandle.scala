@@ -28,7 +28,7 @@ import java.util.Collections
  * @param entry  the [[java.util.zip.ZipEntry]] representing the file
  * @param parentZipfile a reference to the the [[java.util.zip.ZipFile]] containing the ZipEntry - this is necessary so that
  *               we can do things like list the children of a directory in a Zip archive.
- * @param back the [[java.util.File]] that backs this FileHandle
+ * @param back the [[java.io.File]] that backs this FileHandle
  * @param manager the ResourceManager managing the virtual filesystem containing this FileHandle
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
@@ -37,12 +37,18 @@ class ZipEntryFileHandle (virtualPath: String,
                           private val entry: ZipEntry,
                           private val parentZipfile: ZipFileHandle,
                           private val back: File,
-                          manager: ResourceManager)
-  extends ZipFileHandle(virtualPath, back, manager) {
+                          manager: ResourceManager//,
+                          //token: IOAccessToken
+                          )
+  extends ZipFileHandle(virtualPath, back, manager//, token
+  ) {
 
   def this(virtualPath: String,
            entry: ZipEntry,
-           parent: ZipFileHandle) = this(virtualPath, entry, parent, parent.file, parent.manager)
+           parent: ZipFileHandle//,
+           //token: IOAccessToken
+           ) = this(virtualPath, entry, parent, parent.file, parent.manager//, token
+           )
 
   /**
    * @return  the physical path to the actual filesystem object represented by this FileHandle.
@@ -89,7 +95,11 @@ class ZipEntryFileHandle (virtualPath: String,
         while (entries.hasMoreElements) {
           val e = entries.nextElement
           if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new ZipEntryFileHandle(this.path + e.getName.split("/").last, e, parentZipfile))
+            result.add(new ZipEntryFileHandle(
+              this.path + e.getName.split("/").last,
+              e,parentZipfile//,
+              // this.token
+            ))
         }
         result
       } catch {

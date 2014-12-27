@@ -4,9 +4,11 @@ import java.io.{File, IOException}
 
 import java.util
 
+import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.logging.LoggerFactory
 
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
@@ -104,11 +106,10 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     new RedirectFileHandle(writeDir.get, "write")
   } else null
 
-  private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
-  private val paths: mutable.Map[String,String] = buildVirtualFS(collectVirtualPaths(directories))
+  private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
-
+/*
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param directories a list of FileHandles to seed the recursive walk
@@ -162,6 +163,22 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
       }
     map
   }
+*/
+  private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,String] = {
+    var fs = new ForkTable[String,String]
+    def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
+      case a: FileHandle if a.isDirectory =>
+        val newfs = fs.fork
+        newfs.put(current.path, current.physicalPath)
+        policy.orderPaths(a.list).foldRight(newfs)((fh, tab) => _walk(fh, tab))
+      case _: FileHandle => fs.put(current.path, current.physicalPath); fs
+    }
+    fs = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
+    writeDir match { // TODO: this is where we could "freeze" the un-writedir'd map
+      case Some(dir) => _walk(dir, fs)
+      case _ => fs
+    }
+  }
 
   /**
    * @return the path to the designated write directory, or null if there is no write directory.
@@ -198,22 +215,24 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
 
   private def makeHandle(fakePath: String): FileHandle = {
     logger.log(this.toString, "making a FileHandle for " + fakePath)
-    val realPath: String = paths.getOrElse(fakePath, {
-      logger.log(this.toString, "handling write attempt to empty path " + fakePath)
-      if (isPathWritable(fakePath)) {
-        paths += (fakePath -> (writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, "")))
-        logger.log(this.toString, "successfully handled write attempt")
-        paths(fakePath)
-      } else {
-        throw new IOException("A filehandle to an empty path was requested, and the requested path was not writable")
-      }
+    val realPath: String = paths.get(fakePath) match {
+      case s:Some[String] => s.get
+      case None => // If the path is not in the tree, handle write attempts.
+        logger.log(this.toString, s"handling write attempt to empty path $fakePath")
+        if (isPathWritable(fakePath)) {
+          paths.put(fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
+          logger.log(this.toString, "successfully handled write attempt")
+          paths(fakePath)
+        } else {
+          throw new IOException(s"A filehandle to an empty path ($fakePath) was requested, and the requested path was not writable")
+        }
     }
     )
     realPath.split('.').drop(1).lastOption match {
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
-      case _ => ArchiveMatch.findFirstIn(realPath) match {
-        case Some(ArchiveMatch(path, extension, name)) => extension match {
+      case _ => inArchive.findFirstIn(realPath) match {
+        case Some(inArchive(path, extension, name)) => extension match {
           case ".zip" =>
             val parent = new ZipFileHandle("/", new File(path + extension), this)
             new ZipEntryFileHandle(fakePath, parent.zipfile.getEntry(name), parent)

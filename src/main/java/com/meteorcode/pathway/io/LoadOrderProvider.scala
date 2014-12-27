@@ -18,5 +18,5 @@ trait LoadOrderProvider {
    *              physical filesystem.
    * @return a List of those FileHandles ordered by their load priority
    */
-  def orderPaths(paths: List[FileHandle]): List[FileHandle]
+  def orderPaths(paths: java.util.List[FileHandle]): java.util.List[FileHandle]
 }

@@ -25,7 +25,7 @@ import scala.collection.JavaConversions._
  *
  * @param virtualPath
  * the virtual path to the file in the fake filesystem
- * @param back a [[java.util.File]] representing the file in the filesystem
+ * @param back a [[java.io.File]] representing the file in the filesystem
  * @param manager
  * An [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] managing this FileHandle
  * @author Hawk Weisman
@@ -33,13 +33,19 @@ import scala.collection.JavaConversions._
 class DesktopFileHandle (virtualPath: String,
                          realPath: String,
                          private val back: File,
-                         manager: ResourceManager) extends FileHandle(virtualPath, manager) {
+                         manager: ResourceManager//,
+                         //token: IOAccessToken
+                          ) extends FileHandle(virtualPath, manager//, token
+) {
   private val physPath = realPath.replace('/', File.separatorChar)
 
 
   def this(virtualPath: String,
            realPath: String,
-           manager: ResourceManager) = this (virtualPath, realPath, new File(realPath), manager)
+           manager: ResourceManager//,
+           //token:IOAccessToken
+            ) = this (virtualPath, realPath, new File(realPath), manager//, token
+  )
   //def this(physicalPath: String, manager: ResourceManager) = this(null, physicalPath, manager)
 
   /**
@@ -59,7 +65,7 @@ class DesktopFileHandle (virtualPath: String,
   /** Returns true if this file is a directory.
     *
     * Note that this may return false if a directory exists but is empty.
-    * This is Not My Fault, it's [[java.util.File]] behaviour.
+    * This is Not My Fault, it's [[java.io.File]] behaviour.
     *
     * @return true if this file is a directory, false otherwise
     * */
@@ -73,7 +79,15 @@ class DesktopFileHandle (virtualPath: String,
    */
   def list: java.util.List[FileHandle] = {
     if (isDirectory) {
-      for (item <- back.list.toList) yield new DesktopFileHandle(path + "/" + item, physicalPath + "/" + item, manager)
+      for (item <- back.list.toList)
+        yield item match {
+        case isArchive(dirname,kind) => kind match {
+          case ".jar" => new JarFileHandle("/", new File(physicalPath + "/" + item), this.manager)
+          case ".zip" => new ZipFileHandle("/", new File(physicalPath + "/" + item), this.manager)
+        }
+        case _ => new DesktopFileHandle(path + "/" + item, physicalPath + "/" + item, manager//, this.token
+        )
+      }
     } else Collections.emptyList()
   }
 
