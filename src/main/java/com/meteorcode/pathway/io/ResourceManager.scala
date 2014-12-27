@@ -171,8 +171,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
       case a: FileHandle if a.isDirectory =>
         fs.put(current.path, current.physicalPath)
         val newfs = fs.fork
-        for(child <- a.list) { _walk(child, newfs) }
-        newfs
+        policy.orderPaths(a.list).foldRight(fs)((fh, tab) => _walk(fh, tab))
       case _: FileHandle => fs.put(current.path, current.physicalPath); fs
     }
     fs = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
