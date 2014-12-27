@@ -106,7 +106,6 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     new RedirectFileHandle(writeDir.get, "write")
   } else null
 
-  private val ArchiveMatch = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)""".r
   private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
@@ -169,8 +168,9 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     var fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case a: FileHandle if a.isDirectory =>
-        fs.put(current.path, current.physicalPath)
-        policy.orderPaths(a.list).foldRight(fs.fork)((fh, tab) => _walk(fh, tab))
+        val newfs = fs.fork
+        newfs.put(current.path, current.physicalPath)
+        policy.orderPaths(a.list).foldRight(newfs)((fh, tab) => _walk(fh, tab))
       case _: FileHandle => fs.put(current.path, current.physicalPath); fs
     }
     fs = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
@@ -230,8 +230,8 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     realPath.split('.').drop(1).lastOption match {
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
-      case _ => ArchiveMatch.findFirstIn(realPath) match {
-        case Some(ArchiveMatch(path, extension, name)) => extension match {
+      case _ => inArchive.findFirstIn(realPath) match {
+        case Some(inArchive(path, extension, name)) => extension match {
           case ".zip" =>
             val parent = new ZipFileHandle("/", new File(path + extension), this)
             new ZipEntryFileHandle(fakePath, parent.zipfile.getEntry(name), parent)

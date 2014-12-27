@@ -80,8 +80,14 @@ class DesktopFileHandle (virtualPath: String,
   def list: java.util.List[FileHandle] = {
     if (isDirectory) {
       for (item <- back.list.toList)
-        yield new DesktopFileHandle(path + "/" + item, physicalPath + "/" + item, manager//, this.token
+        yield item match {
+        case isArchive(dirname,kind) => kind match {
+          case ".jar" => new JarFileHandle("/", new File(physicalPath + "/" + item), this.manager)
+          case ".zip" => new ZipFileHandle("/", new File(physicalPath + "/" + item), this.manager)
+        }
+        case _ => new DesktopFileHandle(path + "/" + item, physicalPath + "/" + item, manager//, this.token
         )
+      }
     } else Collections.emptyList()
   }
 
