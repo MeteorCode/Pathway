@@ -129,11 +129,6 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
   }
 
   /**
-   * @return the path to the designated write directory, or null if there is no write directory.
-   */
-  def getWritePath = if (writeDir.isDefined) writeDir.get.physicalPath else null
-
-  /**
    * Returns true if a given virtual path is writable, false if it is not.
    * @param virtualPath a path in the virtual filesystem
    * @return true if that path can be written to, false if it cannot
