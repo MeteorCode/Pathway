@@ -98,17 +98,16 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
   private lazy val logger = LoggerFactory.getLogger()
-  private val writeHandle: FileHandle = if (writeDir.isDefined) {
-    if (!writeDir.get.exists)   // if the write dir doesn't exist, we ought to create it
-      if (!writeDir.get.file.mkdirs()) throw new IOException("Specified write directory could not be created!")
-    if (writeDir.get.manager == null) writeDir.get.manager = this
-    logger.log(this.toString, "write directory: " + writeDir.get.physicalPath)
-    new RedirectFileHandle(writeDir.get, "write")
-  } else null
-
   private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
+  writeDir.foreach{ directory =>
+      if (!directory.exists) {
+        if (!directory.file.mkdirs()) throw new IOException("Specified write directory could not be created!")
+        else logger.log(this.toString, s"write directory ${directory.physicalPath} created")
+      } else logger.log(this.toString, s"write directory ${directory.physicalPath} already exists")
+      if (directory.manager == null) directory.manager = this
+  }
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param dirs a list of FileHandles to seed the recursive walk
