@@ -17,6 +17,11 @@ abstract class Property (initDrawID: Integer, initParent: Context){
   def getDrawID = drawID
   def setDrawID(newID: Integer) { drawID = newID }
 
+  def getParent = parent match {
+    case Some(thing)=> thing    // this exists for Java api compatibility only
+    case None => null           // and I am sorry
+  }                             // ~ hawk
+
   def eval(script: String) = parent foreach (_ eval script )
 
  /**

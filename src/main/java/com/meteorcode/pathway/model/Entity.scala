@@ -2,7 +2,7 @@ package com.meteorcode.pathway.model
 
 import GridCoordinatesImplicits._
 
-class Entity(gameID: Option[Long]) extends GameObject(gameID) {
+case class Entity(gameID: Option[Long]) extends GameObject(gameID) {
   protected var coordinates: (Int, Int) = _
   protected var grid: Grid = _
   protected var name: String = _

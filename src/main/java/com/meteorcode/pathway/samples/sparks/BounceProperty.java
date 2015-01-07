@@ -30,10 +30,10 @@ public class BounceProperty extends com.meteorcode.pathway.model.Property {
 			Ball target = m.getTarget();
 			if(target.oob(maxWidth, maxHeight)) {
 				m.invalidate();
-				MoveEvent unstick = new MoveEvent("Ball-bounce-move-unstick-" + target.toString(), this.parent(), target);
+				MoveEvent unstick = new MoveEvent("Ball-bounce-move-unstick-" + target.toString(), this.getParent(), target);
 				unstick.stamp(this);
-				this.parent().fireEvent(unstick);
-				this.parent().fireEvent(new BounceEvent("Ball-bounce-" + target.toString(), this.parent(), target));
+				this.getParent().fireEvent(unstick);
+				this.getParent().fireEvent(new BounceEvent("Ball-bounce-" + target.toString(), this.getParent(), target));
 				return false;
 			}
 			return true;
