@@ -5,10 +5,10 @@ import com.meteorcode.pathway.logging.LoggerFactory
 import scala.collection.mutable.Subscriber
 
 abstract class Property (initDrawID: Integer, initParent: Context){
-  var parent = initParent
+  var parent: Option[Context] = Some(initParent)
   var drawID = initDrawID
   protected val logger = LoggerFactory.getLogger
-  if (this.parent != null) { parent.subscribe(this) }
+  parent foreach (_ subscribe this)
 
   def this(initParent: Context) = this(null, initParent) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
   def this() = this(null, null) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
@@ -17,7 +17,7 @@ abstract class Property (initDrawID: Integer, initParent: Context){
   def getDrawID = drawID
   def setDrawID(newID: Integer) { drawID = newID }
 
-  def eval(script: String) = parent.eval(script)
+  def eval(script: String) = parent foreach (_ eval script )
 
  /**
   * Move the Property from the currently-occupied [[com.meteorcode.pathway.model.Context]] to a new Context.
@@ -30,10 +30,9 @@ abstract class Property (initDrawID: Integer, initParent: Context){
   *            the [[com.meteorcode.pathway.model.Context]] this Property is entering
   */
   def changeContext(newContext: Context) {
-    if (parent != null)
-      parent.unsubscribe(this)
-    parent = newContext
-    parent.subscribe(this)
+    parent foreach( _ unsubscribe this )
+    parent = Some(newContext)
+    parent foreach ( _ subscribe this )
   }
 
   /**
