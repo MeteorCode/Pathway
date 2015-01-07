@@ -187,14 +187,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     }
   }
 
-  override def toString = "ResourceManager" + (
-    for { d <- directories } yield {
-      d
-        .physicalPath
-        .split(File.separatorChar)
-        .last
-    }
-    )
-    .toString()
-    .replace("ArrayBuffer", "")
+  override def toString = "ResourceManager" + directories
+    .map(_.physicalPath.split(File.separatorChar).last)
+    .mkString(",")
 }
