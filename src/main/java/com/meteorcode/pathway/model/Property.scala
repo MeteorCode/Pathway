@@ -4,15 +4,15 @@ import com.meteorcode.pathway.logging.LoggerFactory
 
 import scala.collection.mutable.Subscriber
 
-abstract class Property (initDrawID: Integer, initParent: Context){
-  var parent: Option[Context] = Some(initParent)
+abstract class Property (initDrawID: Integer, var parent: Option[Context] = None){
   var drawID = initDrawID
   protected val logger = LoggerFactory.getLogger
-  parent foreach (_ subscribe this)
+  parent foreach(_ subscribe this)
 
-  def this(initParent: Context) = this(null, initParent) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
-  def this() = this(null, null) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
-  def this(initDrawID: Integer) = this (initDrawID, null)
+  def this(initDrawID: Integer, parent: Context) = this(initDrawID, Some(parent))
+  def this(initParent: Context) = this(null, Some(initParent)) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
+  def this() = this(null, None) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
+  def this(initDrawID: Integer) = this (initDrawID, None)
 
   def getDrawID = drawID
   def setDrawID(newID: Integer) { drawID = newID }
