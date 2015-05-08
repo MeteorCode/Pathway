@@ -80,7 +80,7 @@ public class ScriptContainerFactory {
 		 * @return The object result of the evaluation, or null if there was no
 		 *         result.
 		 * @throws ScriptException
-		 *             if an error takes place during script execution. The
+		 *             if an error  takes place during script execution. The
 		 *             ScriptException wraps the native exceptions thrown by
 		 *             Beanshell.
 		 * @see com.meteorcode.pathway.script.ScriptContainer#eval(String)
