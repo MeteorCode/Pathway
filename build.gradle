@@ -45,6 +45,7 @@ repositories {
     mavenLocal();
     mavenCentral()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "http://dl.bintray.com/hawkw/maven" }
 }
 
 // define a configuration for scala compiler plugins
@@ -74,6 +75,7 @@ dependencies {
     testCompile "org.powermock:powermock-mockito-release-full:1.5.4+"
     testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '2.2.4'
     testCompile group: 'org.scalacheck', name: 'scalacheck_2.11', version: '1.12.2'
+    testCompile group: 'me.hawkweisman', name: 'util_2.11', version: '0.1'
 }
 
 // stuff that should not have a JaCoCo test report generated
