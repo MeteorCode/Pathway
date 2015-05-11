@@ -3,17 +3,30 @@ package com.meteorcode.pathway.test
 /**
  * Created by hawk on 5/11/15.
  */
-import com.meteorcode.pathway.model.{Context, GameObject}
+import com.meteorcode.pathway.model.{Context, Event}
 import com.meteorcode.pathway.script.ScriptException
+
+import me.hawkweisman.util._
+
 import org.scalacheck.Gen
+import org.scalacheck.Arbitrary.arbitrary
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{WordSpec, Matchers, FreeSpec}
 
+import scala.util.Random
+
 class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar {
 
+  val random = new Random()
   val nonMaxInt = Gen.choose(Integer.MIN_VALUE+1, Integer.MAX_VALUE - 1)
+  val ident: Gen[String] = for {
+    len  <- Gen.choose(1,500) // 500 seems reasonable
+    name <- randomJavaIdent(len)(random)
+  } yield name
+
   def target = new Context("Target")
+
 
   "An Event" - {
     "when evaluating BeanShell expressions" - {
@@ -47,6 +60,66 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         forAll(nonMaxInt, nonMaxInt, nonMaxInt) { (a: Int, b: Int, c: Int) =>
           target.eval(s"$a + ($b + $c)") shouldEqual target.eval(s"($a + $b) + $c")
           target.eval(s"$a + ($b - $c)") shouldEqual target.eval(s"($a + $b) - $c")
+        }
+      }
+      "should be able to assign a variable within its context to the result of an expression" in {
+        forAll (ident, nonMaxInt, nonMaxInt)
+        { (name: String, a: Int, b: Int) =>
+          val ctx = target
+          val e = new Event(ctx) {
+            override def evalEvent() = {
+              target.eval(s"$name = $a + $b")
+            }
+          }
+
+          ctx fireEvent e
+          ctx.pump
+          ctx eval name shouldEqual a + b
+        }
+        forAll (ident, nonMaxInt, nonMaxInt)
+        { (name: String, a: Int, b: Int) =>
+          val ctx = target
+          val e = new Event(ctx) {
+            override def evalEvent() = {
+              target.eval(s"$name = $a - $b")
+            }
+          }
+
+          ctx fireEvent e
+          ctx.pump
+          ctx eval name shouldEqual a - b
+        }
+        forAll (ident, nonMaxInt, nonMaxInt)
+        { (name: String, a: Int, b: Int) =>
+          val ctx = target
+          val e = new Event(ctx) {
+            override def evalEvent() = {
+              target.eval(s"$name = $a *$b")
+            }
+          }
+
+          ctx fireEvent e
+          ctx.pump
+          ctx eval name shouldEqual a * b
+        }
+      }
+
+      "should be able to overwrite an existing variable within its context" in {
+        forAll (ident, nonMaxInt, nonMaxInt)
+        { (name: String, a: Int, b: Int) =>
+          val ctx = target
+          ctx eval s"$name = $a"
+          ctx eval name shouldEqual a
+
+          val e = new Event(ctx) {
+            override def evalEvent() = {
+              target.eval(s"$name = $b")
+            }
+          }
+
+          ctx fireEvent e
+          ctx.pump
+          ctx eval name shouldEqual b
         }
       }
 
