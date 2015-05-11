@@ -45,8 +45,8 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
           target.eval(s"$a * $b") shouldEqual target.eval(s"$b * $a")
         }
         forAll(nonMaxInt, nonMaxInt, nonMaxInt) { (a: Int, b: Int, c: Int) =>
-          target.eval(s"$a + ($b + $c)") shouldEqual target.eval(s"($a + $b) + c")
-          target.eval(s"$a - ($b - $c)") shouldEqual target.eval(s"($a - $b) - c")
+          target.eval(s"$a + ($b + $c)") shouldEqual target.eval(s"($a + $b) + $c")
+          target.eval(s"$a + ($b - $c)") shouldEqual target.eval(s"($a + $b) - $c")
         }
       }
 
