@@ -3,7 +3,7 @@ package com.meteorcode.pathway.test
 /**
  * Created by hawk on 5/11/15.
  */
-import com.meteorcode.pathway.model.{Context, Event}
+import com.meteorcode.pathway.model.{Context, Event,Property}
 import com.meteorcode.pathway.script.ScriptException
 
 import me.hawkweisman.util._
@@ -27,7 +27,48 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
 
   def target = new Context("Target")
 
+  "A Property" - {
+    "when instantiated with the 0-parameter constructor" - {
+      "should not be null" in {
+        new Property() { override def onEvent(event: Event, publishedBy:Context) = false} should not be (null)
+      }
+    }
+    "when instantiated with a known DrawID" - {
+      "should not be null" in {
+        forAll {
+          (id: Integer) =>
+            new Property(id) {
+              override def onEvent(event: Event, publishedBy:Context) = false
+            } should not be (null)
+        }
+      }
+      "should know its own DrawID" in {
+        forAll {
+          (id: Integer) =>
+            new Property(id) {
+              override def onEvent(event: Event, publishedBy:Context) = false
+            }.getDrawID should equal (id)
+        }
+      }
+    }
+  }
+  "A Context" - {
+    "when evaluating event stacks" - {
+      "should place an Event onto the stack when it is fired" in {
+        val mockEvent = mock[Event]
+        target fireEvent mockEvent
+        target viewEventStack() should contain only mockEvent
+      }
+      "should remove an Event from the stack after pump()" in {
+        val mockEvent = mock[Event]
+        target fireEvent mockEvent
+        target.viewEventStack() should contain only mockEvent
 
+        target.pump
+        target.viewEventStack() shouldBe 'empty
+      }
+    }
+  }
   "An Event" - {
     "when evaluating BeanShell expressions" - {
       "should evaluate the empty string to null" in {
