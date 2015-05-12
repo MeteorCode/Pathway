@@ -36,19 +36,62 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
     "when instantiated with a known DrawID" - {
       "should not be null" in {
         forAll {
-          (id: Integer) =>
+          (id: Int) =>
             new Property(id) {
-              override def onEvent(event: Event, publishedBy:Context) = false
+              def onEvent(event: Event, publishedBy:Context) = false
             } should not be (null)
         }
       }
       "should know its own DrawID" in {
         forAll {
-          (id: Integer) =>
+          (id: Int) =>
             new Property(id) {
-              override def onEvent(event: Event, publishedBy:Context) = false
+             def onEvent(event: Event, publishedBy:Context) = false
             }.getDrawID should equal (id)
         }
+      }
+    }
+    "when attached to a Context" - {
+      "should only effect events in the Context it is attached to" in {
+        // this test is ported from the property subscription test in the
+        // original JUnit test suite. A more elegant method of testing this
+        // is probably possible and I should try and come up with it eventually
+        val c = target
+        val c2 = new Context("Other Target")
+        val getsSet: Event = new Event("I should get a flag", c) {
+          @throws(classOf[ScriptException])
+          def evalEvent {
+            payload.toMap keySet() should contain ("TestFlag")
+            payload.get("TestFlag") shouldEqual true
+          }
+        }
+
+        val staysUnset: Event = new Event("I should not get a flag", c) {
+          @throws(classOf[ScriptException])
+          def evalEvent {
+            payload.toMap keySet() should not contain "TestFlag"
+          }
+        }
+
+        c fireEvent staysUnset
+        c pump
+
+        val testProp: Property = new Property(c) {
+          def onEvent(event: Event, publishedBy: Context): Boolean = {
+            event.patchPayload("TestFlag", true)
+            true
+          }
+        }
+
+        c fireEvent getsSet
+        c pump
+
+        testProp changeContext c2
+        c2 fireEvent getsSet
+        c2 pump
+
+        c fireEvent staysUnset
+        c pump
       }
     }
   }
@@ -56,16 +99,18 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
     "when evaluating event stacks" - {
       "should place an Event onto the stack when it is fired" in {
         val mockEvent = mock[Event]
-        target fireEvent mockEvent
-        target viewEventStack() should contain only mockEvent
+        val t = target
+        t fireEvent mockEvent
+        t viewEventStack() should contain only mockEvent
       }
       "should remove an Event from the stack after pump()" in {
         val mockEvent = mock[Event]
-        target fireEvent mockEvent
-        target.viewEventStack() should contain only mockEvent
+        val t = target
+        t fireEvent mockEvent
+        t viewEventStack() should contain only mockEvent
 
-        target.pump
-        target.viewEventStack() shouldBe 'empty
+        t.pump
+        t.viewEventStack() shouldBe 'empty
       }
     }
   }
