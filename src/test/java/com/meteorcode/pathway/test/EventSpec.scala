@@ -98,6 +98,39 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         c pump
       }
     }
+    "which returns true" - {
+      "should interrupt event stack evaluation" in {
+        val c = target
+        val staysValid: Event = new Event("I should stay valid", c) {
+          @throws(classOf[ScriptException])
+          def evalEvent { this shouldBe 'valid }
+        }
+
+        val testProp1: Property = new Property() {
+          def onEvent(event: Event, publishedBy: Context): Boolean = false
+        }
+
+        val testProp2: Property = new Property() {
+          def onEvent(event: Event, publishedBy: Context): Boolean = true
+        }
+
+        val testProp3: Property = new Property() {
+          def onEvent(event: Event, publishedBy: Context): Boolean = {
+            event.invalidate(); false
+          }
+        }
+
+        c.fireEvent(staysValid)
+        c.pump
+
+        testProp1.changeContext(c)
+        testProp2.changeContext(c)
+        testProp3.changeContext(c)
+
+        c.fireEvent(staysValid)
+        c.pump
+      }
+    }
   }
   "A Context" - {
     "when evaluating event stacks" - {
