@@ -3,6 +3,8 @@ package com.meteorcode.pathway.test
 /**
  * Created by hawk on 5/11/15.
  */
+
+import com.meteorcode.pathway.logging.{LoggerFactory,NullLogger}
 import com.meteorcode.pathway.model.{Context, Event,Property}
 import com.meteorcode.pathway.script.ScriptException
 
@@ -17,6 +19,8 @@ import org.scalatest.{WordSpec, Matchers, FreeSpec}
 import scala.util.Random
 
 class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar {
+  // quash the obnoxious and unnecessary log messages during testing
+  LoggerFactory setLogger new NullLogger
 
   val random = new Random()
   val nonMaxInt = Gen.choose(Integer.MIN_VALUE+1, Integer.MAX_VALUE - 1)

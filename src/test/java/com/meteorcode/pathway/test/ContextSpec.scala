@@ -1,5 +1,6 @@
 package com.meteorcode.pathway.test
 
+import com.meteorcode.pathway.logging.{NullLogger, LoggerFactory}
 import com.meteorcode.pathway.model.{GameObject, Context}
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
@@ -12,6 +13,9 @@ import me.hawkweisman.util.randomJavaIdent
  * Created by hawk on 5/8/15.
  */
 class ContextSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar {
+  // quash the obnoxious and unnecessary log messages during testing
+  LoggerFactory setLogger new NullLogger
+
   val random = new scala.util.Random
 
   val ident: Gen[String] = for {
