@@ -79,8 +79,8 @@ public class GridTests {
 	@Test
 	public void miscGridCoordsTests() {
 		GridCoordinates target = new GridCoordinates(256, 512);
-		assertEquals(new Integer(256), target.x());
-		assertEquals(new Integer(512), target.y());
+		assertEquals(256, target.x());
+		assertEquals(512, target.y());
 		assertEquals("(256, 512)", target.toString());
 		assertFalse(target == new GridCoordinates(3,8));
 		assertFalse(target == new Object());

@@ -122,7 +122,7 @@ public class IOTest {
     public void testFamilyTree() throws IOException {
         underTest = r.handle("/testDir");
         assertEquals("FAIL: Child fileHandle didn't contain expected string, got "
-                + underTest.child("test3.txt").readString() + ", expected \"yet again hi\".",
+                        + underTest.child("test3.txt").readString() + ", expected \"yet again hi\".",
                 underTest.child("test3.txt").readString(), "yet again hi");
         assertEquals("FAIL: Child fileHandle didn't contain expected string, got "
                         + underTest.child("test4.txt").readString() + ", expected \"still hi\".",
@@ -215,8 +215,8 @@ public class IOTest {
     public void testLoadOrder() throws IOException {
         List<FileHandle> directories = new ArrayList<FileHandle>(
                 Arrays.asList(new DesktopFileHandle("", "build/resources/test/loadOrder/b", null),
-                              new DesktopFileHandle("", "build/resources/test/loadOrder/a", null),
-                              new DesktopFileHandle("", "build/resources/test/loadOrder/c", null)));
+                        new DesktopFileHandle("", "build/resources/test/loadOrder/a", null),
+                        new DesktopFileHandle("", "build/resources/test/loadOrder/c", null)));
         ResourceManager testManager = new ResourceManager(directories, new AlphabeticLoadPolicy());
         underTest = testManager.handle("/testLoadOrder.txt");
         assertEquals("FAIL: Expected \"I AM CORRECT\", got \"" + underTest.readString() + "\"",

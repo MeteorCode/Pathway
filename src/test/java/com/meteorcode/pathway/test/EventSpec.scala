@@ -44,7 +44,7 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         forAll {
           (id: Int) =>
             new Property(id) {
-              def onEvent(event: Event, publishedBy:Context) = false
+              def onEvent(event: Event, publishedBy: Context) = false
             } should not be (null)
         }
       }
@@ -52,12 +52,13 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         forAll {
           (id: Int) =>
             new Property(id) {
-             def onEvent(event: Event, publishedBy:Context) = false
-            }.getDrawID should equal (id)
+              def onEvent(event: Event, publishedBy: Context) = false
+            }.getDrawID should equal(id)
         }
       }
-      "when stamping Events" - {
-        "should insert its stamp into the Event's payload" in {
+    }
+    "when stamping Events" - {
+      "should insert its stamp into the Event's payload" in {
           val c = target
           val e = new Event("Gets stamped", c) { def evalEvent() = {}}
           val p = new Property() {
@@ -74,7 +75,6 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
           e.stampExists(p) shouldBe true
           e.getPayload.stamps should contain (p)
         }
-      }
       "should successfully stamp an Event that has been stamped by a different Property" in {
         val c = target
         val e = new Event("Gets stamped", c) { def evalEvent() = {}}
@@ -295,7 +295,6 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
           ctx eval name shouldEqual a * b
         }
       }
-
       "should be able to overwrite an existing variable within its context" in {
         forAll (ident, nonMaxInt, nonMaxInt)
         { (name: String, a: Int, b: Int) =>
