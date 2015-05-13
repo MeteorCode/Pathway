@@ -340,37 +340,47 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
     "with a Payload attached"  - {
       "should contain the expected items" in {
         forAll { (name: String, obj: List[Int]) =>
-            new Event("I have a payload", Map[String,Object](name -> obj), target) {def evalEvent = {}
+          new Event("I have a payload", Map[String, Object](name -> obj), target) {
+            def evalEvent = {}
           } getPayload() get name shouldEqual obj
         }
-        forAll { (name: String, obj: Map[String,Int]) =>
-            new Event("I have a payload", Map[String,Object](name -> obj), target) {def evalEvent = {}
+        forAll { (name: String, obj: Map[String, Int]) =>
+          new Event("I have a payload", Map[String, Object](name -> obj), target) {
+            def evalEvent = {}
           } getPayload() get name shouldEqual obj
         }
       }
       "should patch the payload with a new mapping" in {
         forAll { (name: String, obj: List[Int]) =>
-          val e = new Event("My payload is added later", target) {def evalEvent = {}
+          whenever(name != "") {
+            val e = new Event("My payload is added later", target) {
+              def evalEvent = {}
+            }
+            e patchPayload(name, obj)
+            e getPayload() get name shouldEqual obj
           }
-          e patchPayload (name, obj)
-          e getPayload() get name shouldEqual obj
         }
-        forAll { (name: String, obj: Map[String,Int]) =>
-          val e = new Event("My payload is added later", target) {def evalEvent = {}
+        forAll { (name: String, obj: Map[String, Int]) =>
+          whenever(name != "") {
+            val e = new Event("My payload is added later", target) {
+              def evalEvent = {}
+            }
+            e patchPayload(name, obj)
+            e getPayload() get name shouldEqual obj
           }
-          e patchPayload (name, obj)
-          e getPayload() get name shouldEqual obj
         }
       }
-      "should patch the payload with an existing Map"
-      forAll { (name: String, obj: Map[String,Int]) =>
-        val e = new Event("My payload is added later", target) {def evalEvent = {}
+      "should patch the payload with an existing Map" in {
+        forAll { (name: String, obj: Map[String, List[Int]]) =>
+          whenever(name != "") {
+            val e = new Event("My payload is added later", target) {
+              def evalEvent = {}
+            }
+            e patchPayload Map[String,Object](name -> obj)
+            e getPayload() get name shouldEqual obj
+          }
         }
-        e patchPayload obj
-        e getPayload() get name shouldEqual obj
       }
     }
-
   }
-
 }
