@@ -15,7 +15,7 @@ trait FileHandle {
   def isDirectory: Boolean
   def isWritable: Boolean
   def path: String
-  protected[io] def physicalPath: String
+  protected[io] def physicalPath: Option[String]
   protected[io] def file: Option[File]
   def list: Try[Seq[FileHandle]]
   def read: Try[InputStream]
