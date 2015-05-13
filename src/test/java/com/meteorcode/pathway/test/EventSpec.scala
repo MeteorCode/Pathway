@@ -16,6 +16,8 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{WordSpec, Matchers, FreeSpec}
 
+import org.mockito.Mockito.verify
+
 import scala.util.Random
 
 class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar {
@@ -53,6 +55,73 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
              def onEvent(event: Event, publishedBy:Context) = false
             }.getDrawID should equal (id)
         }
+      }
+      "when stamping Events" - {
+        "should insert its stamp into the Event's payload" in {
+          val c = target
+          val e = new Event("Gets stamped", c) { def evalEvent() = {}}
+          val p = new Property() {
+            def onEvent(event: Event, publishedBy:Context) = {
+              event.stamp(this)
+              false
+            }
+          }
+
+          p changeContext c
+          c fireEvent e
+          c pump
+
+          e.stampExists(p) shouldBe true
+          e.getPayload.stamps should contain (p)
+        }
+      }
+      "should successfully stamp an Event that has been stamped by a different Property" in {
+        val c = target
+        val e = new Event("Gets stamped", c) { def evalEvent() = {}}
+        val p1 = new Property() {
+          def onEvent(event: Event, publishedBy:Context) = {
+            event.stamp(this)
+            true
+          }
+        }
+        val p2 = new Property() {
+          def onEvent(event: Event, publishedBy:Context) = {
+            event.stamp(this)
+            false
+          }
+        }
+
+        p1 changeContext c
+        p2 changeContext c
+        c fireEvent e
+        c pump
+
+        e.stampExists(p1) shouldBe true
+        e.stampExists(p2) shouldBe true
+      }
+      "should unstamp itself without disturbing the stamps of other Properties" in {
+        val c = target
+        val e = new Event("Gets stamped", c) { def evalEvent() = {}}
+        val p1 = new Property() {
+          def onEvent(event: Event, publishedBy:Context) = {
+            event.stamp(this)
+            false
+          }
+        }
+        val p2 = new Property() {
+          def onEvent(event: Event, publishedBy:Context) = {
+            event.unstamp(this)
+            false
+          }
+        }
+
+        p1 changeContext c
+        p2 changeContext c
+        c fireEvent e
+        c pump
+
+        e.stampExists(p1) shouldBe true
+        e.stampExists(p2) shouldBe false
       }
     }
     "when attached to a Context" - {
