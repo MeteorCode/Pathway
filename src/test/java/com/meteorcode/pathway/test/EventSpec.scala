@@ -363,16 +363,10 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         }
       }
       "should patch the payload with an existing Map"
-      forAll { (name: String, obj: List[Int]) =>
-        val e = new Event("My payload is added later", target) {def evalEvent = {}
-        }
-        e patchPayload Map[String,Object](name -> obj)
-        e getPayload() get name shouldEqual obj
-      }
       forAll { (name: String, obj: Map[String,Int]) =>
         val e = new Event("My payload is added later", target) {def evalEvent = {}
         }
-        e patchPayload Map[String,Object](name -> obj)
+        e patchPayload obj
         e getPayload() get name shouldEqual obj
       }
     }
