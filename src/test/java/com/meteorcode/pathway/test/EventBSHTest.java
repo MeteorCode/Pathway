@@ -168,7 +168,7 @@ public class EventBSHTest {
 
 	/**
 	 * Runs basically the same battery from
-	 * {@link com.meteorcode.pathway.test.EventStackTest#propertySubscriptionTest()}
+	 * @link com.meteorcode.pathway.test.EventStackTest#propertySubscriptionTest()
 	 * , but with Properties created from Beanshell
 	 * 
 	 * @throws ScriptException
@@ -209,7 +209,7 @@ public class EventBSHTest {
 	
 	/**
 	 * Runs basically the same battery from
-	 * {@link com.meteorcode.pathway.test.EventStackTest#propertyEventInvalidationTest()}
+	 * @link com.meteorcode.pathway.test.EventStackTest#propertyEventInvalidationTest()
 	 * , but with Properties created from Beanshell
 	 * 
 	 * @throws ScriptException
