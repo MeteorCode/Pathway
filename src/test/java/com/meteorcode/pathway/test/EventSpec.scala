@@ -19,6 +19,7 @@ import org.scalatest.{WordSpec, Matchers, FreeSpec}
 import org.mockito.Mockito.verify
 
 import scala.util.Random
+import scala.collection.JavaConversions._
 
 class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar {
   // quash the obnoxious and unnecessary log messages during testing
@@ -334,6 +335,45 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         e1 should not be 'valid
         e2 should not be 'valid
         e3 should not be 'valid
+      }
+    }
+    "with a Payload attached"  - {
+      "should contain the expected items" in {
+        forAll { (name: String, obj: List[Int]) =>
+            new Event("I have a payload", Map[String,Object](name -> obj), target) {def evalEvent = {}
+          } getPayload() get name shouldEqual obj
+        }
+        forAll { (name: String, obj: Map[String,Int]) =>
+            new Event("I have a payload", Map[String,Object](name -> obj), target) {def evalEvent = {}
+          } getPayload() get name shouldEqual obj
+        }
+      }
+      "should patch the payload with a new mapping" in {
+        forAll { (name: String, obj: List[Int]) =>
+          val e = new Event("My payload is added later", target) {def evalEvent = {}
+          }
+          e patchPayload (name, obj)
+          e getPayload() get name shouldEqual obj
+        }
+        forAll { (name: String, obj: Map[String,Int]) =>
+          val e = new Event("My payload is added later", target) {def evalEvent = {}
+          }
+          e patchPayload (name, obj)
+          e getPayload() get name shouldEqual obj
+        }
+      }
+      "should patch the payload with an existing Map"
+      forAll { (name: String, obj: List[Int]) =>
+        val e = new Event("My payload is added later", target) {def evalEvent = {}
+        }
+        e patchPayload Map[String,Object](name -> obj)
+        e getPayload() get name shouldEqual obj
+      }
+      forAll { (name: String, obj: Map[String,Int]) =>
+        val e = new Event("My payload is added later", target) {def evalEvent = {}
+        }
+        e patchPayload Map[String,Object](name -> obj)
+        e getPayload() get name shouldEqual obj
       }
     }
 
