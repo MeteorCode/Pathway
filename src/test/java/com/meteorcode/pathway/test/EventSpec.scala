@@ -313,7 +313,28 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
           ctx eval name shouldEqual b
         }
       }
+    }
+    "when invalidated" - {
+      "should invalidate any child Events" in {
+        class InvalidationTarget(name: String, origin: Context) extends Event(name, origin) {
+          def evalEvent = fail("Event should have been invalidated")
+        }
+        val c = target
+        val e1 = new InvalidationTarget("I should be invalidated", c)
+        val e2 = new InvalidationTarget("I should also be invalidated", c)
+        val e3 = new InvalidationTarget("I should also be invalidated", c)
 
+        c fireEvent e1
+        e1 fireEventChild e2
+        e2 fireEventChild e3
+
+        e1 invalidate()
+        c pump
+
+        e1 should not be 'valid
+        e2 should not be 'valid
+        e3 should not be 'valid
+      }
     }
 
   }
