@@ -314,6 +314,33 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
           ctx eval name shouldEqual b
         }
       }
+      "shpuld instantiate a Property from a BeanShell script" in {
+        val c = target
+        val flagged = new Event("I get a flag", c) {
+          def evalEvent() { payload contains "TestFlag" shouldBe true}
+        }
+        val unflagged = new Event("I don't get a flag", c) {
+          def evalEvent() { payload contains "TestFlag" shouldBe false}
+        }
+
+        c injectObject ("self", c)
+        c eval "import com.meteorcode.pathway.model.*"
+        c eval """
+class MyProperty extends Property {
+  MyProperty(Context c) {super(c);}
+  public boolean onEvent(Event event, Context publishedBy) {
+    event.patchPayload("TestFlag", true); return true;
+  }
+}
+"""
+        c fireEvent unflagged
+        c pump
+
+        c eval "new MyProperty(self);"
+
+        c fireEvent flagged
+        c pump
+      }
     }
     "when invalidated" - {
       "should invalidate any child Events" in {
