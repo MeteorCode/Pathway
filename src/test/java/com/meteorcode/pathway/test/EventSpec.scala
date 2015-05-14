@@ -229,6 +229,33 @@ class MyProperty extends Property {
         c fireEvent flagged
         c pump
       }
+      "should invalidate an Event" in {
+        val c = target
+        val valid = new Event("I stay valid", c) {
+          def evalEvent() { this shouldBe 'valid }
+        }
+        val invalid = new Event("I get invalidated", c) {
+          def evalEvent() { this should not be 'valid }
+        }
+
+        c injectObject ("self", c)
+        c eval "import com.meteorcode.pathway.model.*"
+        c eval """
+class MyProperty extends Property {
+MyProperty(Context c) {super(c);}
+public boolean onEvent(Event event, Context publishedBy) {
+  event.invalidate(); return true;
+}
+}
+               """
+        c fireEvent valid
+        c pump
+
+        c eval "new MyProperty(self);"
+
+        c fireEvent invalid
+        c pump
+      }
     }
   }
   "A Context" - {
