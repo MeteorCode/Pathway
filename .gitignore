@@ -1,69 +1,99 @@
-# Directories           #
+#############################
+# Java/Scala                #
+#############################
+
+# Java:                     #
+
+# Directories               #
 **/build/**
 /bin/
 target/
 /android/gen/
 
-# Compiled object files #
+# Compiled object files     #
 *.class
 *.so
 
-# Not sure what this is #
-# but it keeeps bugging #
-# me in the git-status  #
-# view...               #
+# Logs                      #
+*.log
+
+# Not sure what this is,    #
+# but it keeeps bugging me  #
+# in the git-status view... #
 **/.cache
 ios/robovm.xml
 
-# Package Files         #
+# Package Files             #
 *.jar
 *.war
 *.ear
 *.db
 
-#########################
-# Linux                 #
-#########################
+# Mobile Tools for Java     #
+.mtj.tmp/
 
-# Archive Files         #
+# JVM crash logs            #
+hs_err_pid*
+
+# Scala:                    #
+
+# sbt specific              #
+.cache
+.history
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific        #
+.scala_dependencies
+.worksheet
+
+#############################
+# Linux                     #
+#############################
+
+# Archive Files             #
 *~
 
-# KDE dir preferences   #
+# KDE dir preferences       #
 .directory
 
-# Linux trash folder,   #
-# which might appear on #
-# any partition or disk #
+# Linux trash folder, which #
+# might appear on  any      #
+# partition or disk         #
 .Trash-*
 
-#########################
-# Windows               #
-#########################
+#############################
+# Windows                   #
+#############################
 
-# Windows image file caches
+# Windows image file caches #
 Thumbs.db
 
-# Folder config file    #
+# Folder config file        #
 Desktop.ini
 
-#########################
-# OSX                   #
-#########################
+#############################
+# OSX                       #
+#############################
 
 .DS_Store
 .AppleDouble
 .LSOverride
 
-# Icon must end with two #
-# \r characters          #
+# Icon must end with two \r #
 Icon
 
 
-# Thumbnails
+# Thumbnails                #
 ._*
 
-# Files that might appear #
-# in the root of a volume #
+# Files that might appear   #
+# in the root of a volume   #
 .DocumentRevisions-V100
 .fseventsd
 .Spotlight-V100
@@ -71,8 +101,8 @@ Icon
 .Trashes
 .VolumeIcon.icns
 
-# Dirs potentially created #
-# on remote AFP share      #
+# Directories potentially   #
+# on remote AFP share       #
 .AppleDB
 .AppleDesktop
 Network Trash Folder
@@ -80,9 +110,9 @@ Temporary Items
 .apdisk
 
 
-#########################
-# Eclipse               #
-#########################
+#############################
+# Eclipse                   #
+#############################
 
 *.pydevproject
 .metadata
@@ -98,25 +128,25 @@ Temporary Items
 *~.nib
 local.properties
 .loadpath
-# External tool builders
+# External tool builders    #
 .externalToolBuilders/
 
-#########################
-# IntelliJ IDEA         #
-#########################
+#############################
+# IntelliJ IDEA             #
+#############################
 
-# Covers JetBrains IDEs:#
-# IntelliJ, RubyMine,   #
-# PhpStorm, AppCode,    #
-# PyCharm               #
+# Covers JetBrains IDEs:    #
+# IntelliJ, RubyMine,       #
+# PhpStorm, AppCode, and    #
+# PyCharm                   #
 
 *.iml
 
-## Directory-based project format:
+# Directory-based project format:
 .idea/
-# if you remove the     #
-# above rule, at least  #
-# ignore the following: #
+# if you remove the  above  #
+# rule, at least ignore the #
+# following:                #
 
 # User-specific stuff:
 # .idea/workspace.xml
@@ -137,40 +167,38 @@ local.properties
 # Mongo Explorer plugin:
 # .idea/mongoSettings.xml
 
-## File-based project format:
+# File-based project format:
 *.ipr
 *.iws
 
-## Plugin-specific files:
+# Plugin-specific files:    #
 
-# IntelliJ                 #
+# IntelliJ                  #
 /out/
 
-# mpeltonen/sbt-idea plugin
+# mpeltonen/sbt-idea plugin #
 .idea_modules/
 
-# JIRA plugin
+# JIRA plugin               #
 atlassian-ide-plugin.xml
 
-# Crashlytics plugin        #
-# (for Android Studio and   #
-# IntelliJ)                 #
+# Crashlytics plugin (for   #
+# Android Studio and IDEA)  #
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 
 
-#########################
-# Gradle                #
-#########################
+#############################
+# Gradle                    #
+#############################
 .gradle
 build/
 
-# Gradle GUI config     #
+# Gradle GUI config         #
 gradle-app.setting
 
-# Avoid ignoring Gradle #
-# wrapper jar file      #
-# (as .jar files are    #
-# usually ignored)      #
+# Avoid ignoring Gradle     #
+# wrapper jar file (default #
+# is to ignore .jar files)  #
 !gradle-wrapper.jar
