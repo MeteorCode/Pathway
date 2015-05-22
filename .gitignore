@@ -1,59 +1,118 @@
-# Directories #
+#############################
+# Java/Scala                #
+#############################
+
+# Java:                     #
+
+# Directories               #
 **/build/**
 /bin/
 target/
-.gradle/
 /android/gen/
 
-# OS Files #
-.DS_Store
+# Compiled object files     #
 *.class
 *.so
 
-# Not sure what this is #
-# but it keeeps bugging #
-# me in the git-status  #
-# view...               #
+# Logs                      #
+*.log
+
+# Not sure what this is,    #
+# but it keeeps bugging me  #
+# in the git-status view... #
 **/.cache
 ios/robovm.xml
 
-# Package Files #
+# Package Files             #
 *.jar
 *.war
 *.ear
 *.db
 
-# Archive Files #
+# Mobile Tools for Java     #
+.mtj.tmp/
+
+# JVM crash logs            #
+hs_err_pid*
+
+# Scala:                    #
+
+# sbt specific              #
+.cache
+.history
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific        #
+.scala_dependencies
+.worksheet
+
+#############################
+# Linux                     #
+#############################
+
+# Archive Files             #
 *~
 
-######################
-# Windows
-######################
+# KDE dir preferences       #
+.directory
 
-# Windows image file caches
+# Linux trash folder, which #
+# might appear on  any      #
+# partition or disk         #
+.Trash-*
+
+#############################
+# Windows                   #
+#############################
+
+# Windows image file caches #
 Thumbs.db
 
-# Folder config file
+# Folder config file        #
 Desktop.ini
 
-######################
-# OSX
-######################
+#############################
+# OSX                       #
+#############################
 
 .DS_Store
-.svn
+.AppleDouble
+.LSOverride
 
-# Thumbnails
+# Icon must end with two \r #
+Icon
+
+
+# Thumbnails                #
 ._*
 
-# Files that might appear on external disk
+# Files that might appear   #
+# in the root of a volume   #
+.DocumentRevisions-V100
+.fseventsd
 .Spotlight-V100
+.TemporaryItems
 .Trashes
+.VolumeIcon.icns
+
+# Directories potentially   #
+# on remote AFP share       #
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
 
-######################
-# Eclipse
-######################
+#############################
+# Eclipse                   #
+#############################
 
 *.pydevproject
 .metadata
@@ -69,30 +128,77 @@ Desktop.ini
 *~.nib
 local.properties
 .loadpath
-# External tool builders
+# External tool builders    #
 .externalToolBuilders/
 
-##########
-# IDEA
-##########
-.idea/**
-**.iml
+#############################
+# IntelliJ IDEA             #
+#############################
 
-# Gradle-able
-**/.classpath
-**.project
-**/.settings
-**/.gradletasknamecache
+# Covers JetBrains IDEs:    #
+# IntelliJ, RubyMine,       #
+# PhpStorm, AppCode, and    #
+# PyCharm                   #
 
-# Locally stored "Eclipse launch configurations"
-*.launch
+*.iml
 
-# CDT-specific
-.cproject
+# Directory-based project format:
+.idea/
+# if you remove the  above  #
+# rule, at least ignore the #
+# following:                #
 
-# PDT-specific
-.buildpath
-*.sublime-workspace
+# User-specific stuff:
+# .idea/workspace.xml
+# .idea/tasks.xml
+# .idea/dictionaries
 
-spaceshipgame_workspace/eclimd.log
-/build-eclipse
+# Sensitive or high-churn files:
+# .idea/dataSources.ids
+# .idea/dataSources.xml
+# .idea/sqlDataSources.xml
+# .idea/dynamic.xml
+# .idea/uiDesigner.xml
+
+# Gradle:
+# .idea/gradle.xml
+# .idea/libraries
+
+# Mongo Explorer plugin:
+# .idea/mongoSettings.xml
+
+# File-based project format:
+*.ipr
+*.iws
+
+# Plugin-specific files:    #
+
+# IntelliJ                  #
+/out/
+
+# mpeltonen/sbt-idea plugin #
+.idea_modules/
+
+# JIRA plugin               #
+atlassian-ide-plugin.xml
+
+# Crashlytics plugin (for   #
+# Android Studio and IDEA)  #
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+
+
+#############################
+# Gradle                    #
+#############################
+.gradle
+build/
+
+# Gradle GUI config         #
+gradle-app.setting
+
+# Avoid ignoring Gradle     #
+# wrapper jar file (default #
+# is to ignore .jar files)  #
+!gradle-wrapper.jar
