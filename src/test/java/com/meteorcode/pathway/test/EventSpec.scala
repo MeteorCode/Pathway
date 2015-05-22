@@ -88,7 +88,7 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         val p2 = new Property() {
           def onEvent(event: Event, publishedBy:Context) = {
             event.stamp(this)
-            false
+            true
           }
         }
 
@@ -96,6 +96,8 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         p2 changeContext c
         c fireEvent e
         c pump
+
+        e.getPayload.stamps should contain allOf (p1, p2)
 
         e.stampExists(p1) shouldBe true
         e.stampExists(p2) shouldBe true
@@ -106,13 +108,13 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         val p1 = new Property() {
           def onEvent(event: Event, publishedBy:Context) = {
             event.stamp(this)
-            false
+            true
           }
         }
         val p2 = new Property() {
           def onEvent(event: Event, publishedBy:Context) = {
             event.unstamp(this)
-            false
+            true
           }
         }
 
@@ -120,6 +122,8 @@ class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         p2 changeContext c
         c fireEvent e
         c pump
+
+        e.getPayload.stamps should contain only (p1)
 
         e.stampExists(p1) shouldBe true
         e.stampExists(p2) shouldBe false
