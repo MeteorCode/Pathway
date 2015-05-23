@@ -79,7 +79,7 @@ class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
     }
   }
 
-  override def iterator = back.iterator
+  override def iterator = if (root) back.iterator else back.iterator ++ parent.iterator
 
   /**
    * Returns true if this contains the selected key OR if any of its' parents contains the key
