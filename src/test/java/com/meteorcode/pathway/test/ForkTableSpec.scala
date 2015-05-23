@@ -243,8 +243,9 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks with Mock
         forAll {
           (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
             val parent = new ForkTable[Int, Int]
-            parentContents.foreach { case ((k, v)) => parent.put(k, v) }
             val fork = parent.fork
+
+            parentContents.foreach { case ((k, v)) => parent.put(k, v) }
             myContents.foreach { case ((k, v)) => fork.put(k, v) }
 
             fork.chainSize shouldEqual (parentContents.size + myContents.size)
@@ -254,8 +255,8 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks with Mock
         forAll {
           (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
             val parent = new ForkTable[Int, Int]
-            parentContents.foreach { case ((k, v)) => parent.put(k, v) }
             val fork = parent.fork
+            parentContents.foreach { case ((k, v)) => parent.put(k, v) }
             myContents.foreach { case ((k, v)) => fork.put(k, v) }
 
             fork should have size myContents.size
