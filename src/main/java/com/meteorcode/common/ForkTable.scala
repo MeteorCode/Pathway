@@ -38,6 +38,8 @@ class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
     this.children = this.children :+ other
   }
 
+  def chainSize: Int = if (root) { size } else { size + parent.chainSize }
+
   /**
    * Change the parent corresponding to this scope.
    * @param nParent the new parent
@@ -53,7 +55,6 @@ class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
     }
     nParent.addChild (this)
   }
-
 
   override def get(key: K): Option[V] = if (whiteouts contains key) {
     None
