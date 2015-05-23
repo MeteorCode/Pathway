@@ -38,14 +38,17 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks with Mock
         target.getChildren shouldBe 'empty
       }
       "have no parent" in {
-        target.getParent shouldBe None
+        target.getParent shouldBe null
       }
       "be a root" in {
         target should be a 'root
       }
       "not be a leaf" in {
-        target should not be a 'leaf
+        target shouldNot be a 'leaf
       }
+    }
+    "at the root level and populated" should {
+
     }
   }
 }
