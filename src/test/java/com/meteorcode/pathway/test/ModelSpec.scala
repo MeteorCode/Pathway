@@ -5,7 +5,7 @@ package com.meteorcode.pathway.test
  */
 
 import com.meteorcode.pathway.logging.{LoggerFactory,NullLogger}
-import com.meteorcode.pathway.model.{Context, Event,Property}
+import com.meteorcode.pathway.model.{GameObject, Context, Event, Property}
 import com.meteorcode.pathway.script.ScriptException
 
 import me.hawkweisman.util._
@@ -21,12 +21,16 @@ import org.mockito.Mockito.verify
 import scala.util.Random
 import scala.collection.JavaConversions._
 
-class EventSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar {
+class ModelSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar {
   // quash the obnoxious and unnecessary log messages during testing
   LoggerFactory setLogger new NullLogger
 
   val random = new Random()
+
+  // generates integers that are not MAX_VALUE or MIN_VALUE
   val nonMaxInt = Gen.choose(Integer.MIN_VALUE+1, Integer.MAX_VALUE - 1)
+
+  // generates random Java identifiers
   val ident: Gen[String] = for {
     len  <- Gen.choose(1,500) // 500 seems reasonable
     name <- randomJavaIdent(len)(random)
@@ -278,6 +282,85 @@ public boolean onEvent(Event event, Context publishedBy) {
 
         t.pump
         t.viewEventStack() shouldBe 'empty
+      }
+    }
+    "should know its own name" in {
+      forAll { (name: String) =>
+        val t = new Context(name)
+        t.getName shouldEqual name
+        t.toString shouldEqual s"[$name Context][]"
+      }
+    }
+    "should allow GameObjects to be added" in {
+      val t = target
+      val obj1 = mock[GameObject]
+      val obj2 = mock[GameObject]
+
+      t addGameObject obj1
+      t.getGameObjects should contain only obj1
+
+      t addGameObject obj2
+      t.getGameObjects should contain allOf(obj1, obj2)
+    }
+    "should allow GameObjects to be removed" in {
+      val t = target
+      val obj1 = mock[GameObject]
+      val obj2 = mock[GameObject]
+
+      t addGameObject obj1
+      t addGameObject obj2
+      t.getGameObjects should contain(obj1)
+      t.getGameObjects should contain(obj2)
+
+      t removeGameObject obj2
+      t.getGameObjects should contain only obj1
+    }
+    "should support arbitrary Object injection" in {
+      forAll (ident, arbitrary[List[AnyVal]]) {
+        (name: String, thing: List[AnyVal]) =>
+          val t = target
+          t injectObject(name, thing)
+          t eval name shouldEqual thing
+      }
+      forAll (ident, arbitrary[Map[AnyVal,AnyVal]]) {
+        (name: String, thing: Map[AnyVal, AnyVal]) =>
+          val t = target
+          t injectObject(name, thing)
+          t eval name shouldEqual thing
+      }
+      forAll (ident, arbitrary[String]) {
+        (name: String, thing: String) =>
+          val t = target
+          t injectObject(name, thing)
+          t eval name shouldEqual thing
+      }
+    }
+    "should allow injected Objects to be removed" in {
+      forAll (ident, arbitrary[List[AnyVal]]) { (name: String, thing: List[AnyVal]) =>
+        val t = target
+        t injectObject(name, thing)
+        t eval name shouldEqual thing
+
+        t removeObject name
+        t eval name shouldBe null
+      }
+      forAll (ident, arbitrary[Map[AnyVal,AnyVal]]) {
+        (name: String, thing: Map[AnyVal, AnyVal]) =>
+          val t = target
+          t injectObject(name, thing)
+          t eval name shouldEqual thing
+
+          t removeObject name
+          t eval name shouldBe null
+      }
+      forAll (ident, arbitrary[String]) {
+        (name: String, thing: String) =>
+          val t = target
+          t injectObject(name, thing)
+          t eval name shouldEqual thing
+
+          t removeObject name
+          t eval name shouldBe null
       }
     }
   }
