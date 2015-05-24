@@ -5,7 +5,7 @@ package com.meteorcode.pathway.test
  */
 
 import com.meteorcode.pathway.logging.{LoggerFactory,NullLogger}
-import com.meteorcode.pathway.model.{GameObject, Context, Event, Property}
+import com.meteorcode.pathway.model._
 import com.meteorcode.pathway.script.ScriptException
 
 import me.hawkweisman.util._
@@ -563,6 +563,113 @@ public boolean onEvent(Event event, Context publishedBy) {
             e patchPayload Map[String,Object](name -> obj)
             e getPayload() get name shouldEqual obj
           }
+        }
+      }
+    }
+    "with a Tile location" - {
+      "should know its location" in {
+        val mockTile = mock[Tile]
+        val target = new Event("test",null,mockTile){override def evalEvent = {}}
+        target.getPayload.where shouldBe mockTile
+      }
+    }
+  }
+  "A Payload" - {
+    "with a Tile location" - {
+      "should know the Tile it is located at" in {
+        val mockTile = mock[Tile]
+        val target = new Payload(mockTile)
+        target.location shouldBe mockTile
+        target.where shouldBe mockTile
+      }
+      "should know the Tile's coordinates" in {
+        forAll { (x: Int, y: Int) =>
+          val mockTile = mock[Tile]
+          val target = new Payload(mockTile)
+          when(mockTile getPosition) thenReturn(new GridCoordinates(x,y))
+
+          target.x shouldEqual x
+          target.y shouldEqual y
+        }
+      }
+    }
+  }
+  "A Tile" - {
+    "should know its type" in {
+      val target = new Tile(new GridCoordinates(0,0), Tile.Type.EMPTY)
+      target.getType shouldBe Tile.Type.EMPTY
+    }
+    "when created with the GridCoordinates constructor" - {
+      "should know its type" in {
+        val target = new Tile(new GridCoordinates(0,0), Tile.Type.EMPTY)
+        target.getType shouldBe Tile.Type.EMPTY
+      }
+      "should know its position" in {
+        forAll { (x: Int, y: Int) =>
+          val target = new Tile(new GridCoordinates(x,y),Tile.Type.EMPTY)
+          target.getPosition shouldEqual new GridCoordinates(x,y)
+        }
+      }
+    }
+    "when created with the (Int, Int) constructor" - {
+      "should know its type" in {
+        val target = new Tile(0,0, Tile.Type.EMPTY)
+        target.getType shouldBe Tile.Type.EMPTY
+      }
+      "should know its position" in {
+        forAll { (x: Int, y: Int) =>
+          val target = new Tile(x,y,Tile.Type.EMPTY)
+          target.getPosition shouldEqual new GridCoordinates(x,y)
+        }
+      }
+    }
+    "when occupied by an Entity" - {
+      val mockEntity = mock[Entity]
+      "should be occupied" in {
+        val target = new Tile(0,0,Tile.Type.FLOOR)
+        target.setEntity(mockEntity)
+        target shouldBe 'occupied
+      }
+      "should know what Entity occupies it" in {
+        val target = new Tile(0,0,Tile.Type.FLOOR)
+        target.setEntity(mockEntity)
+        target.getEntity shouldBe mockEntity
+      }
+    }
+    "when unoccupied " - {
+      "should not be occupied" in {
+        val target = new Tile(0,0,Tile.Type.FLOOR)
+        target should not be 'occupied
+      }
+      "should return Null when getEntity is called" in {
+        val target = new Tile(0,0,Tile.Type.FLOOR)
+        target.getEntity shouldBe null
+      }
+    }
+  }
+  "A GridCoordinates pair" - {
+    "should have the correct x- and y-values" in {
+      forAll { (x: Int, y: Int) =>
+        val target = new GridCoordinates(x,y)
+        target.getX shouldEqual x
+        target.getY shouldEqual y
+      }
+    }
+    "should toString() itself as an ordered pair" in {
+      forAll { (x: Int, y: Int) =>
+        val target = new GridCoordinates(x,y)
+        target.toString shouldEqual s"($x, $y)"
+      }
+    }
+    "should equal another GridCoordinates with the same x- and y-values" in {
+      forAll { (x: Int, y: Int) =>
+        new GridCoordinates(x,y) shouldEqual new GridCoordinates(x,y)
+      }
+    }
+    "should not equal another GridCoordinates with different x- and y-values" in {
+      forAll { (x1: Int, y1: Int, x2: Int, y2: Int) =>
+        whenever(x1 != x2 || y1 != y2) {
+          new GridCoordinates(x1,y1) should not equal new GridCoordinates(x2,y2)
         }
       }
     }
