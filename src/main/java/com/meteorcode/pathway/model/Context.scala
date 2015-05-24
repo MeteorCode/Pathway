@@ -6,7 +6,7 @@ import java.util.{
   List,
   ArrayList
 }
-import com.meteorcode.pathway.logging.LoggerFactory
+import com.meteorcode.pathway.logging.Logging
 import com.meteorcode.pathway.script.{
   ScriptContainer,
   ScriptContainerFactory,
@@ -26,7 +26,7 @@ import scala.collection.immutable.{
  * @author Hawk Weisman <hawk.weisman@gmail.com>
  *
  */
-class Context(protected var name: String) {
+class Context(protected var name: String) extends Logging {
 
   def this() = this(null)
   if (name == null) name = this.getClass.getSimpleName
@@ -34,7 +34,6 @@ class Context(protected var name: String) {
   protected var eventStack = Stack[Event]()
   protected var gameObjects = HashSet[GameObject]()
   protected var properties = HashSet[Property]()
-  private val logger = LoggerFactory.getLogger
   private var beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()
   // TODO: This should really be requested from a global ScriptContainerFactory instance,
   // but since that's not available, I'm doing it like this so that the class will run and be testable.

@@ -5,7 +5,7 @@ import java.io.{File, IOException}
 import java.util
 
 import com.meteorcode.common.ForkTable
-import com.meteorcode.pathway.logging.LoggerFactory
+import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -35,7 +35,7 @@ import scala.collection.mutable.ListBuffer
  */
 class ResourceManager protected (private val directories: util.List[FileHandle],
                                  private val writeDir: Option[FileHandle],
-                                 private val policy: LoadOrderProvider) {
+                                 private val policy: LoadOrderProvider) extends Logging {
   /**
    * Constructor for a ResourceManager with a single managed directory.
    *
@@ -97,7 +97,6 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
-  private lazy val logger = LoggerFactory.getLogger()
   private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
