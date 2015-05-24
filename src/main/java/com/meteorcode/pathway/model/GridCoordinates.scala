@@ -7,20 +7,22 @@ package com.meteorcode.pathway.model
  * @param x the x-value
  * @param y the y-value
  */
-class GridCoordinates(val x: Integer, val y: Integer) {
+case class GridCoordinates(x: Integer, y: Integer) {
   def this(xy: (Integer, Integer)) = this(xy._1, xy._2)
 
   def getX = x
+
   def getY = y
 
   override def toString = s"($x, $y)"
-  override def equals(other: Any) = {
-    if (other.isInstanceOf[GridCoordinates]) {
-      (this.x == other.asInstanceOf[GridCoordinates].getX && this.y == other.asInstanceOf[GridCoordinates].getY)
-      } else false }
+
+  override def equals(other: Any) = other match {
+    case GridCoordinates(x2, y2) => x == x2 && y == y2
+    case _ => false
+  }
 }
 
 object GridCoordinatesImplicits {
   implicit def GridCoordinates2Tuple(gc: GridCoordinates): (Int, Int) = (gc.x, gc.y)
-  implicit def Tuple2GridCoordinates(xy: (Int, Int)): GridCoordinates = new GridCoordinates(xy._1, xy._2)
+  implicit def Tuple2GridCoordinates(xy: (Int, Int)): GridCoordinates = GridCoordinates(xy._1, xy._2)
 }

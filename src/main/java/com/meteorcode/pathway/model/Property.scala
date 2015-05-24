@@ -2,8 +2,6 @@ package com.meteorcode.pathway.model
 
 import com.meteorcode.pathway.logging.Logging
 
-import scala.collection.mutable.Subscriber
-
 abstract class Property (initDrawID: Integer, var parent: Option[Context] = None) extends Logging {
   var drawID = initDrawID
   parent foreach(_ subscribe this)

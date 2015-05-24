@@ -8,9 +8,7 @@ import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 /**
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives

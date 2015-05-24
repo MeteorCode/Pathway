@@ -1,11 +1,5 @@
 package com.meteorcode.pathway.model
-import java.util.Map
-import scala.collection.immutable.{
-  Map,
-  HashMap,
-  Set,
-  HashSet
-}
+import scala.collection.immutable.Set
 import scala.collection.JavaConverters._
 
 class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
@@ -51,8 +45,8 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
   def stampExists(stampedBy: Property) = stamps.contains(stampedBy)
 
   def where = location
-  def x: Integer = { if (location == null) { null } else location.getPosition().getX }
-  def y: Integer = { if (location == null) { null } else location.getPosition().getY }
+  def x: Integer = { if (location == null) { null } else location.getPosition.getX }
+  def y: Integer = { if (location == null) { null } else location.getPosition.getY }
 
   def +(kv: (String, Object)) = map += kv
   def ++(addition: scala.collection.immutable.Map[String, Object]) = map ++= addition
@@ -64,6 +58,6 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
   def -(key: String) = map - key
   def remove(key: String) = map - key
   def contains(key: String): Boolean = map.contains(key)
-  def get(key: String): Object = { map.get(key).getOrElse(None) }
+  def get(key: String): Object = { map getOrElse (key, None) }
   def toMap = map.asJava
 }
