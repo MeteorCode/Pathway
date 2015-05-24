@@ -24,10 +24,10 @@ class Context(protected var name: String) extends Logging {
   def this() = this(null)
   if (name == null) name = this.getClass.getSimpleName
 
-  protected var eventStack = mutable.Stack[Event]()
-  protected var gameObjects = Set[GameObject]()
-  protected var properties = Set[Property]()
-  private var beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance
+  protected val eventStack = mutable.Stack[Event]()
+  protected val gameObjects = mutable.Set[GameObject]()
+  protected val properties = mutable.Set[Property]()
+  private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance
   // TODO: This should really be requested from a global ScriptContainerFactory instance,
   // but since that's not available, I'm doing it like this so that the class will run and be testable.
 
@@ -72,7 +72,7 @@ class Context(protected var name: String) extends Logging {
    * @return A shallow copy of the current EventStack.
    */
   def viewEventStack(): util.Deque[Event] = {
-    var result: util.Deque[Event] = new util.ArrayDeque[Event]
+    val result: util.Deque[Event] = new util.ArrayDeque[Event]
     for (e <- eventStack)
       result.push(e)
     result
