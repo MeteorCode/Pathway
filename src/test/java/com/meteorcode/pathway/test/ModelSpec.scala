@@ -12,11 +12,12 @@ import me.hawkweisman.util._
 
 import org.scalacheck.Gen
 import org.scalacheck.Arbitrary.arbitrary
+
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{WordSpec, Matchers, FreeSpec}
 
-import org.mockito.Mockito.verify
+import org.mockito.Mockito._
 
 import scala.util.Random
 import scala.collection.JavaConversions._
@@ -42,6 +43,19 @@ class ModelSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
     "when instantiated with the 0-parameter constructor" - {
       "should not be null" in {
         new Property() { override def onEvent(event: Event, publishedBy:Context) = false} should not be (null)
+      }
+      "should allow a new DrawID to be set" in {
+        forAll { (id: Int) =>
+          val p = new Property {
+            def onEvent(event: Event, publishedBy: Context) = false
+          }
+
+          p.getDrawID should not be id
+
+          p setDrawID id
+
+          p.getDrawID shouldBe id
+        }
       }
     }
     "when instantiated with a known DrawID" - {
@@ -133,7 +147,7 @@ class ModelSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
         e.stampExists(p2) shouldBe false
       }
     }
-    "when attached to a Context" - {
+    "when interacting with a Context" - {
       "should only effect events in the Context it is attached to" in {
         // this test is ported from the property subscription test in the
         // original JUnit test suite. A more elegant method of testing this
@@ -174,6 +188,33 @@ class ModelSpec extends FreeSpec with Matchers with PropertyChecks with MockitoS
 
         c fireEvent staysUnset
         c pump
+      }
+      "should subscribe and unsubscribe on linking and unlinking" in {
+        val ctx1 = mock[Context]
+        val ctx2 = mock[Context]
+        val p = new Property(ctx1) {
+          override def onEvent(event: Event,publishedBy: Context) = false
+        }
+
+        verify(ctx1) subscribe p
+
+        p changeContext ctx2
+
+        verify(ctx1) unsubscribe p
+        verify(ctx2) subscribe p
+        verifyNoMoreInteractions(ctx1)
+      }
+      "should evaluate BeanShell against the Context it is attached to" in {
+        val ctx = mock[Context]
+        doReturn(2).when(ctx).eval("1+1")
+
+        val p = new Property(ctx) {
+          def onEvent(event: Event, publishedBy: Context) = false
+        }
+
+        p eval s"1+1"
+
+        verify(ctx, times(1)) eval s"1+1"
       }
     }
     "which returns true" - {
