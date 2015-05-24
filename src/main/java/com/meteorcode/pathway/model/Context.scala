@@ -108,7 +108,7 @@ class Context(protected var name: String) extends Logging {
       // publish top event to all subscribed Properties
       for (p <- properties if e.isValid) {
         logger.log(this.name + " Context", "publishing" + e + " to " + p)
-        if (!p.onEvent(e, this)) return
+        if (!p.onEvent(e, this)) return // TODO: find a way to express this without the return statement
       }
       // if no Property invalidated the top event, then we can evaluate it.
       if (e == eventStack.top) {

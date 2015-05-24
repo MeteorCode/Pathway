@@ -1,10 +1,10 @@
 package com.meteorcode.pathway.model
-import scala.collection.immutable.Set
+import scala.collection.mutable
 import scala.collection.JavaConverters._
 
 class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
-  var map = initialMap
-  var stamps = Set.empty[Property]
+  val map = mutable.Map() ++ initialMap
+  val stamps = mutable.Set.empty[Property]
   val location = tile
 
   def this() = this(scala.collection.immutable.Map.empty[String, Object], null)
