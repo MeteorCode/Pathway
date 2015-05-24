@@ -35,7 +35,6 @@ class GameObjectSpec extends WordSpec with Matchers with PropertyChecks with Moc
         verify (ctx1, times(1)) removeGameObject target
         verify (ctx2, times(1)) addGameObject target
         target.getContext shouldBe ctx2
-        verifyNoMoreInteractions(ctx1)
 
       }
     }

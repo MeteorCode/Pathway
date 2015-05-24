@@ -3,12 +3,12 @@ package com.meteorcode.pathway.test
 import com.meteorcode.common.ForkTable
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
-import org.scalatest.{WordSpec, Matchers, FreeSpec}
+import org.scalatest.{WordSpec, Matchers}
 
 /**
  * Created by hawk on 5/22/15.
  */
-class ForkTableSpec extends WordSpec with Matchers with PropertyChecks with MockitoSugar {
+class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
 
   "A ForkTable" when {
     "empty" should {
@@ -63,23 +63,24 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks with Mock
       "know its children" in {
         forAll {
           (key1: Int, val1: Int, key2: Int, val2: Int) =>
-            val target = new ForkTable[Int, Int]
-            val aFork = target fork
-            val anotherFork = target fork
+            whenever(key1 != key2) { // we are not testing for hash collisions here
+              val target = new ForkTable[Int, Int]
+              val aFork = target fork
+              val anotherFork = target fork
 
-            // this is so ScalaTest doesn't think the two forks are the same object
-            aFork.put(key1, val1)
-            anotherFork.put(key2, val2)
+              // this is so ScalaTest doesn't think the two forks are the same object
+              aFork.put(key1, val1)
+              anotherFork.put(key2, val2)
 
-            val children = target.getChildren
-            children should contain allOf(aFork, anotherFork)
+              val children = target.getChildren
+              children should contain allOf(aFork, anotherFork)
+            }
         }
       }
       "not contain keys defined in its forks" in {
         forAll {
           (key1: Int, val1: Int, key2: Int, val2: Int) =>
-            whenever(key1 != key2) {
-              // we are not testing for hash collisions here
+            whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
               val aFork = target fork
               val anotherFork = target fork
@@ -95,8 +96,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks with Mock
       "not chain contain keys defined in its forks" in {
         forAll {
           (key1: Int, val1: Int, key2: Int, val2: Int) =>
-            whenever(key1 != key2) {
-              // we are not testing for hash collisions here
+            whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
               val aFork = target fork
               val anotherFork = target fork
@@ -113,8 +113,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks with Mock
       "not allow access keys defined in its forks" in {
         forAll {
           (key1: Int, val1: Int, key2: Int, val2: Int) =>
-            whenever(key1 != key2) {
-              // we are not testing for hash collisions here
+            whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
               val aFork = target fork
               val anotherFork = target fork
