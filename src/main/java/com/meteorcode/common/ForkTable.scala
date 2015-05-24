@@ -79,6 +79,8 @@ class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
     }
   }
 
+  def freeze = ???
+
   override def size = back.size
 
   override def iterator = if (root) back.iterator else back.iterator ++ parent.iterator
