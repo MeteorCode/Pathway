@@ -32,6 +32,17 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
     name <- randomJavaIdent(len)(random)
   } yield name
 
+  val reservedWords: Gen[String] = Gen.oneOf("abstract", "assert", "boolean",
+  "break", "byte", "case", "catch", "char", "class", "const",
+  "continue", "do", "double", "else", "enum", "extends", "final",
+  "finally", "float", "for", "if", "goto", "implements",
+  "import", "instanceof", "int", "interface", "long", "native",
+  "new", "package", "private", "protected", "public", "return",
+  "short", "static", "strictfp", "super", "switch",
+  "synchronized", "this", "throw", "throws", "transient", "try",
+  "void", "volatile", "while")
+
+
   "A ScriptContainerFactory" when {
     "creating a new ScriptContainer with a specified environment" should {
       "link the new instance with the environment" in {
@@ -216,6 +227,17 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
           e should have message s"Error unbinding $name from Beanshell"
         }
       }
+    }
+    "accessing objects" should {
+      "throw an IllegalArgumentException when attempting to access a reserved word" in {
+        forAll (reservedWords) { (name: String) =>
+          val target = new ScriptContainerFactory().getNewInstance
+          the [IllegalArgumentException] thrownBy {
+            target.access(name)
+          } should have message "Variable name cannot be a Java reserved word."
+        }
+      }
+
     }
   }
 }
