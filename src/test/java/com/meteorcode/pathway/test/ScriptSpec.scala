@@ -41,12 +41,12 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
 
   "A ScriptContainer" when {
     "evaluating a BeanShell script from a String" should {
-      val fakeInterpreter = mock[Interpreter]
-      val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
-
       "pass through the result provided by the interpreter" in {
+
         forAll { (script: String, result: String) =>
           whenever(script != "") {
+            val fakeInterpreter = mock[Interpreter]
+            val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
 
             doReturn(result).when(fakeInterpreter).eval(script)
             val target = fakeFactory.getNewInstance
@@ -59,6 +59,9 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
       "throw a ScriptException if the Interpreter throws an EvalError" in {
         forAll { (script: String) =>
           whenever (script != "") {
+            val fakeInterpreter = mock[Interpreter]
+            val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
+
             when(fakeInterpreter.eval(script)) thenThrow new EvalError(null,null,null)
 
             val target = fakeFactory.getNewInstance
@@ -71,6 +74,9 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
       "throw a ScriptException if the Interpreter throws an InterpreterError" in {
         forAll { (script: String) =>
           whenever (script != "") {
+            val fakeInterpreter = mock[Interpreter]
+            val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
+
             when(fakeInterpreter.eval(script)) thenThrow new InterpreterError("fake interp. error")
 
             val target = fakeFactory.getNewInstance
@@ -82,12 +88,13 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
       }
     }
     "evaluating a BeanShell script from a FileHandle" should {
-      val fakeInterpreter = mock[Interpreter]
-      val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
-      val fakeFileHandle = mock[FileHandle]
       "pass through the result provided by the interpreter" in {
         forAll { (script: String, result: String) =>
           whenever(script != "") {
+            val fakeInterpreter = mock[Interpreter]
+            val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
+            val fakeFileHandle = mock[FileHandle]
+
             when(fakeFileHandle.readString) thenReturn script
             doReturn(result).when(fakeInterpreter).eval(script)
 
@@ -101,15 +108,23 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
         }
       }
       "pass through any IOExceptions thrown by the FileHandle" in {
+        val fakeInterpreter = mock[Interpreter]
+        val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
+        val fakeFileHandle = mock[FileHandle]
+
         when(fakeFileHandle.readString) thenThrow new IOException
 
         val target = fakeFactory.getNewInstance
 
-        a [ScriptException] should be thrownBy target.eval(fakeFileHandle)
+        an [IOException] should be thrownBy target.eval(fakeFileHandle)
       }
       "throw a ScriptException if the Interpreter throws an EvalError" in {
         forAll { (script: String) =>
           whenever (script != "") {
+            val fakeInterpreter = mock[Interpreter]
+            val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
+            val fakeFileHandle = mock[FileHandle]
+
             when(fakeFileHandle.readString) thenReturn script
             when(fakeInterpreter.eval(script)) thenThrow new EvalError(null,null,null)
 
@@ -123,6 +138,10 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
       "throw a ScriptException if the Interpreter throws an InterpreterError" in {
         forAll { (script: String) =>
           whenever (script != "") {
+            val fakeInterpreter = mock[Interpreter]
+            val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
+            val fakeFileHandle = mock[FileHandle]
+
             when(fakeFileHandle.readString) thenReturn script
             when(fakeInterpreter.eval(script)) thenThrow new InterpreterError("fake interp. error")
 
