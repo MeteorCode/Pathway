@@ -36,6 +36,17 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
     name <- randomJavaIdent(len)(random)
   } yield name
 
+  val invalidIdentStart: Gen[String] = for {
+    start <- Gen.oneOf('1','2','3','4','5','6','7','8','9','-','+','*','?',''','{','}',';',',')
+    len  <- Gen.choose(1,500)
+  } yield s"$start${randomJavaIdent(len)(random)}"
+
+  val invalidAt: Gen[(Int,String)] = for {
+    len <- Gen.choose(1,500)
+    pos <- Gen.choose(0,len)
+    invalid <- Gen.oneOf('-','+','*','?',''','{','}',';',',')
+  } yield (pos, randomJavaIdent(len)(random).patch(pos, s"$invalid", 1))
+
   val reservedWords: Gen[String] = Gen.oneOf("abstract", "assert", "boolean",
   "break", "byte", "case", "catch", "char", "class", "const",
   "continue", "do", "double", "else", "enum", "extends", "final",
@@ -69,7 +80,7 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
 
   "A ScriptContainer" when {
     "evaluating a BeanShell script from a String" should {
-      "pass through the result provided by the interpreter" in {
+      "pass through the result provided by the Interpreter" in {
 
         forAll { (script: String, result: String) =>
           whenever(script != "") {
@@ -180,7 +191,6 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
           }
         }
       }
-
     }
     "injecting objects" should {
       "call the `set()` method on the interpreter" in {
@@ -208,7 +218,7 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
       }
     }
     "removing objects" should {
-      "call the `unset()` method on the interpreter" in {
+      "call the `unset()` method on the Interpreter" in {
         forAll(ident) { (name: String) =>
           val fakeInterpreter = mock[Interpreter]
           val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
@@ -233,6 +243,19 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
       }
     }
     "accessing objects" should {
+      "pass through the value from the Interpreter" in {
+        forAll (ident, arbitrary[Int]) { (name: String, result: Int) =>
+        whenever(name != "") {
+          val fakeInterpreter = mock[Interpreter]
+          val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
+
+          doReturn(result).when(fakeInterpreter).eval(name)
+          val target = fakeFactory.getNewInstance
+
+          target.access(name) shouldEqual result
+          verify(fakeInterpreter, times(1)).eval(name)
+        }
+      }}
       "throw an IllegalArgumentException when attempting to access a reserved word" in {
         forAll (reservedWords) { (name: String) =>
           val target = new ScriptContainerFactory().getNewInstance
@@ -241,7 +264,22 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
           } should have message "Variable name cannot be a Java reserved word."
         }
       }
-
+      "throw an IllegalArgumentException when attempting to access a name with an invalid starting character" in {
+        forAll (invalidIdentStart) { (name: String) =>
+          val target = new ScriptContainerFactory().getNewInstance
+          the [IllegalArgumentException] thrownBy {
+            target.access(name)
+          } should have message "Variable name was not a valid Java identifier; illegal character at position 0"
+        }
+      }
+      "throw an IllegalArgumentException when attempting to access a name containing an invalid character" in {
+        forAll (invalidAt) { case ((pos: Int, name: String)) =>
+          val target = new ScriptContainerFactory().getNewInstance
+          the [IllegalArgumentException] thrownBy {
+            target.access(name)
+          } should have message s"Variable name was not a valid Java identifier; illegal character at position $pos"
+        }
+      }
     }
   }
 
@@ -397,7 +435,6 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
           }
         }
       }
-
       "call the onLink script if one exists" in {
         forAll {
           (script: String, map: Map[String,List[AnyVal]]) =>
