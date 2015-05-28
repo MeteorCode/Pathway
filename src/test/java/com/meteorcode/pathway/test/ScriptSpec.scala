@@ -2,11 +2,15 @@ package com.meteorcode.pathway.test
 
 
 import java.io.IOException
+import java.util
+
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import bsh.{InterpreterError, EvalError, Interpreter}
 
 import com.meteorcode.pathway.io.FileHandle
-import com.meteorcode.pathway.script.{ScriptException, ScriptContainerFactory, ScriptEnvironment}
+import com.meteorcode.pathway.script.{ScriptContainer, ScriptException, ScriptContainerFactory, ScriptEnvironment}
 
 import me.hawkweisman.util._
 
@@ -238,6 +242,130 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
         }
       }
 
+    }
+  }
+
+  "A ScriptEnvironment" when {
+    "initialized without bindings" should {
+      "be empty" in {
+        new ScriptEnvironment().getBindings shouldBe 'empty
+      }
+      "return the empty map on calls to getBindings()" in {
+        new ScriptEnvironment().getBindings should equal(new util.HashMap[String, Object]())
+      }
+    }
+    "initialized with the empty map" should {
+      "be empty" in {
+        new ScriptEnvironment(new util.HashMap[String, Object]()).getBindings shouldBe 'empty
+      }
+      "return the empty map on calls to getBindings()" in {
+        new ScriptEnvironment(new util.HashMap[String, Object]()).getBindings should equal(new util.HashMap[String, Object]())
+      }
+    }
+    "initialized with a non-empty map" should {
+      "not be empty" in {
+        forAll { (map: Map[String, List[AnyVal]]) =>
+          whenever (map nonEmpty) { new ScriptEnvironment(map).getBindings should not be 'empty }
+        }
+      }
+      "return that map on calls to getBindings()" in {
+        forAll { (map: Map[String, List[AnyVal]]) =>
+          whenever (map nonEmpty) { new ScriptEnvironment(map).getBindings.asScala should equal(map) }
+        }
+      }
+    }
+    "adding a binding" should {
+      "add the new key to its bindings" in {
+        forAll { (k: String, v: AnyVal) =>
+          val target = new ScriptEnvironment()
+          target.addBinding(k, v)
+          target.getBindings.asScala should contain key k
+        }
+      }
+      "add the new mapping to its bindings" in {
+        forAll { (k: String, v: AnyVal) =>
+          val target = new ScriptEnvironment()
+          target.addBinding(k, v)
+          target.getBindings.asScala should contain (k -> v)
+        }
+      }
+      "bind the new variable binding in any ScriptContainers it is linked to" in {
+        forAll { (k: String, v: AnyVal) =>
+          val container = mock[ScriptContainer]
+          val target = new ScriptEnvironment()
+
+          target.link(container)
+          target.addBinding(k, v)
+
+          verify(container, times(1)).injectObject(k, v)
+        }
+      }
+      "not bind the new binding in any ScriptContainers it has been unlinked from" in {
+        forAll { (key1: String, value1: AnyVal, key2: String, value2: AnyVal) =>
+          whenever (key1 != key2) { // no hash collisions pls kthnx
+            val container = mock[ScriptContainer]
+            val target = new ScriptEnvironment()
+
+            target.link(container)
+            target.addBinding(key1, value1)
+
+            verify(container, times(1)).injectObject(key1, value1)
+
+            target.unlink(container)
+            target.addBinding(key2, value2)
+
+            verify(container, times(1)).removeObject(key1)
+            verifyNoMoreInteractions(container)
+          }
+        }
+      }
+    }
+    "adding multiple bindings from a HashMap" should {
+      "add all new keys to its bindings" in {
+        forAll {
+          // `List[AnyVal]` has been chosen as the type signature for a generic
+          // Object by test engineer fiat (ScalaCheck knows how to make
+          // arbitrary lists easily, arbitrary `AnyRef`s less so)
+          (newBindings: Map[String, List[AnyVal]]) =>
+            val target = new ScriptEnvironment
+            target addBindings newBindings
+            newBindings.keySet foreach (target.getBindings should contain key _)
+        }
+      }
+      "add all new mappings to its bindings" in {
+        forAll { (newBindings: Map[String, List[AnyVal]]) =>
+          val target = new ScriptEnvironment
+          target addBindings newBindings
+          newBindings foreach (target.getBindings.asScala should contain(_))
+        }
+      }
+      "bind the new variable bindings in any ScriptContainer it is linked to" in {
+        forAll { (newBindings: Map[String, List[AnyVal]]) =>
+          val container = mock[ScriptContainer]
+          val target = new ScriptEnvironment()
+
+          target.link(container)
+          target.addBindings(newBindings)
+
+          newBindings foreach { case ((k, v)) => verify(container, times(1)).injectObject(k, v) }
+        }
+      }
+      "not bind the new bindings in any ScriptContainers it has been unlinked from" in {
+        forAll { (newBindings1: Map[String, List[AnyVal]], newBindings2: Map[String, List[AnyVal]]) =>
+          val container = mock[ScriptContainer]
+          val target = new ScriptEnvironment()
+
+          target.link(container)
+          target.addBindings(newBindings1)
+
+          newBindings1 foreach { case ((k, v)) => verify(container, times(1)).injectObject(k, v) }
+
+          target.unlink(container)
+          target.addBindings(newBindings2)
+          newBindings1 foreach { case ((k, v)) => verify(container, times(1)).removeObject(k) }
+          verifyNoMoreInteractions(container)
+        }
+      }
     }
   }
 }
