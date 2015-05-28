@@ -349,6 +349,24 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
 
           newBindings foreach { case ((k, v)) => verify(container, times(1)).injectObject(k, v) }
         }
+        forAll { (newBindings: Map[String, String]) => // may as well try a couple more types
+          val container = mock[ScriptContainer]
+          val target = new ScriptEnvironment()
+
+          target.link(container)
+          target.addBindings(newBindings)
+
+          newBindings foreach { case ((k, v)) => verify(container, times(1)).injectObject(k, v) }
+        }
+        forAll { (newBindings: Map[String, Map[String,Int]]) =>
+          val container = mock[ScriptContainer]
+          val target = new ScriptEnvironment()
+
+          target.link(container)
+          target.addBindings(newBindings)
+
+          newBindings foreach { case ((k, v)) => verify(container, times(1)).injectObject(k, v) }
+        }
       }
       "not bind the new bindings in any ScriptContainers it has been unlinked from" in {
         forAll { (newBindings1: Map[String, List[AnyVal]], newBindings2: Map[String, List[AnyVal]]) =>
@@ -367,5 +385,67 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
         }
       }
     }
+    "linking with a ScriptContainer" should {
+      "add all its existing bindings" in {
+        forAll { (map: Map[String,List[AnyVal]]) =>
+          val target = new ScriptEnvironment(map)
+          val container = mock[ScriptContainer]
+
+          target link container
+          target.getBindings foreach {
+            case ((k,v)) => verify(container,times(1)).injectObject(k,v)
+          }
+        }
+      }
+
+      "call the onLink script if one exists" in {
+        forAll {
+          (script: String, map: Map[String,List[AnyVal]]) =>
+          val target = new ScriptEnvironment(map,script)
+          val container = mock[ScriptContainer]
+
+          target link container
+          verify(container, times(1)).eval(script);
+          target.getBindings foreach {
+            case ((k,v)) => verify(container,times(1)).injectObject(k,v)
+          }
+
+        }
+      }
+
+    }
+    "unlinking from a ScriptContainer" should {
+      "remove all of its bindings from that ScriptContainer" in {
+        forAll { (map: Map[String,List[AnyVal]]) =>
+          val target = new ScriptEnvironment(map)
+          val container = mock[ScriptContainer]
+
+          target link container
+          target unlink container
+
+          target.getBindings foreach {
+            case ((k,_)) => verify(container,times(1)).removeObject(k)
+          }
+        }
+      }
+      "not remove the bindings of another environment linked to that container" in {
+        forAll { (map1: Map[String,List[AnyVal]], map2: Map[String,List[AnyVal]]) =>
+          whenever ((map1.keySet & map2.keySet) isEmpty) {
+            val target = new ScriptEnvironment(map1)
+            val other = new ScriptEnvironment(map2)
+            val container = mock[ScriptContainer]
+
+            target link container
+            other link container
+            target unlink container
+
+            other.getBindings foreach {
+              case ((k,_)) => verify(container,never()).removeObject(k)
+            }
+          }
+        }
+      }
+    }
+
   }
 }
