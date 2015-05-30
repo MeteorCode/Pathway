@@ -44,8 +44,13 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
   val invalidAt: Gen[(Int,String)] = for {
     len <- Gen.choose(1,500)
     pos <- Gen.choose(0,len)
-    invalid <- Gen.oneOf('-','+','*','?',''','{','}',';',',')
+    invalid <- Gen.oneOf('-','+','*','?',''','{','}',';',',', '/', '[',']','"','\\','|')
   } yield (pos, randomJavaIdent(len)(random).patch(pos, s"$invalid", 1))
+
+  val spaceAt: Gen[(Int,String)] = for {
+    len <- Gen.choose(1,500)
+    pos <- Gen.choose(0,len)
+  } yield (pos, randomJavaIdent(len)(random).patch(pos, " ", 1))
 
   val reservedWords: Gen[String] = Gen.oneOf("abstract", "assert", "boolean",
   "break", "byte", "case", "catch", "char", "class", "const",
@@ -274,6 +279,14 @@ class ScriptSpec extends WordSpec with Matchers with PropertyChecks with Mockito
       }
       "throw an IllegalArgumentException when attempting to access a name containing an invalid character" in {
         forAll (invalidAt) { case ((pos: Int, name: String)) =>
+          val target = new ScriptContainerFactory().getNewInstance
+          the [IllegalArgumentException] thrownBy {
+            target.access(name)
+          } should have message s"Variable name was not a valid Java identifier; illegal character at position $pos"
+        }
+      }
+      "throw an IllegalArgumentException when attempting to access a name containing a space" in {
+        forAll (spaceAt) { case ((pos: Int, name: String)) =>
           val target = new ScriptContainerFactory().getNewInstance
           the [IllegalArgumentException] thrownBy {
             target.access(name)
