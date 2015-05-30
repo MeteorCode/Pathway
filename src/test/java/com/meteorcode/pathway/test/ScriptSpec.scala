@@ -461,6 +461,5 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
         }
       }
     }
-
   }
 }
