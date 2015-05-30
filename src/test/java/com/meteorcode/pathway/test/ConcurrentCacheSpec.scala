@@ -9,9 +9,7 @@ import scala.collection.JavaConversions._
 /**
  * Created by hawk on 5/8/15.
  */
-class ConcurrentCacheSpec extends WordSpec with Matchers with PropertyChecks {
-  // quash the obnoxious and unnecessary log messages during testing
-  LoggerFactory setLogger new NullLogger
+class ConcurrentCacheSpec extends PathwaySpec {
 
   val reasonableSizes = for (n <- Gen.choose(1, 10000)) yield n
   val listsAndSizes = for {

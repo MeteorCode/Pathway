@@ -22,20 +22,12 @@ import org.mockito.Mockito._
 import scala.util.Random
 import scala.collection.JavaConversions._
 
-class ModelSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar {
+class ModelSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar with IdentGenerators {
   // quash the obnoxious and unnecessary log messages during testing
   LoggerFactory setLogger new NullLogger
 
-  val random = new Random()
-
   // generates integers that are not MAX_VALUE or MIN_VALUE
   val nonMaxInt = Gen.choose(Integer.MIN_VALUE+1, Integer.MAX_VALUE - 1)
-
-  // generates random Java identifiers
-  val ident: Gen[String] = for {
-    len  <- Gen.choose(1,500) // 500 seems reasonable
-    name <- randomJavaIdent(len)(random)
-  } yield name
 
   def target = new Context("Target")
 

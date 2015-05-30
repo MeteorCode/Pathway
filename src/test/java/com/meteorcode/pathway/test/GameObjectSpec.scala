@@ -11,7 +11,7 @@ import org.scalatest.{Matchers, WordSpec}
 /**
  * Created by hawk on 5/22/15.
  */
-class GameObjectSpec extends WordSpec with Matchers with PropertyChecks with MockitoSugar {
+class GameObjectSpec extends PathwaySpec {
 
   "A GameObject" when {
     "given a GameID" should {
