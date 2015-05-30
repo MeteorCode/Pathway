@@ -140,7 +140,7 @@ abstract class FileHandle(protected val virtualPath: String,
   def writeString(string: String, append: Boolean): Unit = if (writable) {
     writeString(string, Charset.defaultCharset(), append)
   } else {
-    throw new IOException("FileHandle " + path + " is not writeable.")
+    throw new IOException("FileHandle " + path + " is not writable.")
   }
 
   /** Writes the specified string to the file using the specified  charset.
@@ -158,7 +158,7 @@ abstract class FileHandle(protected val virtualPath: String,
   def writeString(string: String, charset: Charset, append: Boolean): Unit = if (writable) {
     write(append).write(string.getBytes(charset))
   } else {
-    throw new IOException("FileHandle " + path + " is not writeable.")
+    throw new IOException("FileHandle " + path + " is not writable.")
   }
 
   /**
