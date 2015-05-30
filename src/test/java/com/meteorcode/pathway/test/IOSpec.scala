@@ -186,7 +186,7 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
       "throw an IOException from calls to writeString() in overwrite mode with a specified charset" in {
         the [IOException] thrownBy {
           manager.handle("/zippedtest.txt").writeString("hi", Charset.defaultCharset(),append=false)
-        } should have message "FileHandle zippedtest.txt is not writable."
+        } should have message "FileHandle /zippedtest.txt is not writable."
       }
     }
   }
