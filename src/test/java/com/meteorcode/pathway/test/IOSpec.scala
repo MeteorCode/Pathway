@@ -294,5 +294,45 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
         } should have message "FileHandle /test6.txt is not writable."
       }
     }
+    "into a directory in a Jar archive" should {
+      "be a directory" in {manager.handle("/testJarDir") should be a ('directory) }
+      "not be writable" in {manager.handle("/testJarDir") should not be ('writable) }
+      "return null from calls to write() in append mode" in {
+        manager.handle("/testJarDir/").write(append=true) shouldBe null
+      }
+      "return null from calls to write() in append mode with a specified buffer size" in {
+        manager.handle("/testJarDir").write(8,append=true) shouldBe null
+      }
+      "return null from calls to write() in overwrite mode" in {
+        manager.handle("/testJarDir").write(append=false) shouldBe null
+      }
+      "return null from calls to write() in overwrite mode with a specified buffer size" in {
+        manager.handle("/testJarDir").write(8,append=false) shouldBe null
+      }
+      "throw an IOException from calls to writeString() in append mode" in {
+        the [IOException] thrownBy {
+          manager.handle("/testJarDir").writeString("hi", append=true)
+        } should have message "FileHandle /testJarDir is not writable."
+      }
+      "throw an IOException from calls to writeString() in overwrite mode" in {
+        the [IOException] thrownBy {
+          manager.handle("/testJarDir").writeString("hi", append=false)
+        } should have message "FileHandle /testJarDir is not writable."
+      }
+      "throw an IOException from calls to writeString() in append mode with a specified charset" in {
+        the [IOException] thrownBy {
+          manager.handle("/testJarDir").writeString("hi", Charset.defaultCharset(),append=true)
+        } should have message "FileHandle /testJarDir is not writable."
+      }
+      "throw an IOException from calls to writeString() in overwrite mode with a specified charset" in {
+        the [IOException] thrownBy {
+          manager.handle("/testJarDir").writeString("hi", Charset.defaultCharset(),append=false)
+        } should have message "FileHandle /testJarDir is not writable."
+      }
+      "allow access into child files" in {
+        manager.handle("/testJarDir").child("test7.md").readString shouldEqual "Hi continues"
+      }
+      
+    }
   }
 }
