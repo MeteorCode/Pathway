@@ -135,6 +135,8 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
     "into an existant directory on the file system" should {
       "be a directory" in { manager.handle("/testDir") should be a ('directory) }
       "not be writable" in { manager.handle("/testDir") should not be 'writable }
+      "not have an extension" in { manager.handle("/testDir").extension shouldEqual ""}
+      "know its name" in {manager.handle("/testDir").name shouldEqual "testDir"}
       "return null from calls to write() in append mode" in {
         manager.handle("/testDir").write(append=true) shouldBe null
       }
@@ -297,6 +299,8 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
     "into a directory in a Jar archive" should {
       "be a directory" in {manager.handle("/testJarDir") should be a ('directory) }
       "not be writable" in {manager.handle("/testJarDir") should not be ('writable) }
+      "not have an extension" in { manager.handle("/testJarDir").extension shouldEqual ""}
+      "know its name" in {manager.handle("/testJarDir").name shouldEqual "testJarDir"}
       "return null from calls to write() in append mode" in {
         manager.handle("/testJarDir/").write(append=true) shouldBe null
       }
@@ -332,7 +336,6 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
       "allow access into child files" in {
         manager.handle("/testJarDir").child("test7.md").readString shouldEqual "Hi continues"
       }
-      
     }
   }
 }
