@@ -334,7 +334,7 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
         } should have message "FileHandle /testJarDir is not writable."
       }
       "allow access into child files" in {
-        manager.handle("/testJarDir").child("test7.md").readString shouldEqual "Hi continues"
+        manager.handle("/testJarDir").child("test7.md").readString shouldEqual "Hi continues."
       }
     }
   }
