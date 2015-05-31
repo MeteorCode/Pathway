@@ -1,12 +1,7 @@
 package com.meteorcode.pathway.model
 
-import java.util.{
-  Deque,
-  ArrayDeque,
-  List,
-  ArrayList
-}
-import com.meteorcode.pathway.logging.LoggerFactory
+import java.util
+import com.meteorcode.pathway.logging.Logging
 import com.meteorcode.pathway.script.{
   ScriptContainer,
   ScriptContainerFactory,
@@ -15,27 +10,24 @@ import com.meteorcode.pathway.script.{
 import com.meteorcode.pathway.io.FileHandle
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable.Stack
-import scala.collection.immutable.{
-  HashSet,
-  List
-}
+import scala.collection.mutable
+import scala.language.postfixOps
+
 /**
  * A Context in which Event stacks are evaluated.
  *
  * @author Hawk Weisman <hawk.weisman@gmail.com>
  *
  */
-class Context(protected var name: String) {
+class Context(protected var name: String) extends Logging {
 
   def this() = this(null)
   if (name == null) name = this.getClass.getSimpleName
 
-  protected var eventStack = Stack[Event]()
-  protected var gameObjects = HashSet[GameObject]()
-  protected var properties = HashSet[Property]()
-  private val logger = LoggerFactory.getLogger
-  private var beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance()
+  protected val eventStack = mutable.Stack[Event]()
+  protected val gameObjects = mutable.Set[GameObject]()
+  protected val properties = mutable.Set[Property]()
+  private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance
   // TODO: This should really be requested from a global ScriptContainerFactory instance,
   // but since that's not available, I'm doing it like this so that the class will run and be testable.
 
@@ -45,8 +37,8 @@ class Context(protected var name: String) {
   /**
    * @return A list of top-level GameObjects in this Context
    */
-  def getGameObjects: java.util.List[GameObject] = {
-    var result: java.util.List[GameObject] = new ArrayList[GameObject]
+  def getGameObjects: util.List[GameObject] = {
+    val result: util.List[GameObject] = new util.ArrayList[GameObject]
     result.addAll(gameObjects)
     result
   }
@@ -58,7 +50,7 @@ class Context(protected var name: String) {
 
   /**
    * Evals a BeanShell expression against this Context's ScriptContainer
-   * @throws ScriptException
+   * @throws ScriptException if an error occurs during script evaluation
    */
   @throws(classOf[ScriptException])
   def eval(script: String) = {
@@ -68,7 +60,7 @@ class Context(protected var name: String) {
 
   /**
    * Evals a file against this Context's ScriptContainer
-   * @throws ScriptException
+   * @throws ScriptException if an error occurs during script evaluation
    */
   @throws(classOf[ScriptException])
   def eval(file: FileHandle) = {
@@ -79,8 +71,8 @@ class Context(protected var name: String) {
   /**
    * @return A shallow copy of the current EventStack.
    */
-  def viewEventStack(): Deque[Event] = {
-    var result: Deque[Event] = new ArrayDeque[Event]
+  def viewEventStack(): util.Deque[Event] = {
+    val result: util.Deque[Event] = new util.ArrayDeque[Event]
     for (e <- eventStack)
       result.push(e)
     result
@@ -110,26 +102,26 @@ class Context(protected var name: String) {
    *                         encounters an error when evaluating the Event.
    */
   @throws(classOf[ScriptException])
-  def pump {
-    if (!eventStack.isEmpty()) {
+  def pump() {
+    if (eventStack nonEmpty) {
       val e = eventStack.top
       // publish top event to all subscribed Properties
       for (p <- properties if e.isValid) {
         logger.log(this.name + " Context", "publishing" + e + " to " + p)
-        if (!p.onEvent(e, this)) return
+        if (!p.onEvent(e, this)) return // TODO: find a way to express this without the return statement
       }
       // if no Property invalidated the top event, then we can evaluate it.
       if (e == eventStack.top) {
         if (eventStack.top.isValid) {
           logger.log(this.name + " Context", eventStack.top + " is valid, evaluating")
-          eventStack.pop.evalEvent
+          eventStack.pop().evalEvent()
         } else {
           logger.log(this.name + " Context", eventStack.top + " is invalid, ignoring")
-          eventStack.pop
+          eventStack.pop()
         }
       }
     }
   }
 
-  override def toString(): String = "[" + name + " Context" + "]" + viewEventStack()
+  override def toString: String = "[" + name + " Context" + "]" + viewEventStack()
 }

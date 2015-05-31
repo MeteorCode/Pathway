@@ -116,7 +116,7 @@ class ZipFileHandle (virtualPath: String,
       while (entries.hasMoreElements) {
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new ZipEntryFileHandle(this.path + e.getName, e, this//, this.token
+          result.add(new ZipEntryFileHandle(this.path + trailingSlash(e.getName), e, this//, this.token
           ))
         }
       }

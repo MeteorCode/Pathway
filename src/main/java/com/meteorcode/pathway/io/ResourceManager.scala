@@ -5,12 +5,10 @@ import java.io.{File, IOException}
 import java.util
 
 import com.meteorcode.common.ForkTable
-import com.meteorcode.pathway.logging.LoggerFactory
+import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 /**
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
@@ -35,7 +33,7 @@ import scala.collection.mutable.ListBuffer
  */
 class ResourceManager protected (private val directories: util.List[FileHandle],
                                  private val writeDir: Option[FileHandle],
-                                 private val policy: LoadOrderProvider) {
+                                 private val policy: LoadOrderProvider) extends Logging {
   /**
    * Constructor for a ResourceManager with a single managed directory.
    *
@@ -97,7 +95,6 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
-  private lazy val logger = LoggerFactory.getLogger()
   private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
   private val cachedHandles = mutable.Map[String, FileHandle]()
 
@@ -158,7 +155,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
 
   private def makeHandle(fakePath: String): FileHandle = {
     logger.log(this.toString, "making a FileHandle for " + fakePath)
-    val realPath: String = paths.get(fakePath) match {
+    val realPath: String = paths.get(trailingSlash(fakePath)) match {
       case Some(s: String) => s
       case None => // If the path is not in the tree, handle write attempts.
         logger.log(this.toString, s"handling write attempt to empty path $fakePath")

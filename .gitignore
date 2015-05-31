@@ -202,3 +202,5 @@ gradle-app.setting
 # wrapper jar file (default #
 # is to ignore .jar files)  #
 !gradle-wrapper.jar
+
+src/test/java/com/meteorcode/pathway/test/GridTests.java

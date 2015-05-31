@@ -18,12 +18,12 @@ case class GridCoordinates(x: Int, y: Int) {
   override def toString = s"($x, $y)"
 
   override def equals(other: Any) = other match {
-    case GridCoordinates(x_2, y_2) => x_2 == x && y_2 == y
+    case GridCoordinates(x2, y2) => x == x2 && y == y2
     case _ => false
   }
 }
 
 object GridCoordinatesImplicits {
   implicit def GridCoordinates2Tuple(gc: GridCoordinates): (Int, Int) = (gc.x, gc.y)
-  implicit def Tuple2GridCoordinates(xy: (Int, Int)): GridCoordinates = new GridCoordinates(xy._1, xy._2)
+  implicit def Tuple2GridCoordinates(xy: (Int, Int)): GridCoordinates = GridCoordinates(xy._1, xy._2)
 }

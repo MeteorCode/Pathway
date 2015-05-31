@@ -84,7 +84,7 @@ class JarFileHandle (virtualPath: String,
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
           result.add(new JarEntryFileHandle(
-            this.path + e.getName,
+            this.path + trailingSlash(e.getName),
             e,
             this//,
             //this.token

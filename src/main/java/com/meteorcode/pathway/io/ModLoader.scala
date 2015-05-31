@@ -3,7 +3,7 @@
  */
 package com.meteorcode.pathway.io
 
-import com.meteorcode.pathway.logging.LoggerFactory
+import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
 import java.io.IOException
@@ -12,11 +12,10 @@ import com.meteorcode.pathway.script.{ScriptEnvironment, ScriptContainerFactory,
 /**
  * @author Hawk Weisman
  */
-object ModLoader {
+object ModLoader extends Logging {
   private val env = new ScriptEnvironment("require(path) { return container.eval(files.handle(path)); }")
   private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstanceWithEnvironment(env)
   env.addBinding("container", beanshell)
-  private val logger = LoggerFactory.getLogger
 
 
   /**
