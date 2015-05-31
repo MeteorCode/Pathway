@@ -132,6 +132,54 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
         } should have message "A filehandle to an empty path (testDir/FILE THAT DOESN'T EXIST) was requested, and the requested path was not writable"
         }
       }
+    "into an existant directory on the file system" should {
+      "be a directory" in { manager.handle("/testDir") should be a ('directory) }
+      "not be writable" in { manager.handle("/testDir") should not be 'writable }
+      "return null from calls to write() in append mode" in {
+        manager.handle("/testDir").write(append=true) shouldBe null
+      }
+      "return null from calls to write() in append mode with a specified buffer size" in {
+        manager.handle("/testDir").write(8,append=true) shouldBe null
+      }
+      "return null from calls to write() in overwrite mode" in {
+        manager.handle("/testDir").write(append=false) shouldBe null
+      }
+      "return null from calls to write() in overwrite mode with a specified buffer size" in {
+        manager.handle("/testDir").write(8,append=false) shouldBe null
+      }
+      "throw an IOException from calls to writeString() in append mode" in {
+        the [IOException] thrownBy {
+          manager.handle("/testDir").writeString("hi", append=true)
+        } should have message "FileHandle /testDir is not writable."
+      }
+      "throw an IOException from calls to writeString() in overwrite mode" in {
+        the [IOException] thrownBy {
+          manager.handle("/testDir").writeString("hi", append=false)
+        } should have message "FileHandle /testDir is not writable."
+      }
+      "throw an IOException from calls to writeString() in append mode with a specified charset" in {
+        the [IOException] thrownBy {
+          manager.handle("/testDir").writeString("hi", Charset.defaultCharset(),append=true)
+        } should have message "FileHandle /testDir is not writable."
+      }
+      "throw an IOException from calls to writeString() in overwrite mode with a specified charset" in {
+        the [IOException] thrownBy {
+          manager.handle("/testDir").writeString("hi", Charset.defaultCharset(),append=false)
+        } should have message "FileHandle /testDir is not writable."
+      }
+      "allow access into child files" in {
+        manager.handle("/testDir").child("test3.txt").readString shouldEqual "yet again hi"
+        manager.handle("/testDir").child("test4.txt").readString shouldEqual "still hi"
+      }
+    }
+    "into a file within a directory on the file system" should {
+      "allow access to the parent" in {
+        manager.handle("/testDir").child("test3.txt").parent shouldEqual manager.handle("/testDir")
+      }
+      "allow access to its siblings" in {
+        manager.handle("/testDir").child("test3.txt").sibling("test4.txt") shouldEqual manager.handle("/testDir/test4.txt")
+      }
+    }
     "into a file in a Zip archive" should {
       "have the correct extension" in {manager.handle("/zippedtest.txt").extension shouldEqual "txt"}
       "have the correct name" in {manager.handle("/zippedtest.txt").name shouldEqual "zippedtest"}
@@ -143,7 +191,7 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
       "allow the contents to be read as a String with a specified charset" in {
         manager.handle("/zippedtest.txt").readString(Charset.defaultCharset()) shouldEqual "also hi!"
       }
-      "not list any child drectories" in {
+      "not list any child items" in {
         manager.handle("/zippedtest.txt").list shouldBe empty
       }
       "return an InputStream from calls to read()" in {
@@ -187,6 +235,63 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
         the [IOException] thrownBy {
           manager.handle("/zippedtest.txt").writeString("hi", Charset.defaultCharset(),append=false)
         } should have message "FileHandle /zippedtest.txt is not writable."
+      }
+    }
+    "into a file in a Jar archive" should {
+      "have the correct extension" in { manager.handle("/test6.txt").extension shouldEqual "txt" }
+      "have the correct name" in { manager.handle("/test6.txt").name shouldEqual "test6" }
+      "not be a directory" in { manager.handle("/test6.txt") should not be a ('directory) }
+      "not be writable" in { manager.handle("/test6.txt") should not be 'writable }
+      "allow the contents to be read as a String" in {
+        manager.handle("/test6.txt").readString shouldEqual "Continued hi."
+      }
+      "allow the contents to be read as a String with a specified charset" in {
+        manager.handle("/test6.txt").readString(Charset.defaultCharset()) shouldEqual "Continued hi."
+      }
+      "not list any child items" in {
+        manager.handle("/test6.txt").list shouldBe empty
+      }
+      "return an InputStream from calls to read()" in {
+        val result = manager.handle("/test6.txt").read
+        result shouldBe an [InputStream]
+        result should not be null
+      }
+      "return a BufferedInputStream from calls to read() with a buffer sized" in {
+        val result = manager.handle("/test6.txt").read(8)
+        result shouldBe a [BufferedInputStream]
+        result should not be null
+      }
+      "return null from calls to write() in append mode" in {
+        manager.handle("/test6.txt").write(append=true) shouldBe null
+      }
+      "return null from calls to write() in append mode with a specified buffer size" in {
+        manager.handle("/test6.txt").write(8,append=true) shouldBe null
+      }
+      "return null from calls to write() in overwrite mode" in {
+        manager.handle("/test6.txt").write(append=false) shouldBe null
+      }
+      "return null from calls to write() in overwrite mode with a specified buffer size" in {
+        manager.handle("/test6.txt").write(8,append=false) shouldBe null
+      }
+      "throw an IOException from calls to writeString() in append mode" in {
+        the [IOException] thrownBy {
+          manager.handle("/test6.txt").writeString("hi", append=true)
+        } should have message "FileHandle /test6.txt is not writable."
+      }
+      "throw an IOException from calls to writeString() in overwrite mode" in {
+        the [IOException] thrownBy {
+          manager.handle("/test6.txt").writeString("hi", append=false)
+        } should have message "FileHandle /test6.txt is not writable."
+      }
+      "throw an IOException from calls to writeString() in append mode with a specified charset" in {
+        the [IOException] thrownBy {
+          manager.handle("/test6.txt").writeString("hi", Charset.defaultCharset(),append=true)
+        } should have message "FileHandle /test6.txt is not writable."
+      }
+      "throw an IOException from calls to writeString() in overwrite mode with a specified charset" in {
+        the [IOException] thrownBy {
+          manager.handle("/test6.txt").writeString("hi", Charset.defaultCharset(),append=false)
+        } should have message "FileHandle /test6.txt is not writable."
       }
     }
   }
