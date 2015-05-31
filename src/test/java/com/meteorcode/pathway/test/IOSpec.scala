@@ -4,7 +4,10 @@ import java.io._
 import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
 
-import com.meteorcode.pathway.io.{AlphabeticLoadPolicy, ResourceManager}
+import scala.collection.JavaConversions._
+
+import com.meteorcode.pathway.io.{FileHandle, DesktopFileHandle, AlphabeticLoadPolicy, ResourceManager}
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 
 /**
@@ -335,6 +338,57 @@ class IOSpec extends PathwaySpec with BeforeAndAfter {
       }
       "allow access into child files" in {
         manager.handle("/testJarDir").child("test7.md").readString shouldEqual "Hi continues."
+      }
+    }
+    "permission is denied by the host OS" should {
+      "not throw an exception" in {
+        val fakeFile = mock[File]
+        when(fakeFile.createNewFile).thenThrow(new IOException("Permission denied"))
+        when(fakeFile.isDirectory).thenReturn(false)
+        when(fakeFile.exists).thenReturn(false)
+
+        new DesktopFileHandle("/write/fakepath", "/write/fakepath", fakeFile, manager).writable shouldBe false
+
+        verify(fakeFile, times(1)).isDirectory
+        verify(fakeFile, times(1)).exists
+        verify(fakeFile, times(1)).createNewFile
+
+      }
+    }
+    "other exceptions are thrown by the host OS" should {
+      "pass through the exception" in {
+        val fakeFile = mock[File]
+        when(fakeFile.createNewFile).thenThrow(new IOException("SOMETHING BAD TOOK PLACE I GUESS"))
+        when(fakeFile.isDirectory).thenReturn(false)
+        when(fakeFile.exists).thenReturn(false)
+
+        the [IOException] thrownBy {
+          new DesktopFileHandle("/write/fakepath", "/write/fakepath", fakeFile, manager).writable
+        } should have message "SOMETHING BAD TOOK PLACE I GUESS"
+
+        verify(fakeFile, times(1)).isDirectory
+        verify(fakeFile, times(1)).exists
+        verify(fakeFile, times(1)).createNewFile
+      }
+    }
+  }
+
+  "A ResourceManager" when {
+    "ordering paths alphabetically" should {
+      "apply the directories in alphabetical order" in {
+        val directories = List[FileHandle](
+          new DesktopFileHandle("", "build/resources/test/loadOrder/b", null),
+          new DesktopFileHandle("", "build/resources/test/loadOrder/a", null),
+          new DesktopFileHandle("", "build/resources/test/loadOrder/c", null)
+        )
+
+        val target = new ResourceManager(directories, new AlphabeticLoadPolicy())
+        target.handle("/testLoadOrder.txt").readString shouldEqual "I AM CORRECT"
+      }
+    }
+    "handling the same path multiple times" should {
+      "return a cached FileHandle rather than a new one" in {
+        manager.handle("/test1.txt") shouldBe manager.handle("/test1.txt")
       }
     }
   }
