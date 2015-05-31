@@ -96,7 +96,7 @@ class JarEntryFileHandle (virtualPath: String,
         while (entries.hasMoreElements) {
           val e = entries.nextElement
           if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new JarEntryFileHandle(this.path + e.getName.split("/").last, e, parentJarfile//, this.token
+            result.add(new JarEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentJarfile//, this.token
             ))
         }
         result

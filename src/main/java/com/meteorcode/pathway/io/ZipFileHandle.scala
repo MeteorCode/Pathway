@@ -100,6 +100,8 @@ class ZipFileHandle (virtualPath: String,
 
   def delete = if(writable && exists) back.delete else false
 
+  private def processEntryName(name: String) = if (name endsWith "/") name dropRight 1 else name
+
   /**
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
@@ -116,7 +118,7 @@ class ZipFileHandle (virtualPath: String,
       while (entries.hasMoreElements) {
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new ZipEntryFileHandle(this.path + e.getName, e, this//, this.token
+          result.add(new ZipEntryFileHandle(this.path + processEntryName(e.getName), e, this//, this.token
           ))
         }
       }

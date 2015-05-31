@@ -52,6 +52,8 @@ class JarFileHandle (virtualPath: String,
    */
   protected[io] def physicalPath = back.getPath
 
+  private def processEntryName(name: String) = if (name endsWith "/") name dropRight 1 else name
+
   /**
    * @return true if this FileHandle represents something that exists, false if it does not exist.
    */
@@ -84,7 +86,7 @@ class JarFileHandle (virtualPath: String,
         val e = entries.nextElement()
         if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
           result.add(new JarEntryFileHandle(
-            this.path + e.getName,
+            this.path + processEntryName(e.getName),
             e,
             this//,
             //this.token
