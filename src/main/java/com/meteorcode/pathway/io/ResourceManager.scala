@@ -155,7 +155,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
 
   private def makeHandle(fakePath: String): FileHandle = {
     logger.log(this.toString, "making a FileHandle for " + fakePath)
-    val realPath: String = paths.get(fakePath) match {
+    val realPath: String = paths.get(trailingSlash(fakePath)) match {
       case Some(s: String) => s
       case None => // If the path is not in the tree, handle write attempts.
         logger.log(this.toString, s"handling write attempt to empty path $fakePath")
