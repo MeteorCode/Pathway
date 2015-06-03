@@ -105,7 +105,8 @@ javadoc {
 }
 
 test {
-     classpath = project.sourceSets.test.runtimeClasspath + files("src/test/resources")
+    testLogging.showStandardStreams = true
+    classpath = project.sourceSets.test.runtimeClasspath + files("src/test/resources")
 }
 
 
