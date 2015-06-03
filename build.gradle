@@ -201,3 +201,7 @@ eclipse {
 		downloadJavadoc = true
 	}
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}
