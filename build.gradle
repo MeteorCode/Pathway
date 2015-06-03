@@ -162,6 +162,10 @@ task sparks(dependsOn: classes, type: JavaExec) {
     ignoreExitValue = true
 }
 
+task frob {
+    println "HELP I'M TRAPPED IN A BUILD FACTORY."
+}
+
 artifacts {
     archives pathwayJar
     archives sourcesJar
@@ -205,3 +209,5 @@ eclipse {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.4'
 }
+
+test.dependsOn(frob)
