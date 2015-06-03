@@ -276,26 +276,6 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         }
       }
     }
-     "frozen" should {
-       "not be modified by changes to lower levels" ignore {
-        val root = new ForkTable[Int,Int]
-        root.put(1,1)
-        val level2 = root.fork
-        level2.put(2,2)
-        val level3 = level2.fork
-        level3.put(3,3)
 
-        level2.freeze
-        level3.put(3,6)
-
-        level2.get(3) shouldBe Some(3)
-        level2 should not contain (3 -> 6)
-
-        root.put(4,4)
-
-        level2.get(4) shouldBe None
-        level2 should not contain (4 -> 4)
-      }
-    }
   }
 }
