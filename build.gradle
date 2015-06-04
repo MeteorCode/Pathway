@@ -52,10 +52,10 @@ repositories {
 // define a configuration for scala compiler plugins
 // the transitive=false means that the plugin won't show up
 // as a dependency in the final output
-configurations {
+//configurations {
     //noinspection GroovyAssignabilityCheck
-    scalaCompilerPlugins { transitive = false }
-}
+//    scalaCompilerPlugins { transitive = false }
+//}
 
 tasks.withType(ScalaDoc) {
     scalaDocOptions.setAdditionalParameters(["-doc-external-doc"])
@@ -68,7 +68,7 @@ dependencies {
     compile fileTree(dir: 'corelib', include: '*.jar')
 
     // right now, the only scalac plugin we are using is genjavadoc
-    scalaCompilerPlugins  group: 'com.typesafe.genjavadoc', name: 'genjavadoc-plugin_2.11.1', version:'0.8'
+    //scalaCompilerPlugins  group: 'com.typesafe.genjavadoc', name: 'genjavadoc-plugin_2.11.1', version:'0.8'
 
     testRuntime 'org.pegdown:pegdown:1.1.0'
     testCompile "junit:junit:4+"
@@ -91,14 +91,14 @@ javadoc {
     description "Generates JavaDoc for all Java and Scala classes"
 
     // this string contains the plugin paths that get passed to the compiler
-    def pluginPaths = configurations.scalaCompilerPlugins.files.collect { "\"-Xplugin:${it.path}\"" }
+    //def pluginPaths = configurations.scalaCompilerPlugins.files.collect { "\"-Xplugin:${it.path}\"" }
 
-    compileScala {
-        scalaCompileOptions.additionalParameters = pluginPaths + "\"-P:genjavadoc:out=$buildDir/genjavadoc\""
-    }
+    //compileScala {
+    //    scalaCompileOptions.additionalParameters = pluginPaths + "\"-P:genjavadoc:out=$buildDir/genjavadoc\""
+    //}
 
     // tell JavaDoc to include the genjavadoc-created files in its' fileset.
-    source = fileTree(dir: "src", include: '**/*.java', exclude: '**/test/**') + fileTree("$buildDir/genjavadoc")
+    source = fileTree(dir: "src", include: '**/*.java', exclude: '**/test/**') //+ fileTree("$buildDir/genjavadoc")
     //options.addStringOption("quiet")
 }
 
