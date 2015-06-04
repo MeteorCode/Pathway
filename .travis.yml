@@ -1,6 +1,6 @@
 sudo: false
 language: java
-script: ./gradlew build --rerun-tasks -i --stacktrace
+script: ./gradlew build --rerun-tasks -i --debug
 after_success:
   - ./gradlew jacocoTestReport coveralls
 env:
