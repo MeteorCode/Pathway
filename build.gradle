@@ -103,10 +103,21 @@ javadoc {
 }
 
 test {
-    testLogging.showStandardStreams = true
+    jacoco {
+        excludes = jacocoExcludes
+    }
     classpath = project.sourceSets.test.runtimeClasspath + files("src/test/resources")
 }
 
+jacocoTestReport {
+    doFirst {
+        classDirectories = fileTree(dir: "${buildDir}/classes/main/").exclude(jacocoExcludes)
+    }
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
+    }
+}
 
 ext {
     assetsDir = file("assets");
