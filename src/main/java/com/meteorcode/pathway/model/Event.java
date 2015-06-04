@@ -35,7 +35,7 @@ public abstract class Event {
 	 * @param name
 	 *            the name of this Event.
 	 * @param payload
-	 *            a Map<String, Object> containing the data payload connected to
+	 *            a Map of Strings to Objects containing the data payload connected to
 	 *            this Event.
 	 * @param origin
 	 *            The Context where this event originated.
@@ -87,7 +87,7 @@ public abstract class Event {
      * The name defaults to the event's class name.
      *
      * @param payload
-     *            a Map<String, Object> containing the data payload connected to
+     *            a Map of Strings to Objects containing the data payload connected to
      *            this Event.
      * @param origin
      *            The Context where this event originated.
@@ -123,7 +123,7 @@ public abstract class Event {
      * @param location
      *             The Tile where this event occurred.
      * @param payload
-     *            a Map<String, Object> containing the data payload connected to
+     *            a Map of Strings to Objects containing the data payload connected to
      *            this Event.
      * @param origin
      *            The Context where this event originated.
