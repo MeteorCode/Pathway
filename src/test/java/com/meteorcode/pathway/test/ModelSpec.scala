@@ -9,9 +9,11 @@ import com.meteorcode.pathway.model._
 import com.meteorcode.pathway.script.ScriptException
 
 import me.hawkweisman.util._
+import org.junit.runner.RunWith
 
 import org.scalacheck.Gen
 import org.scalacheck.Arbitrary.arbitrary
+import org.scalatest.junit.JUnitRunner
 
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
@@ -22,6 +24,7 @@ import org.mockito.Mockito._
 import scala.util.Random
 import scala.collection.JavaConversions._
 
+@RunWith(classOf[JUnitRunner])
 class ModelSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar with IdentGenerators {
   // quash the obnoxious and unnecessary log messages during testing
   LoggerFactory setLogger new NullLogger

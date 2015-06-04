@@ -1,8 +1,10 @@
 package com.meteorcode.pathway.test
 
 import com.meteorcode.pathway.model.{Context, GameObject}
+import org.junit.runner.RunWith
 
 import org.mockito.Mockito._
+import org.scalatest.junit.JUnitRunner
 
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
@@ -11,6 +13,7 @@ import org.scalatest.{Matchers, WordSpec}
 /**
  * Created by hawk on 5/22/15.
  */
+@RunWith(classOf[JUnitRunner])
 class GameObjectSpec extends PathwaySpec {
 
   "A GameObject" when {

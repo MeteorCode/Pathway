@@ -1,6 +1,8 @@
 package com.meteorcode.pathway.test
 
 import com.meteorcode.pathway.logging.{NullLogger, LoggerFactory, ConcurrentCache}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, WordSpec}
 import org.scalacheck.{Gen, Arbitrary}
@@ -9,6 +11,7 @@ import scala.collection.JavaConversions._
 /**
  * Created by hawk on 5/8/15.
  */
+@RunWith(classOf[JUnitRunner])
 class ConcurrentCacheSpec extends PathwaySpec {
 
   val reasonableSizes = for (n <- Gen.choose(1, 10000)) yield n

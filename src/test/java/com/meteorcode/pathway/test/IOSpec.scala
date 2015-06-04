@@ -5,6 +5,8 @@ import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
 
 import com.meteorcode.pathway.test.tags.FilesystemTest
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 import scala.collection.JavaConversions._
 
@@ -18,6 +20,7 @@ import org.scalatest.BeforeAndAfter
  *
  * Created by hawk on 5/30/15.
  */
+@RunWith(classOf[JUnitRunner])
 class IOSpec extends PathwaySpec with BeforeAndAfter {
   var manager: ResourceManager = null
 
