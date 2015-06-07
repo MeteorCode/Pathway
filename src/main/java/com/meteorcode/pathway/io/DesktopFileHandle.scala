@@ -81,7 +81,7 @@ class DesktopFileHandle (virtualPath: String,
     if (isDirectory) {
       for (item <- back.list.toList)
         yield item match {
-        case isArchive(dirname,kind) => kind match {
+        case isArchiveRE(dirname,kind) => kind match {
           case ".jar" => new JarFileHandle("/", new File(physicalPath + "/" + item), this.manager)
           case ".zip" => new ZipFileHandle("/", new File(physicalPath + "/" + item), this.manager)
         }

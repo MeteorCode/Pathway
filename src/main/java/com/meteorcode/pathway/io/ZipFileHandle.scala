@@ -7,6 +7,10 @@ InputStream
 }
 import java.util
 import java.util.zip.ZipFile
+import java.util.Collections
+
+import scala.util.{Try,Success,Failure}
+import scala.collection.JavaConversions._
 
 /**
  * A FileHandle into the top level of a Zip archive (treated as a directory).
@@ -101,29 +105,30 @@ class ZipFileHandle (virtualPath: String,
   def delete = if(writable && exists) back.delete else false
 
   /**
-   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
-   *         directory or does not have contents.
+   * Returns a list containing this [[FileHandle]]'s children.
+   *
+   * Since Zip and Jar file handles are not writable and therefore can be guaranteed to not change during
+   * Pathway execution, we can memoize their contents, meaning that we only ever have to perform this operation
+   * a single time.
+   *
+   * @return a list containing [[FileHandles]] to the contents of [[FileHandles]], or an empty list if this
+   *         file is not a directory or does not have contents.
    */
   @throws(classOf[IOException])
-  def list: util.List[FileHandle] = {
-    var result = new util.ArrayList[FileHandle]
-    try {
-      val entries = zipfile.entries
-      // furthermore, I also loathe java.util.zip for making me use the braindead
-      // Enumeration<T> class which appears to be a dumb knockoff of Iterator created
-      // specifically for use in ZipFile just to make it EVEN WORSE
-      // I HATE JAVA
-      while (entries.hasMoreElements) {
-        val e = entries.nextElement()
-        if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new ZipEntryFileHandle(this.path + trailingSlash(e.getName), e, this//, this.token
-          ))
-        }
-      }
-      zipfile = new ZipFile(back) // reset the archive
-      result
-    } catch {
-      case e: IllegalStateException => throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
+  override lazy val list: util.List[FileHandle] = {
+    val result = Try(
+      Collections.list(zipfile.entries)
+        .filter( subdirRE findFirstIn _.getName isDefined )
+        .map( (e) =>
+          new ZipEntryFileHandle( this.path + trailingSlash(e.getName), e, this)
+          )
+        )
+    zipfile = new ZipFile(back) // reset the file
+    result match {
+      case Failure(e: IllegalStateException) =>
+        throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
+      case Failure(up) => throw up
+      case Success(list) => list
     }
   }
 

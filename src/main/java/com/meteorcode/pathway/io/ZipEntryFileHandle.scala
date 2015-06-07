@@ -13,6 +13,9 @@ ZipFile
 import java.util
 import java.util.Collections
 
+import scala.util.{Try,Success,Failure}
+import scala.collection.JavaConversions._
+
 /**
  * A FileHandle into a file or directory within a zip archive.
  *
@@ -83,28 +86,37 @@ class ZipEntryFileHandle (virtualPath: String,
   }
 
   /**
-   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
-   *         directory or does not have contents.
+   * Returns a list containing this [[FileHandle]]'s children.
+   *
+   * Since Zip and Jar file handles are not writable and therefore can be guaranteed to not change during
+   * Pathway execution, we can memoize their contents, meaning that we only ever have to perform this operation
+   * a single time.
+   *
+   * @return a list containing [[FileHandles]] to the contents of [[FileHandles]], or an empty list if this
+   *         file is not a directory or does not have contents.
    */
-  override def list: util.List[FileHandle] = {
-    if (isDirectory) {
-      var result = new util.ArrayList[FileHandle]
-      zipfile = new ZipFile(back) // reset the zipfile
-      try {
-        val entries = zipfile.entries
-        while (entries.hasMoreElements) {
-          val e = entries.nextElement
-          if (e.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)))
-            result.add(new ZipEntryFileHandle(
-              s"${this.path}/${e.getName.split("/").last}",
-              e,parentZipfile//,
-              // this.token
-            ))
-        }
-        result
-      } catch {
-        case e: IllegalStateException => throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
-      }
-    } else Collections.emptyList()
-  }
+  @throws(classOf[IOException])
+  override lazy val list: util.List[FileHandle] = if (isDirectory) {
+    var result = Try(
+      Collections.list(zipfile.entries)
+        .filter( _.getName.split("/").dropRight(1).lastOption match {
+          case Some(thing) if thing == entry.getName.dropRight(1) => true
+          case _  => false
+        })
+        .map( (e) =>
+          new ZipEntryFileHandle(
+            s"${this.path}/${e.getName.split("/").last}",
+            e,
+            parentZipfile
+          )
+        )
+    )
+    zipfile = new ZipFile(back) // reset the zipfile
+    result match {
+      case Failure(e: IllegalStateException) =>
+        throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
+      case Failure(up) => throw up
+      case Success(list) => list
+    }
+  } else Collections.emptyList()
 }

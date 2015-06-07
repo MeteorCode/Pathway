@@ -170,8 +170,8 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     realPath.split('.').drop(1).lastOption match {
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
-      case _ => inArchive.findFirstIn(realPath) match {
-        case Some(inArchive(path, extension, name)) => extension match {
+      case _ => inArchiveRE.findFirstIn(realPath) match {
+        case Some(inArchiveRE(path, extension, name)) => extension match {
           case ".zip" =>
             val parent = new ZipFileHandle("/", new File(path + extension), this)
             new ZipEntryFileHandle(fakePath, parent.zipfile.getEntry(name), parent)
