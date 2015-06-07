@@ -9,6 +9,8 @@ public class ConcurrentCache<T> {
 	private int cursor;
 	private int fill;
 
+	public int getSize() { return this.buffer.length; }
+
 	/**
 	 * Constructor for a RingBuffer of default size.
 	 */

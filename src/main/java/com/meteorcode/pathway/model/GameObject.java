@@ -9,7 +9,7 @@ import scala.Option;
 /**
  * An object within the game.
  *
- * @author Hawk Weisman <hawk.weisman@gmail.com>
+ * @author Hawk Weisman
  *
  */
 public abstract class GameObject {

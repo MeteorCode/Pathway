@@ -1,4 +1,5 @@
 package com.meteorcode.pathway.model
+import scala.language.implicitConversions
 
 /**
  * Bundles together an x- and y-coordinate on a Cartesian plane, such as a dungeon grid.
@@ -7,8 +8,8 @@ package com.meteorcode.pathway.model
  * @param x the x-value
  * @param y the y-value
  */
-case class GridCoordinates(x: Integer, y: Integer) {
-  def this(xy: (Integer, Integer)) = this(xy._1, xy._2)
+case class GridCoordinates(x: Int, y: Int) {
+  def this(xy: (Int, Int)) = this(xy._1, xy._2)
 
   def getX = x
 
