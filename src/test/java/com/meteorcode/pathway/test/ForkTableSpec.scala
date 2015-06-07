@@ -43,7 +43,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         target.getChildren shouldBe 'empty
       }
       "have no parent" in {
-        target.getParent shouldBe null
+        target.getParent shouldBe None
       }
       "be a root" in {
         target should be a 'root
@@ -134,7 +134,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
       "know its parent" in {
         val parent = new ForkTable[Int, Int]
         val fork = parent.fork
-        fork.getParent should be(parent)
+        fork.getParent shouldBe Some(parent)
       }
       "not be a root" in {
         val target = new ForkTable[Int, Int].fork

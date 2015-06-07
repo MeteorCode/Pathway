@@ -9,7 +9,7 @@ import scala.collection.{AbstractMap, DefaultMap, mutable}
  * Created by hawk on 10/15/14.
  */
 
-class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
+class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
                       protected var children: List[ForkTable[K,V]] = Nil) extends AbstractMap[K, V] with DefaultMap[K, V]{
   val whiteouts = mutable.Set[K]()
   val back = mutable.HashMap[K, V]()
@@ -22,11 +22,11 @@ class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
   /**
    * @return true if this is the root-level, false if it is not
    */
-  def root: Boolean = parent == null
+  def root: Boolean = parent.isEmpty
   /**
    * @return true if this is a bottom-level leaf, false if it is not
    */
-  def leaf: Boolean = parent != null && (children isEmpty)
+  def leaf: Boolean = parent.isDefined && (children.isEmpty)
   def getParent = parent
   def getChildren = children
 
@@ -38,7 +38,7 @@ class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
     this.children = this.children :+ other
   }
 
-  def chainSize: Int = if (root) { size } else { size + parent.chainSize }
+  def chainSize: Int =  size + (parent map (_.chainSize) getOrElse 0)
 
   /**
    * Change the parent corresponding to this scope.
@@ -49,48 +49,39 @@ class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
   def reparent(nParent: ForkTable[K, V]) = if (nParent == this) {
     throw new IllegalArgumentException ("Scope attempted to mount itself as parent!")
   } else {
-    if (this.parent != null) {
-      val oldParent = this.parent
-      oldParent.removeChild (this)
-    }
+    parent.foreach{ _.removeChild(this)}
+    parent = Some(nParent)
     nParent.addChild (this)
   }
 
   override def get(key: K): Option[V] = if (whiteouts contains key) {
     None
-  } else if (this.contains(key)) {
-    back get key
-  } else if(parent != null && (parent chainContains key)) {
-    parent get key
   } else {
-    None
+    (back get key) orElse (parent flatMap (_ get key ))
   }
 
-  def remove(key: K): Option[V] = {
-    if (back contains key) {
-      back remove key
-    } else {
-      if (parent != null && (parent contains key)) {
-        whiteouts += key
-        parent get key
-      } else {
-        None
-      }
-    }
+  def remove(key: K): Option[V] = if (back contains key) {
+    back remove key
+  } else {
+    parent flatMap (_ get key) map {(v) => whiteouts += key; v}
   }
 
   def freeze = ???
 
   override def size = back.size
 
-  override def iterator = if (root) back.iterator else back.iterator ++ parent.iterator
+  override def iterator = parent match {
+    case None        => back.iterator
+    case Some(thing) => back.iterator ++ thing.iterator
+  }
 
   /**
    * Returns true if this contains the selected key OR if any of its' parents contains the key
    * @param key the key to search for
    * @return true if this or any of its' parents contains the selected key.
    */
-  def chainContains(key: K): Boolean = (back contains key) || ((!(whiteouts contains key)) && parent != null && (parent chainContains key))
+  def chainContains(key: K): Boolean = (back contains key) ||
+  ( !(whiteouts contains key) && (parent map (_ chainContains key) getOrElse false) )
 
   override def contains(key: K): Boolean = back contains key
   override def exists(p: ((K, V)) => Boolean) = back exists p
@@ -101,7 +92,7 @@ class ForkTable[K, V](protected var parent: ForkTable[K,V] = null,
    * @return a new child of this scope
    */
   def fork: ForkTable[K, V] = {
-    val c = new ForkTable[K, V](parent=this)
+    val c = new ForkTable[K, V](parent=Some(this))
     children = children :+ c
     c
   }
