@@ -115,10 +115,10 @@ class JarFileHandle (virtualPath: String,
    * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
    */
   @throws(classOf[IOException])
-  def write(append: Boolean) = null
+  override def write(append: Boolean) = null
 
   /**
    * @return a [[java.io.InputStream]] for reading this file, or null if the file does not exist or is a directory.
    */
-  def read: InputStream = null
+  override def read: InputStream = null
 }
