@@ -16,9 +16,7 @@ class Entity(
   def this(coords: (Int, Int), grid: Grid, name: String) = this(None, Some(coords),Some(name),Some(grid))
   def this(gameID: Long, coords: (Int, Int), grid: Grid, name: String) = this(Some(gameID), Some(coords),Some(name),Some(grid))
 
-  name match {
-    case None => name = Some(this.getClass.getSimpleName)
-  }
+  if (name.isEmpty) name = Some(this.getClass.getSimpleName)
 
   def setLocation (newCoords: GridCoordinates) = this.coordinates = Some(newCoords)
   def getCoordinates: GridCoordinates = coordinates match {

@@ -7,6 +7,10 @@ InputStream
 }
 import java.util
 import java.util.zip.ZipFile
+import java.util.Collections
+
+import scala.util.{Try,Success,Failure}
+import scala.collection.JavaConversions._
 
 /**
  * A FileHandle into the top level of a Zip archive (treated as a directory).
@@ -82,48 +86,47 @@ class ZipFileHandle (virtualPath: String,
   protected[io] def physicalPath = back.getPath
 
   /** Returns true if the file exists. */
-  def exists: Boolean = back.exists
+  override def exists: Boolean = back.exists
 
   /** Returns true if this file is a directory.
-    *
-    * Note that this may return false if a directory exists but is empty.
-    * This is Not My Fault, it's [[java.io.File]] behaviour.
-    *
-    * @return true if this file is a directory, false otherwise
-    */
-  def isDirectory: Boolean = true   // Remember, we are pretending that zips are directories
+   *
+   * Note that this may return false if a directory exists but is empty.
+   * This is Not My Fault, it's [[java.io.File]] behaviour.
+   *
+   * @return true if this file is a directory, false otherwise
+   */
+  override lazy val isDirectory: Boolean = true   // Remember, we are pretending that zips are directories
 
   /** Returns true if this FileHandle represents something that can be written to */
-  def writable = false // Zips can never be written to (at least by java.util.zip)
+  override val writable = false // Zips can never be written to (at least by java.util.zip)
 
-  def length = if (isDirectory) 0 else back.length
+  override lazy val length = if (isDirectory) 0 else back.length
 
-  def delete = if(writable && exists) back.delete else false
+  override def delete = if(writable && exists) back.delete else false
 
   /**
-   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
-   *         directory or does not have contents.
+   * Returns a list containing this [[FileHandle]]'s children.
+   *
+   * Since Zip and Jar file handles are not writable and therefore can be guaranteed to not change during
+   * Pathway execution, we can memoize their contents, meaning that we only ever have to perform this operation
+   * a single time.
+   *
+   * @return a list containing [[FileHandles]] to the contents of [[FileHandles]], or an empty list if this
+   *         file is not a directory or does not have contents.
    */
   @throws(classOf[IOException])
-  def list: util.List[FileHandle] = {
-    var result = new util.ArrayList[FileHandle]
-    try {
-      val entries = zipfile.entries
-      // furthermore, I also loathe java.util.zip for making me use the braindead
-      // Enumeration<T> class which appears to be a dumb knockoff of Iterator created
-      // specifically for use in ZipFile just to make it EVEN WORSE
-      // I HATE JAVA
-      while (entries.hasMoreElements) {
-        val e = entries.nextElement()
-        if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new ZipEntryFileHandle(this.path + e.getName, e, this//, this.token
-          ))
-        }
-      }
-      zipfile = new ZipFile(back) // reset the archive
-      result
-    } catch {
-      case e: IllegalStateException => throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
+  override lazy val list: util.List[FileHandle] = {
+    val result = Try(
+      Collections.list(zipfile.entries)
+        withFilter ( subdirRE findFirstIn _.getName isDefined )
+        map ( (e) => new ZipEntryFileHandle( this.path + trailingSlash(e.getName), e, this) )
+    )
+    zipfile = new ZipFile(back) // reset the file
+    result match {
+      case Failure(e: IllegalStateException) =>
+        throw new IOException("Could not list ZipFile entries, file " + path + " appears to have been closed.", e)
+      case Failure(up) => throw up
+      case Success(list) => list
     }
   }
 

@@ -140,7 +140,7 @@ abstract class FileHandle(protected val virtualPath: String,
   def writeString(string: String, append: Boolean): Unit = if (writable) {
     writeString(string, Charset.defaultCharset(), append)
   } else {
-    throw new IOException("FileHandle " + path + " is not writeable.")
+    throw new IOException("FileHandle " + path + " is not writable.")
   }
 
   /** Writes the specified string to the file using the specified  charset.
@@ -158,7 +158,7 @@ abstract class FileHandle(protected val virtualPath: String,
   def writeString(string: String, charset: Charset, append: Boolean): Unit = if (writable) {
     write(append).write(string.getBytes(charset))
   } else {
-    throw new IOException("FileHandle " + path + " is not writeable.")
+    throw new IOException("FileHandle " + path + " is not writable.")
   }
 
   /**
@@ -183,11 +183,7 @@ abstract class FileHandle(protected val virtualPath: String,
    * @param childName the name of the child file to handle
    * @return a FileHandle into the child of this file with the specified name
    */
-  def child(childName: String): FileHandle = {
-    manager.handle(path + "/" + childName)
-  }
-
-
+  def child(childName: String): FileHandle = manager.handle(path + "/" + childName)
 
   /**
    * Returns the length of this file in bytes, or 0 if this FileHandle is a directory or does not exist
@@ -201,7 +197,7 @@ abstract class FileHandle(protected val virtualPath: String,
    */
   def delete: Boolean
 
-  override def toString = this.getClass.getSimpleName + ": " + path
+  override lazy val toString = this.getClass.getSimpleName + ": " + path
 
   /**
    * Overriden equality method for FileHandles. Returns true if the other FileHandle is:

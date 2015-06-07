@@ -37,8 +37,6 @@ class DesktopFileHandle (virtualPath: String,
                          //token: IOAccessToken
                           ) extends FileHandle(virtualPath, manager//, token
 ) {
-  private val physPath = realPath.replace('/', File.separatorChar)
-
 
   def this(virtualPath: String,
            realPath: String,
@@ -52,15 +50,15 @@ class DesktopFileHandle (virtualPath: String,
    * Returns the [[java.io.File]] backing this file handle.
    * @return a [[java.io.File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
-  def file = back
+  override val file = back
 
   /** Returns a buffered stream for reading this file as bytes.
     * @throws IOException if the file does not exist or is a directory.
     */
-  def read: InputStream = if (!exists || isDirectory) null else new FileInputStream(back)
+  override def read: InputStream = if (!exists || isDirectory) null else new FileInputStream(back)
 
   /** @return true if the file exists, false if it does not */
-  def exists: Boolean = back.exists
+  override def exists: Boolean = back.exists
 
   /** Returns true if this file is a directory.
     *
@@ -69,19 +67,19 @@ class DesktopFileHandle (virtualPath: String,
     *
     * @return true if this file is a directory, false otherwise
     * */
-  def isDirectory: Boolean = back.isDirectory
+  override lazy val isDirectory: Boolean = back.isDirectory
 
-  def length = if (isDirectory) 0 else back.length
+  override def length = if (isDirectory) 0 else back.length
 
   /**
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
    */
-  def list: java.util.List[FileHandle] = {
+  override def list: java.util.List[FileHandle] = {
     if (isDirectory) {
       for (item <- back.list.toList)
         yield item match {
-        case isArchive(dirname,kind) => kind match {
+        case isArchiveRE(dirname,kind) => kind match {
           case ".jar" => new JarFileHandle("/", new File(physicalPath + "/" + item), this.manager)
           case ".zip" => new ZipFileHandle("/", new File(physicalPath + "/" + item), this.manager)
         }
@@ -94,15 +92,15 @@ class DesktopFileHandle (virtualPath: String,
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  def physicalPath: String = physPath
+  override lazy val physicalPath: String = realPath.replace('/', File.separatorChar)
 
-  def delete = if(writable && exists) back.delete else false
+  override def delete = if(writable && exists) back.delete else false
 
   /**
    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
    * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
    */
-  def write(append: Boolean) = if (writable) {
+  override def write(append: Boolean) = if (writable) {
     new FileOutputStream(back, append)
   } else null
 
@@ -111,7 +109,7 @@ class DesktopFileHandle (virtualPath: String,
    * @return true if this file is writable, false if it is not
    */
   @throws(classOf[IOException])
-  def writable: Boolean = {
+  override def writable: Boolean = {
     if (manager.isPathWritable(this.path)) {
       if (isDirectory) false
       else if (exists)

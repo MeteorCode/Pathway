@@ -24,16 +24,20 @@ apply plugin: "idea"
 apply plugin: "jacoco"
 apply plugin: "com.github.kt3k.coveralls"
 
+
 buildscript {
     repositories {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 
     dependencies {
         classpath 'org.beanshell:bsh:2+'
         classpath fileTree(dir: 'corelib', include: '*.jar')
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.0.1'
+        classpath "com.github.maiflai:gradle-scalatest:0.7"
+        classpath 'org.scoverage:gradle-scoverage:1.0.8'
     }
 }
 
@@ -42,15 +46,16 @@ repositories {
     mavenLocal();
     mavenCentral()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "http://dl.bintray.com/hawkw/maven" }
 }
 
 // define a configuration for scala compiler plugins
 // the transitive=false means that the plugin won't show up
 // as a dependency in the final output
-configurations {
+//configurations {
     //noinspection GroovyAssignabilityCheck
-    scalaCompilerPlugins { transitive = false }
-}
+//    scalaCompilerPlugins { transitive = false }
+//}
 
 tasks.withType(ScalaDoc) {
     scalaDocOptions.setAdditionalParameters(["-doc-external-doc"])
@@ -63,12 +68,15 @@ dependencies {
     compile fileTree(dir: 'corelib', include: '*.jar')
 
     // right now, the only scalac plugin we are using is genjavadoc
-    scalaCompilerPlugins  group: 'com.typesafe.genjavadoc', name: 'genjavadoc-plugin_2.11.1', version:'0.8'
+    //scalaCompilerPlugins  group: 'com.typesafe.genjavadoc', name: 'genjavadoc-plugin_2.11.1', version:'0.8'
 
+    testRuntime 'org.pegdown:pegdown:1.1.0'
     testCompile "junit:junit:4+"
     testCompile "org.mockito:mockito-all:1.9.5"
     testCompile "org.powermock:powermock-mockito-release-full:1.5.4+"
-    testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '2.2.0'
+    testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '2.2.4'
+    testCompile group: 'org.scalacheck', name: 'scalacheck_2.11', version: '1.12.2'
+    testCompile group: 'me.hawkweisman', name: 'util_2.11', version: '0.1'
 }
 
 // stuff that should not have a JaCoCo test report generated
@@ -83,22 +91,23 @@ javadoc {
     description "Generates JavaDoc for all Java and Scala classes"
 
     // this string contains the plugin paths that get passed to the compiler
-    def pluginPaths = configurations.scalaCompilerPlugins.files.collect { "\"-Xplugin:${it.path}\"" }
+    //def pluginPaths = configurations.scalaCompilerPlugins.files.collect { "\"-Xplugin:${it.path}\"" }
 
-    compileScala {
-        scalaCompileOptions.additionalParameters = pluginPaths + "\"-P:genjavadoc:out=$buildDir/genjavadoc\""
-    }
+    //compileScala {
+    //    scalaCompileOptions.additionalParameters = pluginPaths + "\"-P:genjavadoc:out=$buildDir/genjavadoc\""
+    //}
 
     // tell JavaDoc to include the genjavadoc-created files in its' fileset.
-    source = fileTree(dir: "src", include: '**/*.java', exclude: '**/test/**') + fileTree("$buildDir/genjavadoc")
+    source = fileTree(dir: "src", include: '**/*.java', exclude: '**/test/**') //+ fileTree("$buildDir/genjavadoc")
     //options.addStringOption("quiet")
 }
 
 test {
-     jacoco {
-          excludes = jacocoExcludes
-     }
-     classpath = project.sourceSets.test.runtimeClasspath + files("src/test/resources")
+    testLogging.showStandardStreams = true	// log stack traces to stderr
+    jacoco {
+        excludes = jacocoExcludes
+    }
+    classpath = project.sourceSets.test.runtimeClasspath + files("src/test/resources")
 }
 
 jacocoTestReport {
@@ -201,4 +210,8 @@ eclipse {
 		downloadSources = true
 		downloadJavadoc = true
 	}
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
 }
