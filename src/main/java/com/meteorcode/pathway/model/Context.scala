@@ -102,16 +102,20 @@ class Context(protected var name: String) extends Logging {
    *                         encounters an error when evaluating the Event.
    */
   @throws(classOf[ScriptException])
-  def pump() {
+  def pump(): Unit {
     if (eventStack nonEmpty) {
       val e = eventStack.top
       // publish top event to all subscribed Properties
-      for (p <- properties if e.isValid) {
-        logger.log(this.name + " Context", "publishing" + e + " to " + p)
-        if (!p.onEvent(e, this)) return // TODO: find a way to express this without the return statement
-      }
+      val eval = properties
+        .takeWhile(_ => e.isValid)
+        .foldRight(true){ (p, continue) =>
+          if (continue) {
+            logger.log(s"${this.name} Context", s"publishing $e to $p")
+            p.onEvent(e, this)
+          } else false
+        }
       // if no Property invalidated the top event, then we can evaluate it.
-      if (e == eventStack.top) {
+      if (e == eventStack.top && eval) {
         if (eventStack.top.isValid) {
           logger.log(this.name + " Context", eventStack.top + " is valid, evaluating")
           eventStack.pop().evalEvent()
