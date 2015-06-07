@@ -112,7 +112,7 @@ class ZipFileHandle (virtualPath: String,
   def list: util.List[FileHandle] = {
     val result = Try(
       Collections.list(zipfile.entries) // TODO: memoize this?
-        .filter(_.getName.matches("""^[^\/]+\/*$"""))
+        .filter( subdirRE findFirstIn _.getName isDefined )
         .map( (e) =>
           new ZipEntryFileHandle( this.path + trailingSlash(e.getName), e, this)
           )

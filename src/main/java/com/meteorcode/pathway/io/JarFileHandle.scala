@@ -82,7 +82,7 @@ class JarFileHandle (virtualPath: String,
   def list: util.List[FileHandle] = {
     val result = Try(
       Collections.list(jarfile.entries) // TODO: memoize this?
-        .filter(_.getName.matches("""^[^\/]+\/*$"""))
+        .filter( subdirRE findFirstIn _.getName isDefined )
         .map( (e) =>
           new JarEntryFileHandle( this.path + trailingSlash(e.getName), e, this)
           )
