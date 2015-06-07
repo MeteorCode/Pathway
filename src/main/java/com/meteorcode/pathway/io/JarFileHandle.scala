@@ -7,7 +7,10 @@ IOException
 }
 import java.util
 import java.util.jar.JarFile
+import java.util.Collections
 
+import scala.util.{Try,Success,Failure}
+import scala.collection.JavaConversions._
 /**
  * A FileHandle into the top level of a Jar archive
  *
@@ -77,24 +80,19 @@ class JarFileHandle (virtualPath: String,
    */
   @throws(classOf[IOException])
   def list: util.List[FileHandle] = {
-    var result = new util.ArrayList[FileHandle]
-    try {
-      val entries = jarfile.entries
-      while (entries.hasMoreElements) {
-        val e = entries.nextElement()
-        if (e.getName.matches("""^[^\/]+\/*$""")) { // is the entry a top-level child
-          result.add(new JarEntryFileHandle(
-            this.path + trailingSlash(e.getName),
-            e,
-            this//,
-            //this.token
-          ))
-        }
-      }
-      jarfile = new JarFile(back) // reset the archive
-      result
-    } catch {
-      case e: IllegalStateException => throw new IOException("Could not list JarFile entries, file " + path + " appears to have been closed.", e)
+    val result = Try(
+      Collections.list(jarfile.entries) // TODO: memoize this?
+        .filter(_.getName.matches("""^[^\/]+\/*$"""))
+        .map( (e) =>
+          new JarEntryFileHandle( this.path + trailingSlash(e.getName), e, this)
+          )
+        )
+    jarfile = new JarFile(back) // reset the file
+    result match {
+      case Failure(e: IllegalStateException) =>
+        throw new IOException("Could not list JarFile entries, file " + path + " appears to have been closed.", e)
+      case Failure(up) => throw up
+      case Success(list) => list
     }
   }
 
