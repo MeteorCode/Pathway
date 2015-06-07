@@ -102,7 +102,7 @@ class Context(protected var name: String) extends Logging {
    *                         encounters an error when evaluating the Event.
    */
   @throws(classOf[ScriptException])
-  def pump(): Unit {
+  def pump(): Unit = {
     if (eventStack nonEmpty) {
       val e = eventStack.top
       // publish top event to all subscribed Properties
