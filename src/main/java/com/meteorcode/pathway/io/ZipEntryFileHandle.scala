@@ -99,7 +99,7 @@ class ZipEntryFileHandle (virtualPath: String,
   override lazy val list: util.List[FileHandle] = if (isDirectory) {
     val result = Try(
       Collections.list(zipfile.entries)
-        filter ( _.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)) )
+        withFilter ( _.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)) )
         map ( (e) => new ZipEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentZipfile) )
     )
     zipfile = new ZipFile(back) // reset the zipfile

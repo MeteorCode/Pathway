@@ -111,7 +111,7 @@ class JarEntryFileHandle (virtualPath: String,
   override lazy val list: util.List[FileHandle] = if (isDirectory) {
     val result = Try(
       Collections.list(jarfile.entries)
-        filter ( _.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)) )
+        withFilter ( _.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)) )
         map ( (e) => new JarEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentJarfile) )
     )
     jarfile = new JarFile(back) // reset the jarfile

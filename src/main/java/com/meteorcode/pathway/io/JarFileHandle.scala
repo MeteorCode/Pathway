@@ -95,7 +95,7 @@ class JarFileHandle (virtualPath: String,
   override lazy val list: util.List[FileHandle] = {
     val result = Try(
       Collections.list(jarfile.entries) // TODO: memoize this?
-        filter ( subdirRE findFirstIn _.getName isDefined )
+        withFilter ( subdirRE findFirstIn _.getName isDefined )
         map ( (e) => new JarEntryFileHandle( this.path + trailingSlash(e.getName), e, this) )
     )
     jarfile = new JarFile(back) // reset the file

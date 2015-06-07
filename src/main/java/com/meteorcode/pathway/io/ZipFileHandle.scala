@@ -118,7 +118,7 @@ class ZipFileHandle (virtualPath: String,
   override lazy val list: util.List[FileHandle] = {
     val result = Try(
       Collections.list(zipfile.entries)
-        filter ( subdirRE findFirstIn _.getName isDefined )
+        withFilter ( subdirRE findFirstIn _.getName isDefined )
         map ( (e) => new ZipEntryFileHandle( this.path + trailingSlash(e.getName), e, this) )
     )
     zipfile = new ZipFile(back) // reset the file
