@@ -4,15 +4,18 @@ import java.io._
 import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
 
+import com.meteorcode.pathway.io.{FileHandle, DesktopFileHandle, AlphabeticLoadPolicy, ResourceManager}
+import com.meteorcode.pathway.logging.{NullLogger, LoggerFactory}
 import com.meteorcode.pathway.test.tags.FilesystemTest
+
 import org.junit.runner.RunWith
+import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.prop.PropertyChecks
+import org.scalatest.{Matchers, WordSpec, BeforeAndAfter}
 
 import scala.collection.JavaConversions._
-
-import com.meteorcode.pathway.io.{FileHandle, DesktopFileHandle, AlphabeticLoadPolicy, ResourceManager}
-import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfter
 
 /**
  * Non-comprehensive test case to assert that the IO package does the Right Thing
@@ -21,7 +24,11 @@ import org.scalatest.BeforeAndAfter
  * Created by hawk on 5/30/15.
  */
 @RunWith(classOf[JUnitRunner])
-class IOSpec extends PathwaySpec with BeforeAndAfter {
+class IOSpec extends WordSpec with Matchers with PropertyChecks with MockitoSugar with BeforeAndAfter {
+
+  // quash the obnoxious and unnecessary log messages during testing
+  LoggerFactory setLogger new NullLogger
+
   var manager: ResourceManager = null
 
   before {

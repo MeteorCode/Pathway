@@ -1,18 +1,24 @@
 package com.meteorcode.pathway.test
 
 import com.meteorcode.pathway.logging.{NullLogger, LoggerFactory}
+
 import me.hawkweisman.util._
+
 import org.scalacheck.Gen
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{Matchers, WordSpec, BeforeAndAfter}
 
 /**
  * Created by hawk on 5/30/15.
  */
-abstract class PathwaySpec extends WordSpec with Matchers with PropertyChecks with MockitoSugar {
+abstract class PathwaySpec extends WordSpec with Matchers with PropertyChecks with MockitoSugar with BeforeAndAfter {
   // quash the obnoxious and unnecessary log messages during testing
   LoggerFactory setLogger new NullLogger
+
+  before {
+    System.gc()
+  }
 }
 
 trait IdentGenerators {
@@ -25,14 +31,14 @@ trait IdentGenerators {
   } yield name
 
   val invalidIdentStart: Gen[String] = for {
-    start <- Gen.oneOf('1','2','3','4','5','6','7','8','9','-','+','*','?',''','{','}',';',',')
+    start <- Gen.oneOf('1','2','3','4','5','6','7','8','9','-','+','*','?','\'','{','}',';',',')
     len  <- Gen.choose(1,500)
   } yield s"$start${randomJavaIdent(len)(random)}"
 
   val invalidAt: Gen[(Int,String)] = for {
     len <- Gen.choose(1,500)
     pos <- Gen.choose(0,len)
-    invalid <- Gen.oneOf('-','+','*','?',''','{','}',';',',', '/', '[',']','"','\\','|')
+    invalid <- Gen.oneOf('-','+','*','?','\'','{','}',';',',', '/', '[',']','"','\\','|')
   } yield (pos, randomJavaIdent(len)(random).patch(pos, s"$invalid", 1))
 
   val spaceAt: Gen[(Int,String)] = for {
