@@ -159,28 +159,24 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     logger.log(this.toString, "making a FileHandle for " + fakePath)
     val realPath: String = paths.get(trailingSlash(fakePath)) match {
       case Some(s: String) => s
-      case None => // If the path is not in the tree, handle write attempts.
+      // If the path is not in the tree, handle write attempts.
+      case None if isPathWritable(fakePath) =>
         logger.log(this.toString, s"handling write attempt to empty path $fakePath")
-        if (isPathWritable(fakePath)) {
-          paths put (fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
-          logger.log(this.toString, "successfully handled write attempt")
-          paths(fakePath)
-        } else {
-          throw new IOException(s"A filehandle to an empty path ($fakePath) was requested, and the requested path was not writable")
-        }
+        paths put (fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
+        logger.log(this.toString, "successfully handled write attempt")
+        paths(fakePath)
+      case None =>  throw new IOException(s"A filehandle to an empty path ($fakePath) was requested, and the requested path was not writable")
     }
     realPath.split('.').drop(1).lastOption match {
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
       case _ => inArchiveRE findFirstIn realPath match {
-        case Some(inArchiveRE(path, extension, name)) => extension match {
-          case ".zip" =>
-            val parent = new ZipFileHandle("/", new File(path + extension), this)
+        case Some(inArchiveRE(path, ".zip", name)) =>
+            val parent = new ZipFileHandle("/", new File(s"$path.zip"), this)
             new ZipEntryFileHandle(fakePath, parent.zipfile.getEntry(name), parent)
-          case ".jar" =>
-            val parent = new JarFileHandle("/", new File(path + extension), this)
+        case Some(inArchiveRE(path, ".jar", name)) =>
+            val parent = new JarFileHandle("/", new File(s"$path.jar"), this)
             new JarEntryFileHandle(fakePath, parent.jarfile.getJarEntry(name), parent)
-        }
         case _ => new DesktopFileHandle(fakePath, realPath, this)
       }
     }
