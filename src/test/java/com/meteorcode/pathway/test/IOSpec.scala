@@ -24,21 +24,19 @@ import scala.collection.JavaConversions._
  * Created by hawk on 5/30/15.
  */
 @RunWith(classOf[JUnitRunner])
-class IOSpec extends WordSpec with Matchers with PropertyChecks with MockitoSugar with BeforeAndAfter {
-
-  // quash the obnoxious and unnecessary log messages during testing
-  LoggerFactory setLogger new NullLogger
+class IOSpec extends PathwaySpec {
 
   var manager: ResourceManager = null
 
-  before {
+  override def beforeEach() {
     manager = new ResourceManager("build/resources/test",
       "build/resources/test/write",
       new AlphabeticLoadPolicy)
     new File("build/resources/test/testDir/emptyTestDir").mkdir
+    super.beforeEach()
   }
 
-  after {
+  override def afterEach() {
     // clean up the write directory so that it won't exist next time tests are run
     Files.deleteIfExists(FileSystems.getDefault.getPath("build/resources/test/write/test5.txt"))
     Files.deleteIfExists(FileSystems.getDefault.getPath("build/resources/test/write/"))

@@ -7,18 +7,20 @@ import me.hawkweisman.util._
 import org.scalacheck.Gen
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
-import org.scalatest.{Matchers, WordSpec, BeforeAndAfter}
+import org.scalatest.{Matchers, WordSpec, BeforeAndAfterEach}
 
 /**
  * Created by hawk on 5/30/15.
  */
-abstract class PathwaySpec extends WordSpec with Matchers with PropertyChecks with MockitoSugar with BeforeAndAfter {
+abstract class PathwaySpec extends WordSpec with Matchers with MockitoSugar with PropertyChecks with BeforeAndAfterEach{
   // quash the obnoxious and unnecessary log messages during testing
   LoggerFactory setLogger new NullLogger
 
-  before {
+  override def beforeEach() {
+    super.beforeEach()
     System.gc()
   }
+
 }
 
 trait IdentGenerators {
