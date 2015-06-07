@@ -103,6 +103,7 @@ javadoc {
 }
 
 test {
+    testLogging.showStandardStreams = true	// log stack traces to stderr
     jacoco {
         excludes = jacocoExcludes
     }
