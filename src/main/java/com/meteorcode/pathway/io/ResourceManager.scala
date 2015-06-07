@@ -110,23 +110,25 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
    * @param dirs a list of FileHandles to seed the recursive walk
    */
   private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,String] = {
-    var fs = new ForkTable[String,String]
+    val fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case a: FileHandle if a.isDirectory =>
         val newfs = fs.fork
-        newfs.put(current.path, current.physicalPath)
+        newfs put (current.path, current.physicalPath)
         policy.orderPaths(a.list).foldRight(newfs)((fh, tab) => _walk(fh, tab))
-      case _: FileHandle => fs.put(current.path, current.physicalPath); fs
+      case _: FileHandle => fs put (current.path, current.physicalPath); fs
     }
-    fs = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
+    val orderedFS = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
     writeDir match { // TODO: this is where we could "freeze" the un-writedir'd map
-      case Some(dir) => _walk(dir, fs)
-      case _ => fs
+      case Some(dir) => _walk(dir, orderedFS)
+      case _ => orderedFS
     }
   }
 
   /**
    * Returns true if a given virtual path is writable, false if it is not.
+   *
+   * TODO: make this a method on Strings instead (eta-expansion) for code-prettiness reasons
    * @param virtualPath a path in the virtual filesystem
    * @return true if that path can be written to, false if it cannot
    */
@@ -160,7 +162,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
       case None => // If the path is not in the tree, handle write attempts.
         logger.log(this.toString, s"handling write attempt to empty path $fakePath")
         if (isPathWritable(fakePath)) {
-          paths.put(fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
+          paths put (fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
           logger.log(this.toString, "successfully handled write attempt")
           paths(fakePath)
         } else {
@@ -170,7 +172,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     realPath.split('.').drop(1).lastOption match {
       case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
       case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
-      case _ => inArchiveRE.findFirstIn(realPath) match {
+      case _ => inArchiveRE findFirstIn realPath match {
         case Some(inArchiveRE(path, extension, name)) => extension match {
           case ".zip" =>
             val parent = new ZipFileHandle("/", new File(path + extension), this)

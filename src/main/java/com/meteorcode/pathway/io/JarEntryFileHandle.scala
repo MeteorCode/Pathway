@@ -109,19 +109,10 @@ class JarEntryFileHandle (virtualPath: String,
    */
   @throws(classOf[IOException])
   override lazy val list: util.List[FileHandle] = if (isDirectory) {
-    var result = Try(
+    val result = Try(
       Collections.list(jarfile.entries)
-        .filter( _.getName.split("/").dropRight(1).lastOption match {
-          case Some(thing) if thing == entry.getName.dropRight(1) => true
-          case _  => false
-        })
-        .map( (e) =>
-          new JarEntryFileHandle(
-            s"${this.path}/${e.getName.split("/").last}",
-            e,
-            parentJarfile
-          )
-        )
+        filter ( _.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)) )
+        map ( (e) => new JarEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentJarfile) )
     )
     jarfile = new JarFile(back) // reset the jarfile
     result match {

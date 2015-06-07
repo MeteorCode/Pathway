@@ -97,19 +97,10 @@ class ZipEntryFileHandle (virtualPath: String,
    */
   @throws(classOf[IOException])
   override lazy val list: util.List[FileHandle] = if (isDirectory) {
-    var result = Try(
+    val result = Try(
       Collections.list(zipfile.entries)
-        .filter( _.getName.split("/").dropRight(1).lastOption match {
-          case Some(thing) if thing == entry.getName.dropRight(1) => true
-          case _  => false
-        })
-        .map( (e) =>
-          new ZipEntryFileHandle(
-            s"${this.path}/${e.getName.split("/").last}",
-            e,
-            parentZipfile
-          )
-        )
+        filter ( _.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)) )
+        map ( (e) => new ZipEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentZipfile) )
     )
     zipfile = new ZipFile(back) // reset the zipfile
     result match {
