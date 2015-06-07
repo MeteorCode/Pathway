@@ -55,31 +55,31 @@ class JarFileHandle (virtualPath: String,
   /**
    * @return the [[java.io.File]] backing this file handle, or null if this file is inside a Jar or Zip archive.
    */
-  protected[io] def file = back
+  override protected[io] val file = back
 
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  protected[io] def physicalPath = back.getPath
+  override protected[io] lazy val physicalPath = back.getPath
 
   /**
    * @return true if this FileHandle represents something that exists, false if it does not exist.
    */
-  def exists: Boolean = back.exists
+  override def exists: Boolean = back.exists
 
   /**
    * @return true if this file is a directory, false otherwise
    */
-  def isDirectory: Boolean = true
+  override lazy val isDirectory: Boolean = true
 
   /**
    * @return true if this FileHandle can be written to, false if it cannot.
    */
-  def writable = false
+  override val writable = false
 
-  def length = if (isDirectory) 0 else back.length
+  override lazy val length = if (isDirectory) 0 else back.length
 
-  def delete = if(writable && exists) back.delete else false
+  override def delete = if(writable && exists) back.delete else false
 
   /**
    * Returns a list containing this [[FileHandle]]'s children.

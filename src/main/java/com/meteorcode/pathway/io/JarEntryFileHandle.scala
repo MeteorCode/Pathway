@@ -38,7 +38,7 @@ import scala.collection.JavaConversions._
  * [[com.meteorcode.pathway.io.FileHandle FileHandle]]s. While some external source may theoretically modify the
  * archives while the game is running, we don't support this behaviour as it would lead to issues even if we didn't
  * memoize some method calls (if somebody deletes an asset that various game components have a handle to, you're more or
- * less hosed anyway), so therefore, I think it's  reasonable to assume that nobody's gonna be futzing around with the 
+ * less hosed anyway), so therefore, I think it's  reasonable to assume that nobody's gonna be futzing around with the
  * archives at runtime, and if they are, well, it's their own damn fault for breaking stuff.
  *
  * @param entry  the [[java.util.jar.JarEntry]] representing the file
@@ -73,12 +73,12 @@ class JarEntryFileHandle (virtualPath: String,
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] def physicalPath = parentJarfile.physicalPath + "/" + entry.getName
+  override protected[io] lazy val physicalPath = parentJarfile.physicalPath + "/" + entry.getName
 
   /**
    * @return true if this file is a directory, false otherwise
    */
-  override def isDirectory = entry.isDirectory
+  override lazy val isDirectory = entry.isDirectory
 
   /**
    *

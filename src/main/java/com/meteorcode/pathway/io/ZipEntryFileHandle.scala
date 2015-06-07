@@ -56,7 +56,7 @@ class ZipEntryFileHandle (virtualPath: String,
   /**
    * @return  the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] def physicalPath = if (parentZipfile.physicalPath.endsWith(".zip")) {
+  override protected[io] lazy val physicalPath = if (parentZipfile.physicalPath.endsWith(".zip")) {
     parentZipfile.physicalPath + "/" + entry.getName
   } else {
     parentZipfile.physicalPath + entry.getName
@@ -65,7 +65,7 @@ class ZipEntryFileHandle (virtualPath: String,
   /**
    * @return true if this file is a directory, false otherwise
    */
-  override def isDirectory = entry.isDirectory
+  override lazy val isDirectory = entry.isDirectory
 
 
   /** Returns a stream for reading this file as bytes, or null if it is not readable (does not exist or is a directory).

@@ -86,23 +86,23 @@ class ZipFileHandle (virtualPath: String,
   protected[io] def physicalPath = back.getPath
 
   /** Returns true if the file exists. */
-  def exists: Boolean = back.exists
+  override def exists: Boolean = back.exists
 
   /** Returns true if this file is a directory.
-    *
-    * Note that this may return false if a directory exists but is empty.
-    * This is Not My Fault, it's [[java.io.File]] behaviour.
-    *
-    * @return true if this file is a directory, false otherwise
-    */
-  def isDirectory: Boolean = true   // Remember, we are pretending that zips are directories
+   *
+   * Note that this may return false if a directory exists but is empty.
+   * This is Not My Fault, it's [[java.io.File]] behaviour.
+   *
+   * @return true if this file is a directory, false otherwise
+   */
+  override lazy val isDirectory: Boolean = true   // Remember, we are pretending that zips are directories
 
   /** Returns true if this FileHandle represents something that can be written to */
-  def writable = false // Zips can never be written to (at least by java.util.zip)
+  override val writable = false // Zips can never be written to (at least by java.util.zip)
 
-  def length = if (isDirectory) 0 else back.length
+  override lazy val length = if (isDirectory) 0 else back.length
 
-  def delete = if(writable && exists) back.delete else false
+  override def delete = if(writable && exists) back.delete else false
 
   /**
    * Returns a list containing this [[FileHandle]]'s children.
