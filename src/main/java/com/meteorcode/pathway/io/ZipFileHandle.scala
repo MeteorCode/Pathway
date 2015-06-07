@@ -105,13 +105,19 @@ class ZipFileHandle (virtualPath: String,
   def delete = if(writable && exists) back.delete else false
 
   /**
-   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
-   *         directory or does not have contents.
+   * Returns a list containing this [[FileHandle]]'s children.
+   *
+   * Since Zip and Jar file handles are not writable and therefore can be guaranteed to not change during
+   * Pathway execution, we can memoize their contents, meaning that we only ever have to perform this operation
+   * a single time.
+   *
+   * @return a list containing [[FileHandles]] to the contents of [[FileHandles]], or an empty list if this
+   *         file is not a directory or does not have contents.
    */
   @throws(classOf[IOException])
-  def list: util.List[FileHandle] = {
+  override lazy val list: util.List[FileHandle] = {
     val result = Try(
-      Collections.list(zipfile.entries) // TODO: memoize this?
+      Collections.list(zipfile.entries)
         .filter( subdirRE findFirstIn _.getName isDefined )
         .map( (e) =>
           new ZipEntryFileHandle( this.path + trailingSlash(e.getName), e, this)
