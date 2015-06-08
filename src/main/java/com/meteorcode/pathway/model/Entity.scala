@@ -28,6 +28,6 @@ class Entity(
     case None => null
   }
   def getName = new String(name.getOrElse("NamelessEntity (this shouldn't happen)"))
-  override def toString = s"Entity $name ${coordinates.map(c => s"at $c").getOrElse("")}"
+  override def toString: String = s"Entity $name ${coordinates.map(c => s"at $c").getOrElse("")}"
 
 }
