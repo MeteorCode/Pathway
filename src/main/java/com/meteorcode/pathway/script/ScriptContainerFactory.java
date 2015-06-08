@@ -6,7 +6,7 @@ import bsh.EvalError;
 import bsh.Interpreter;
 import bsh.InterpreterError;
 
-import com.meteorcode.pathway.io.FileHandle;
+import com.meteorcode.pathway.io.scala_api.FileHandle;
 
 /**
  * The means by which one obtains a ScriptContainer.
@@ -127,7 +127,7 @@ public class ScriptContainerFactory {
 		@Override
 		public Object eval(FileHandle file) throws ScriptException, IOException {
 			try {
-				String script = file.readString();
+				String script = file.readString().get();
 				return i.eval(script);
 			} catch (EvalError e) {
 				throw new ScriptException(

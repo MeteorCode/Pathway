@@ -7,7 +7,7 @@ import com.meteorcode.pathway.script.{
   ScriptContainerFactory,
   ScriptException
 }
-import com.meteorcode.pathway.io.FileHandle
+import com.meteorcode.pathway.io.scala_api.FileHandle
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
