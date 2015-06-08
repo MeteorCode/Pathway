@@ -27,14 +27,14 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
    * @return true if this is a bottom-level leaf, false if it is not
    */
   def leaf: Boolean = parent.isDefined && (children.isEmpty)
-  def getParent: ForkTable[K,V] = parent
+  def getParent: Option[ForkTable[K,V]] = parent
   def getChildren: Seq[ForkTable[K,V]] = children
 
-  private[this] def removeChild(other: ForkTable[K, V]): Unit = {
+  private def removeChild(other: ForkTable[K, V]): Unit = {
     this.children = children.filter({other != _})
   }
 
-  private[this] def addChild(other: ForkTable[K, V]): Unit = {
+  private def addChild(other: ForkTable[K, V]): Unit = {
     this.children = this.children :+ other
   }
 

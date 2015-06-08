@@ -31,9 +31,11 @@ import scala.collection.mutable
  * @param policy A [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] representing the game's load-order
  *               policy.
  */
-class ResourceManager protected (private val directories: util.List[FileHandle],
-                                 private val writeDir: Option[FileHandle],
-                                 private val policy: LoadOrderProvider) extends Logging {
+class ResourceManager private[this] (
+  private val directories: util.List[FileHandle],
+  private val writeDir: Option[FileHandle],
+  private val policy: LoadOrderProvider
+) extends Logging { // TODO: refactor constructor
   /**
    * Constructor for a ResourceManager with a single managed directory.
    *
@@ -109,7 +111,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param dirs a list of FileHandles to seed the recursive walk
    */
-  private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,String] = {
+  private[this] def makeFS(dirs: util.List[FileHandle]): ForkTable[String,String] = {
     val fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case a: FileHandle if a.isDirectory =>
@@ -132,7 +134,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
    * @param virtualPath a path in the virtual filesystem
    * @return true if that path can be written to, false if it cannot
    */
-  def isPathWritable(virtualPath: String) = if (writeDir.isDefined) virtualPath.contains("write/") else false
+  def isPathWritable(virtualPath: String): Boolean = if (writeDir.isDefined) virtualPath.contains("write/") else false
 
   /**
    * Request that the ResourceManager handle the file at a given path.
@@ -155,7 +157,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     }
   }
 
-  private def makeHandle(fakePath: String): FileHandle = {
+  private[this] def makeHandle(fakePath: String): FileHandle = {
     logger.log(this.toString, "making a FileHandle for " + fakePath)
     val realPath: String = paths.get(trailingSlash(fakePath)) match {
       case Some(s: String) => s
@@ -182,7 +184,7 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
     }
   }
 
-  override def toString = "ResourceManager" + directories
+  override def toString: String = "ResourceManager" + directories
     .map(_.physicalPath.split(File.separatorChar).last)
     .mkString(",")
 }
