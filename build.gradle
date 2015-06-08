@@ -63,7 +63,7 @@ tasks.withType(ScalaDoc) {
 
 dependencies {
 
-    compile "org.scala-lang:scala-library:2.11.4"
+    compile "org.scala-lang:scala-library:2.11.6"
     compile "org.beanshell:bsh:2+"
     compile fileTree(dir: 'corelib', include: '*.jar')
 
