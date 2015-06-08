@@ -31,9 +31,9 @@ object ModLoader extends Logging {
    */
   @throws(classOf[IOException])
   def load(directory: FileHandle): Unit = {
-    if (directory.exists == false) // if the directory doesn't exist, throw an IOException
+    if (!directory.exists) // if the directory doesn't exist, throw an IOException
       logger.log("Could not load mods directory " + directory + ", was not a directory.")
-    if (directory.isDirectory == false ) // if the mods directory isn't a directory, throw an IOException
+    if (!directory.isDirectory) // if the mods directory isn't a directory, throw an IOException
       logger.log("Could not load mods directory " + directory + ", did not exist.")
     // otherwise, get all the jarfiles from the directory and load them
     logger.log("loading mods from " + directory)
