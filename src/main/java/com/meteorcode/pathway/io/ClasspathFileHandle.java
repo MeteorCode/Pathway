@@ -1,3 +1,4 @@
+/*
 package com.meteorcode.pathway.io;
 
 import java.io.File;
@@ -24,7 +25,7 @@ public class ClasspathFileHandle extends FileHandle {
 	 * Note that this constructor silently swallows errors that may arise
 	 * during construction.
 	 * @param physicalPath The physicalPath to grab.
-	 */
+	 *//*
 	protected ClasspathFileHandle(String physicalPath,
 																String virtualPath,
 																ResourceManager manager//,
@@ -129,3 +130,4 @@ public class ClasspathFileHandle extends FileHandle {
 	}
 
 }
+*/

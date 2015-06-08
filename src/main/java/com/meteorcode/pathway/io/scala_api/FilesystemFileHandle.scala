@@ -114,7 +114,7 @@ class FilesystemFileHandle (
    * @return true if this file is writable, false if it is not
    */
   @throws(classOf[IOException])
-  override def writable: Boolean = {
+  override def writable: Boolean = { // todo: refactor
     if (manager.isPathWritable(this.path)) {
       if (isDirectory) false
       else if (exists)
@@ -123,6 +123,7 @@ class FilesystemFileHandle (
         back.createNewFile()
         } catch {
           case up: IOException => if (up.getMessage == "Permission denied") false else throw up
+          case e: Exception => throw new IOException(s"Could not create FileHandle $this, an exception occured.", e)
         }
     } else false
   }

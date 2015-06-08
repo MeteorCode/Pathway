@@ -1,5 +1,4 @@
-package com.meteorcode.pathway.io
-package scala_api
+package com.meteorcode.pathway.io.scala_api
 
 import java.io.{File, IOException, InputStream, OutputStream}
 import java.util

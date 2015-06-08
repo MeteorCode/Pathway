@@ -1,9 +1,10 @@
-package com.meteorcode.pathway.io
-package scala_api
+package com.meteorcode.pathway.io.scala_api
 
 import java.io.{File, IOException, InputStream}
 import java.util.Collections
 import java.util.zip.{ZipEntry, ZipException, ZipFile}
+
+import com.meteorcode.pathway.io.ResourceManager
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.util.{Failure, Success, Try}
@@ -42,16 +43,22 @@ class ZipEntryFileHandle (virtualPath: String,
            entry: ZipEntry,
            parent: ZipFileHandle//,
            //token: IOAccessToken
-           ) = this(virtualPath, entry, parent, parent.file, parent.manager//, token
+           ) = this(virtualPath, entry, parent,
+                  parent
+                    .file
+                    .getOrElse(throw new IOException(s"Could not create ZipEntryFileHandle from nonexistant file $parent")),
+          parent.manager//, token
            )
 
   /**
    * @return  the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] lazy val physicalPath = if (parentZipfile.physicalPath.getOrElse("").endsWith(".zip")) {
-    parentZipfile.physicalPath + "/" + entry.getName
-  } else {
-    parentZipfile.physicalPath + entry.getName
+  override protected[io] lazy val physicalPath: Option[String] = parentZipfile.physicalPath map { (s:String) =>
+    if (s.endsWith(".zip")) {
+      s"$s/${entry.getName}"
+    } else {
+      s"$s${entry.getName}"
+    }
   }
 
   /**
@@ -66,7 +73,7 @@ class ZipEntryFileHandle (virtualPath: String,
   override def read: Try[InputStream] = this match {
     case _ if this.isDirectory => Failure(new IOException(s"Could not read from $path, file is a directory"))
     case _ if !this.exists     => Failure(new IOException(s"Could not read from $path, file does not exist"))
-    case _                     => Try(zipfile.getInputStream(entry)) recoverWith {
+    case _                     => Try(new ZipFile(back).getInputStream(entry)) recoverWith {
       case ze: ZipException => Failure(new IOException(s"Could not read file $path, a ZipException occured", ze))
       case se: SecurityException => Failure(new IOException(s"Could not read file $path, a Zip entry was improperly signed", se))
       case ise: IllegalStateException => Failure(new IOException(s"Could not read file $path appears to have been closed", ise))
@@ -86,7 +93,7 @@ class ZipEntryFileHandle (virtualPath: String,
    */
   override lazy val list: Try[Seq[FileHandle]] = if (isDirectory) {
     Try(
-      Collections.list(zipfile.entries).asScala
+      Collections.list(new ZipFile(back).entries).asScala
         withFilter ( _.getName.split("/").dropRight(1).lastOption contains entry.getName.dropRight(1) )
         map ( (e) => new ZipEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentZipfile) )
     )

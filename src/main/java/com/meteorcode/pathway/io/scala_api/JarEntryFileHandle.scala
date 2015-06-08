@@ -1,14 +1,13 @@
 package com.meteorcode.pathway.io.scala_api
 
 import java.io.{File, IOException, InputStream}
-import java.util
 import java.util.Collections
 import java.util.jar.{JarEntry, JarFile}
 import java.util.zip.ZipException
 
 import com.meteorcode.pathway.io.ResourceManager
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -57,33 +56,40 @@ class JarEntryFileHandle (virtualPath: String,
            entry: JarEntry,
            parent: JarFileHandle//,
            //token: IOAccessToken
-           ) = this(virtualPath, entry, parent, parent.file, parent.manager//, token
-  )
-
+            ) = this(virtualPath, entry, parent,
+            parent
+              .file
+              .getOrElse(throw new IOException(s"Could not create JarEntryFileHandle from nonexistant file $parent")),
+            parent.manager//, token
+          )
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] lazy val physicalPath = parentJarfile.physicalPath + "/" + entry.getName
+  override protected[io] lazy val physicalPath: Option[String] = parentJarfile.physicalPath map { (s:String) =>
+    if (s.endsWith(".jar")) {
+      s"$s/${entry.getName}"
+    } else {
+      s"$s${entry.getName}"
+    }
+  }
 
   /**
    * @return true if this file is a directory, false otherwise
    */
   override lazy val isDirectory = entry.isDirectory
 
-  /**
-   *
-   * @return a [[java.io.InputStream]] for reading this file, or null if the file does not exist or is a directory.
-   */
-  override def read: InputStream = {
-    if (!exists) throw new IOException("Could not read file:" + path + ", the requested file does not exist.")
-    else if (isDirectory) throw new IOException("Could not read file:" + path + ", the requested file is a directory.")
-    else try {
-      jarfile.getInputStream(entry)
-    } catch {
-      case ze: ZipException => throw new IOException("Could not read file " + path + ", a ZipException occured", ze)
-      case se: SecurityException => throw new IOException("Could not read file " + path + ", a Jar entry was improperly signed", se)
-      case ise: IllegalStateException => throw new IOException("Could not read file " + path + " appears to have been closed", ise)
-      case up: IOException => throw up //because you've spent too long dealing with java.util.zip and you hate everything.
+  /** Returns a stream for reading this file as bytes, or null if it is not readable (does not exist or is a directory).
+    * @return a [[java.io.InputStream]] for reading the contents of this file, or null if it is not readable.
+    * @throws IOException if something went wrong while reading from the file.
+    */
+  override def read: Try[InputStream] = this match {
+    case _ if this.isDirectory => Failure(new IOException(s"Could not read from $path, file is a directory"))
+    case _ if !this.exists     => Failure(new IOException(s"Could not read from $path, file does not exist"))
+    case _                     => Try(new JarFile(back).getInputStream(entry)) recoverWith {
+      case ze: ZipException => Failure(new IOException(s"Could not read file $path, a ZipException occured", ze))
+      case se: SecurityException => Failure(new IOException(s"Could not read file $path, a Zip entry was improperly signed", se))
+      case ise: IllegalStateException => Failure(new IOException(s"Could not read file $path appears to have been closed", ise))
+      case e => Failure(new IOException(s"Could not read file $path, an unexpected error occured.", e))
     }
   }
 
@@ -94,22 +100,14 @@ class JarEntryFileHandle (virtualPath: String,
    * Pathway execution, we can memoize their contents, meaning that we only ever have to perform this operation
    * a single time.
    *
-   * @return a list containing [[FileHandles]] to the contents of [[FileHandles]], or an empty list if this
+   * @return a list containing [[FileHandle]]s to the contents of this [[FileHandle]], or an empty list if this
    *         file is not a directory or does not have contents.
    */
-  @throws(classOf[IOException])
-  override lazy val list: util.List[FileHandle] = if (isDirectory) {
-    val result = Try(
-      Collections.list(jarfile.entries)
-        withFilter ( _.getName.split("/").dropRight(1).lastOption == Some(entry.getName.dropRight(1)) )
+  override lazy val list: Try[Seq[FileHandle]] = if (isDirectory) {
+    Try(
+      Collections.list(new JarFile(back).entries).asScala
+        withFilter ( _.getName.split("/").dropRight(1).lastOption contains entry.getName.dropRight(1) )
         map ( (e) => new JarEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentJarfile) )
     )
-    jarfile = new JarFile(back) // reset the jarfile
-    result match {
-      case Failure(e: IllegalStateException) =>
-        throw new IOException("Could not list JarFile entries, file " + path + " appears to have been closed.", e)
-      case Failure(up) => throw up
-      case Success(list) => list
-    }
-  } else Collections.emptyList()
+  } else Success(Seq[FileHandle]())
 }

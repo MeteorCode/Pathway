@@ -1,8 +1,9 @@
-package com.meteorcode.pathway.io
-package scala_api
+package com.meteorcode.pathway.io.scala_api
 
 import java.io.{BufferedInputStream, BufferedOutputStream, File, IOException, InputStream, OutputStream}
 import java.nio.charset.Charset
+
+import com.meteorcode.pathway.io.ResourceManager
 
 import scala.io.Source
 import scala.util.{Try,Success,Failure}

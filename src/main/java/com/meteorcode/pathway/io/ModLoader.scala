@@ -3,6 +3,7 @@
  */
 package com.meteorcode.pathway.io
 
+import com.meteorcode.pathway.io.scala_api.FileHandle
 import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
@@ -38,6 +39,6 @@ object ModLoader extends Logging {
     // otherwise, get all the jarfiles from the directory and load them
     logger.log("loading mods from " + directory)
     env.addBinding("files",directory.manager)
-    directory.list("init.java").foreach { initScript => beanshell.eval(initScript) }
+    directory.list("init.java").get.foreach { initScript => beanshell.eval(initScript) }
   }
 }

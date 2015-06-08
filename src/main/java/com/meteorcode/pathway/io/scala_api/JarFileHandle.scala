@@ -1,5 +1,6 @@
-package com.meteorcode.pathway.io
-package scala_api
+package com.meteorcode.pathway.io.scala_api
+
+import com.meteorcode.pathway.io.{ResourceManager,subdirRE,trailingSlash}
 
 import java.io.{OutputStream, File, IOException, InputStream}
 import java.util.jar.JarFile
@@ -48,12 +49,12 @@ class JarFileHandle (virtualPath: String,
    * Returns a [[java.io.File]] that represents this file handle.
    * @return a [[java.io.File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
-  override protected[io] def file = Some(back)
+  override protected[io] def file: Option[File] = Some(back)
 
   /**
    * Returns the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] def physicalPath = Some(back.getPath)
+  override protected[io] def physicalPath: Option[String] = Some(back.getPath)
 
   /** Returns true if the file exists. */
   override def exists: Boolean = back.exists
