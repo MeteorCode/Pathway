@@ -1,15 +1,17 @@
-package com.meteorcode.pathway.io
-package scala_api
+package com.meteorcode.pathway.io.scala_api
 
 import java.io.{
 File,
 InputStream,
+OutputStream,
 FileInputStream,
 FileOutputStream,
 IOException
 }
 import java.util.Collections
-import com.meteorcode.pathway.io.scala_api.JarFileHandle
+
+import com.meteorcode.pathway.io.ResourceManager
+import com.meteorcode.pathway.io.isArchiveRE
 
 import scala.collection.JavaConversions._
 
@@ -55,7 +57,7 @@ class FilesystemFileHandle (
    * Returns the [[java.io.File]] backing this file handle.
    * @return a [[java.io.File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
-  override val file = back
+  override val file = Some(back)
 
   /** Returns a buffered stream for reading this file as bytes.
     * @throws IOException if the file does not exist or is a directory.
@@ -83,17 +85,19 @@ class FilesystemFileHandle (
    *         directory or does not have contents.
    */
   override def list: Try[Seq[FileHandle]] = Try(if (isDirectory) {
-    for (item <- back.list.elements) yield item match {
-      case isArchiveRE(_,".jar") => new JarFileHandle("/", new File(s"$physicalPath/$item"), this.manager)
-      case isArchiveRE(_,".zip") => new ZipFileHandle("/", new File(s"$physicalPath/$item"), this.manager)
-      case _ => new DesktopFileHandle(s"$path/$item", s"$physicalPath/$item", manager)
+    val physPath = physicalPath.getOrElse(throw new IOException(s"FATAL: FileHandle $this had no physical path"))
+    for (item <- back.list) yield item match {
+      case isArchiveRE(_,".jar") =>
+        new JarFileHandle("/", new File(s"$physPath/$item"), this.manager)
+      case isArchiveRE(_,".zip") => new ZipFileHandle("/", new File(s"$physPath/$item"), this.manager)
+      case _ => new FilesystemFileHandle(s"$path/$item", s"$physPath/$item", manager)
     }
   } else Nil)
 
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override lazy val physicalPath: String = realPath.replace('/', File.separatorChar)
+  override lazy val physicalPath: Some[String] = Some(realPath.replace('/', File.separatorChar))
 
   override def delete = if(writable && exists) back.delete else false
 
