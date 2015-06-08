@@ -105,7 +105,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
       "contain the written string after a call to writeString()" taggedAs FilesystemTest in {
         val target = manager.handle("/write/test5.txt")
         target.writeString("hello", append=false)
-        target.readString shouldEqual "hello"
+        target.readString.success.value shouldEqual "hello"
       }
       "return Some(OutputStream) from calls to write() in append mode" taggedAs FilesystemTest in {
         manager.handle("/write/test5.txt").write(append=true).value shouldBe an [OutputStream]
