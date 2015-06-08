@@ -1,41 +1,31 @@
-package com.meteorcode.pathway.io
+package com.meteorcode.pathway.io.scala_api
 
-import java.io.{
-InputStream,
-IOException,
-File
-}
+import java.io.{File, IOException, InputStream}
 import java.util
-import java.util.{
-List,
-ArrayList
-}
-import java.util.zip.ZipException
-import java.util.jar.{
-JarFile,
-JarEntry,
-JarInputStream
-}
 import java.util.Collections
+import java.util.jar.{JarEntry, JarFile}
+import java.util.zip.ZipException
 
-import scala.util.{Try,Success,Failure}
+import com.meteorcode.pathway.io.ResourceManager
+
 import scala.collection.JavaConversions._
+import scala.util.{Failure, Success, Try}
 
 /**
- * A [[com.meteorcode.pathway.io.FileHandle FileHandle]] into an item within a Jar archive.
+ * A [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]] into an item within a Jar archive.
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
  * [[com.meteorcode.pathway.io.ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
  * allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only
- * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.FileHandle FileHandle]].
+ * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]].
  * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
- * [[com.meteorcode.pathway.io.ZipFileHandle, ZipFileHandle]], or
- * [[com.meteorcode.pathway.io.JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
+ * [[com.meteorcode.pathway.io.scala_api.ZipFileHandle, ZipFileHandle]], or
+ * [[JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * Since Zip and Jar archives are unmodifyable by Pathway, we can assume that they will not change during the
  * game's execution. Therefore, a number of API methods for [[FileHandle]] can be memoized in Zip and Jar
- * [[com.meteorcode.pathway.io.FileHandle FileHandle]]s. While some external source may theoretically modify the
+ * [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]]s. While some external source may theoretically modify the
  * archives while the game is running, we don't support this behaviour as it would lead to issues even if we didn't
  * memoize some method calls (if somebody deletes an asset that various game components have a handle to, you're more or
  * less hosed anyway), so therefore, I think it's  reasonable to assume that nobody's gonna be futzing around with the
@@ -47,7 +37,7 @@ import scala.collection.JavaConversions._
  *                     list the children of a directory in a Jar archive.
  * @param back the [[java.io.File]] that backs this [[FileHandle]]
  * @param manager the [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] managing the virtual
- *                filesystem containing this [[com.meteorcode.pathway.io.FileHandle FileHandle]]
+ *                filesystem containing this [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]]
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]

@@ -1,7 +1,10 @@
 package com.meteorcode.pathway.io
+package scala_api
 
-import java.io.{IOException, File, OutputStream, InputStream}
+import java.io.{File, IOException, InputStream, OutputStream}
 import java.util
+
+import scala.util.Try
 
 /**
  * Wraps another FileHandle with a different virtual path. This is for internal use only.
@@ -20,7 +23,7 @@ protected[io] class RedirectFileHandle (protected val wrapped: FileHandle,
    * Returns the [[File]] backing this file handle.
    * @return a [[File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
-  override protected[io] def file: File = wrapped.file
+  override protected[io] def file: Option[File] = wrapped.file
 
   /**
    * Returns the length of this file in bytes, or 0 if this FileHandle is a directory or does not exist
@@ -33,7 +36,7 @@ protected[io] class RedirectFileHandle (protected val wrapped: FileHandle,
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     * @throws IOException if something went wrong while opening the file.
     */
-  override def write(append: Boolean): OutputStream = wrapped.write(append)
+  override def write(append: Boolean): Option[OutputStream] = wrapped.write(append)
 
   /**
    * Delete this file if it exists and is writable.
@@ -54,11 +57,11 @@ protected[io] class RedirectFileHandle (protected val wrapped: FileHandle,
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
    */
-  override def list: util.List[FileHandle] = wrapped.list
+  override def list: Try[Seq[FileHandle]] = wrapped.list
 
   /** @return a [[InputStream]] for reading this file, or null if the file does not exist or is a directory.
     */
-  override def read: InputStream = wrapped.read
+  override def read: Try[InputStream] = wrapped.read
 
   /** Returns true if this FileHandle represents something that can be written to */
   override def writable: Boolean = wrapped.writable
@@ -66,5 +69,5 @@ protected[io] class RedirectFileHandle (protected val wrapped: FileHandle,
   /**
    * Returns the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] def physicalPath: String = wrapped.physicalPath
+  override protected[io] def physicalPath: Option[String] = wrapped.physicalPath
 }

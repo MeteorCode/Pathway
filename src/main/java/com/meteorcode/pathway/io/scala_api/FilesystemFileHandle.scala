@@ -1,4 +1,5 @@
-package com.meteorcode.pathway.io.scala-api
+package com.meteorcode.pathway.io
+package scala_api
 
 import java.io.{
 File,
@@ -8,7 +9,11 @@ FileOutputStream,
 IOException
 }
 import java.util.Collections
+import com.meteorcode.pathway.io.scala_api.JarFileHandle
+
 import scala.collection.JavaConversions._
+
+import scala.util.{Try, Success, Failure}
 
 /**
  * A FileHandle into a regular file.
@@ -20,7 +25,7 @@ import scala.collection.JavaConversions._
  * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.FileHandle FileHandle]].
  * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
  * [[com.meteorcode.pathway.io.ZipFileHandle, ZipFileHandle]], or
- * [[com.meteorcode.pathway.io.JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
+ * [[JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * @param virtualPath

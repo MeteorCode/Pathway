@@ -4,6 +4,8 @@ import java.io.{File, IOException}
 
 import java.util
 
+
+import com.meteorcode.pathway.io.scala_api._
 import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.logging.Logging
 
@@ -31,50 +33,10 @@ import scala.collection.mutable
  * @param policy A [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] representing the game's load-order
  *               policy.
  */
-class ResourceManager protected (private val directories: util.List[FileHandle],
-                                 private val writeDir: Option[FileHandle],
-                                 private val policy: LoadOrderProvider) extends Logging {
-  /**
-   * Constructor for a ResourceManager with a single managed directory.
-   *
-   * @param directory a FileHandle into the directory to manage.
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
-   * @return a new ResourceManager managing the specified directory.
-   */
-  def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), None, policy)
-
-  /**
-   * Constructor for a ResourceManager with a list of managed directories.
-   *
-   * @param directories a list of FileHandles into the directories to manage.
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
-   * @return a new ResourceManager managing the specified directory.
-   */
-  def this(directories: util.List[FileHandle], policy: LoadOrderProvider) = this(directories, None, policy)
-
-  /**
-   * Constructor for a ResourceManager with a String representing a path to the managed directory.
-   *
-   * Note that this defaults to using [[com.meteorcode.pathway.io.DesktopFileHandle]] if you  want to use a different type of
-   * FileHandle, use [[com.meteorcode.pathway.io.ResourceManager.handle]]  instead.
-   *
-   * @param path the path to the directory to manage
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
-   * @return a new ResourceManager managing the specified directory.
-   */
-  def this(path: String, policy: LoadOrderProvider) = this(List(new DesktopFileHandle("", path, null)), None, policy)
-
-  /**
-   * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
-   *
-   * @param directory a FileHandle into the directory to manage.
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
-   * @param writeDir a FileHandle into the write directory
-   * @return a new ResourceManager managing the specified directory.
-   */
-  def this(directory: FileHandle,
-           writeDir: FileHandle,
-           policy: LoadOrderProvider) = this(List(directory), Some(writeDir), policy)
+class ResourceManager (val directories: Seq[FileHandle],
+                       val writeDir: Option[FileHandle] = None,
+                       val policy: LoadOrderProvider    = new AlphabeticLoadPolicy
+                        ) extends Logging {
 
   /**
    * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
@@ -87,9 +49,9 @@ class ResourceManager protected (private val directories: util.List[FileHandle],
    */
   def this(path: String,                    // it's okay for the Manager to be null because if it has a path,
            writePath: String,               // it will never need to get the path from the ResourceManager
-           policy: LoadOrderProvider) = this(List(new DesktopFileHandle("", path, null)),
-                                             Some(new DesktopFileHandle(writePath.replace(path, ""), writePath, null)),
-                                             policy)
+           policy: LoadOrderProvider) = this(Seq[FileHandle](new FilesystemFileHandle("", path, null)),
+                                             writeDir = Some(new FilesystemFileHandle(writePath.replace(path, ""), writePath, null)),
+                                             policy = policy)
 
   def this(directories: util.List[FileHandle],
            writeDir: FileHandle,

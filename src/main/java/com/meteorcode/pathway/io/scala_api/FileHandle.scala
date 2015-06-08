@@ -1,13 +1,7 @@
-package com.meteorcode.pathway.io.scala-api
+package com.meteorcode.pathway.io
+package scala_api
 
-import java.io.{
-File,
-InputStream,
-OutputStream,
-BufferedOutputStream,
-BufferedInputStream,
-IOException
-}
+import java.io.{BufferedInputStream, BufferedOutputStream, File, IOException, InputStream, OutputStream}
 import java.nio.charset.Charset
 
 import scala.io.Source
@@ -54,7 +48,7 @@ abstract class FileHandle(protected val virtualPath: String,
   /**
    * Returns the physical path to the actual filesystem object represented by this FileHandle.
    */
-  protected[scala-api] def physicalPath: Option[String]
+  protected[io] def physicalPath: Option[String]
 
   /**
    * @return The filename extension of the object wrapped by this FileHandle, or emptystring if there is no extension.
@@ -70,7 +64,7 @@ abstract class FileHandle(protected val virtualPath: String,
    * Returns the [[java.io.File]] backing this file handle.
    * @return a [[java.io.File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
    */
-  protected[io] def file: File
+  protected[io] def file: Option[File]
 
   /**
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
@@ -84,8 +78,8 @@ abstract class FileHandle(protected val virtualPath: String,
    * @param suffix the the specified suffix.
    *
    */
-  @deprecated(message = "just use list.withFilter()")
-  def list(suffix: String): Try[Seq[FileHandle]] = list withFilter (entry => entry.path.endsWith(suffix))
+  @deprecated(message = "just use FilterMonadic at call site for better performance", since = "v2.0.0")
+  def list(suffix: String): Try[Seq[FileHandle]] = list map ( _ filter ( _.path.endsWith(suffix)) )
 
   /** @return a [[java.io.InputStream]] for reading this file, or null if the file does not exist or is a directory.
     */
@@ -142,8 +136,8 @@ abstract class FileHandle(protected val virtualPath: String,
     * @throws IOException if this file is not writeable
     */
   def writeString(string: String, charset: Charset, append: Boolean): Try[Unit] = write(append) match {
-      Some(stream) => write(string.getBytes(charset)); Success(Unit)
-      None         => Failure(new IOException("FileHandle " + path + " is not writable."))
+    case Some(stream) => stream.write(string.getBytes(charset)); Success(Unit)
+    case None         => Failure(new IOException("FileHandle " + path + " is not writable."))
   }
 
   /**
@@ -196,7 +190,8 @@ abstract class FileHandle(protected val virtualPath: String,
     case _ => false
   }
 }
-
+/**
 object FileHandle {
   protected val correctToken = new IOAccessToken
 }
+*/
