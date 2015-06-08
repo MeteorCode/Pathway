@@ -26,7 +26,7 @@ import org.scalatest.{Matchers, WordSpec}
 
 import org.mockito.Mockito._
 
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 /**
  * Created by hawk on 5/25/15.
@@ -127,7 +127,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
         val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
         val fakeFileHandle = mock[FileHandle]
 
-        when(fakeFileHandle.readString) thenThrow new IOException
+        when(fakeFileHandle.readString) thenReturn Failure(new IOException)
 
         val target = fakeFactory.getNewInstance
 
