@@ -27,26 +27,26 @@ class Context(protected var name: String) extends Logging {
   protected val eventStack = mutable.Stack[Event]()
   protected val gameObjects = mutable.Set[GameObject]()
   protected val properties = mutable.Set[Property]()
-  private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance
+  private[this] val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance
   // TODO: This should really be requested from a global ScriptContainerFactory instance,
   // but since that's not available, I'm doing it like this so that the class will run and be testable.
 
-  def injectObject(name: String, toInject: Object) = beanshell.injectObject(name, toInject)
-  def removeObject(name: String) = beanshell.removeObject(name)
+  def injectObject(name: String, toInject: Object): Unit = beanshell.injectObject(name, toInject)
+  def removeObject(name: String): Unit = beanshell.removeObject(name)
 
   /**
    * @return A list of top-level GameObjects in this Context
    */
   def getGameObjects: util.List[GameObject] = {
     val result: util.List[GameObject] = new util.ArrayList[GameObject]
-    result.addAll(gameObjects)
+    result.addAll(gameObjects) // TODO: shallow copy wouldn't be necessary if we just used Scala immutable collections
     result
   }
-  def removeGameObject(g: GameObject) = gameObjects -= g
-  def addGameObject(g: GameObject) = gameObjects += g
-  def subscribe(p: Property) = properties += p
-  def unsubscribe(p: Property) = properties -= p
-  def getName = this.name
+  def removeGameObject(g: GameObject): Unit = gameObjects -= g
+  def addGameObject(g: GameObject): Unit = gameObjects += g
+  def subscribe(p: Property): Unit = properties += p
+  def unsubscribe(p: Property): Unit = properties -= p
+  def getName: String = this.name
 
   /**
    * Evals a BeanShell expression against this Context's ScriptContainer
@@ -83,7 +83,7 @@ class Context(protected var name: String) extends Logging {
    *
    * @param e the Event fired onto the EventStack;
    */
-  def fireEvent(e: Event) {
+  def fireEvent(e: Event): Unit = {
     e.setTarget(this)
     logger.log(this.name + " Context", "fired event " + e)
     eventStack.push(e)
