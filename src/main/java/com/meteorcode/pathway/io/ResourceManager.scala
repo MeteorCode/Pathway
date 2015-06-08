@@ -3,8 +3,10 @@ package com.meteorcode.pathway.io
 import java.io.{File, IOException}
 
 import java.util
+import java.util.jar.JarFile
+import java.util.zip.ZipFile
 
-
+import com.meteorcode.pathway.io.scala_api.FileHandle
 import com.meteorcode.pathway.io.scala_api._
 import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.logging.Logging
@@ -30,7 +32,7 @@ import scala.collection.mutable
  *                    filesystem.
  * @param writeDir An optional FileHandle into the specified write directory. The write directory's virtual path will be
  *                 set to `/write/`.
- * @param policy A [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] representing the game's load-order
+ * @param policy A [[LoadOrderProvider LoadOrderProvider]] representing the game's load-order
  *               policy.
  */
 class ResourceManager (val directories: Seq[FileHandle],
@@ -43,7 +45,7 @@ class ResourceManager (val directories: Seq[FileHandle],
    * The write directory's virtual path will be automatically determined.
    *
    * @param path a String representing the path to the directory to manage.
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @param policy a [[LoadOrderProvider LoadOrderProvider]] for resolving load collisions
    * @param writePath a String representing the path into the write directory
    * @return a new ResourceManager managing the specified directory.
    */
@@ -62,7 +64,7 @@ class ResourceManager (val directories: Seq[FileHandle],
 
   writeDir.foreach{ directory =>
       if (!directory.exists) {
-        if (!directory.file.mkdirs()) throw new IOException("Specified write directory could not be created!")
+        if (!(directory.file exists (_.mkdirs()) ) ) throw new IOException("Specified write directory could not be created!")
         else logger.log(this.toString, s"write directory ${directory.physicalPath} created")
       } else logger.log(this.toString, s"write directory ${directory.physicalPath} already exists")
       if (directory.manager == null) directory.manager = this
@@ -71,14 +73,21 @@ class ResourceManager (val directories: Seq[FileHandle],
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param dirs a list of FileHandles to seed the recursive walk
    */
-  private def makeFS(dirs: util.List[FileHandle]): ForkTable[String,String] = {
+  private def makeFS(dirs: Seq[FileHandle]): ForkTable[String,String] = {
     val fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case a: FileHandle if a.isDirectory =>
         val newfs = fs.fork
-        newfs put (current.path, current.physicalPath)
-        policy.orderPaths(a.list).foldRight(newfs)((fh, tab) => _walk(fh, tab))
-      case _: FileHandle => fs put (current.path, current.physicalPath); fs
+        newfs put (
+          current.path,
+          current.physicalPath.getOrElse(throw new IOException(s"FATAL: FileHandle $current did not have a physical path") ))
+        policy.orderPaths(a.list.get).foldRight(newfs)((fh, tab) => _walk(fh, tab))
+      case _: FileHandle => fs put (
+        current.path,
+        current
+          .physicalPath
+          .getOrElse(throw new IOException(s"FATAL: FileHandle $current did not have a physical path") ))
+        fs
     }
     val orderedFS = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
     writeDir match { // TODO: this is where we could "freeze" the un-writedir'd map
@@ -124,7 +133,12 @@ class ResourceManager (val directories: Seq[FileHandle],
       // If the path is not in the tree, handle write attempts.
       case None if isPathWritable(fakePath) =>
         logger.log(this.toString, s"handling write attempt to empty path $fakePath")
-        paths put (fakePath, writeDir.get.physicalPath + fakePath.replace(writeDir.get.path, ""))
+        paths put (fakePath,
+          writeDir
+            .getOrElse(throw new IOException("Cannot handle write attempt: no write directory."))
+            .physicalPath
+            .getOrElse(throw new IOException("Cannot handle write attempt: write directory missing physical path."))
+            + fakePath.replace(writeDir.get.path, ""))
         logger.log(this.toString, "successfully handled write attempt")
         paths(fakePath)
       case None =>  throw new IOException(s"A filehandle to an empty path ($fakePath) was requested, and the requested path was not writable")
@@ -135,16 +149,30 @@ class ResourceManager (val directories: Seq[FileHandle],
       case _ => inArchiveRE findFirstIn realPath match {
         case Some(inArchiveRE(path, ".zip", name)) =>
             val parent = new ZipFileHandle("/", new File(s"$path.zip"), this)
-            new ZipEntryFileHandle(fakePath, parent.zipfile.getEntry(name), parent)
+            new ZipEntryFileHandle(
+              fakePath,
+              new ZipFile(
+                parent
+                  .file
+                  .getOrElse(throw new IOException(s"FATAL: ZipFileHandle $parent was not backed by a File object"))
+              ).getEntry(name), parent)
         case Some(inArchiveRE(path, ".jar", name)) =>
             val parent = new JarFileHandle("/", new File(s"$path.jar"), this)
-            new JarEntryFileHandle(fakePath, parent.jarfile.getJarEntry(name), parent)
-        case _ => new DesktopFileHandle(fakePath, realPath, this)
+            new JarEntryFileHandle(
+              fakePath,
+              new JarFile(
+                parent
+                  .file
+                  .getOrElse(throw new IOException(s"FATAL: JarFileHandle at $parent was not backed by a File object"))
+              ).getJarEntry(name), parent)
+        case _ => new FilesystemFileHandle(fakePath, realPath, this)
       }
     }
   }
 
-  override def toString = "ResourceManager" + directories
-    .map(_.physicalPath.split(File.separatorChar).last)
+  override def toString = "ResourceManager" + directories.map { (dir) =>
+     dir.physicalPath
+      .getOrElse(throw new IOException(s"FATAL: FileHandle $dir did not have a physical path"))
+      .split(File.separatorChar).last}
     .mkString(",")
 }
