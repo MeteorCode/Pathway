@@ -51,7 +51,7 @@ class Context(protected var name: String) extends Logging {
   /**
    * Evals a BeanShell expression against this Context's ScriptContainer
    * @throws ScriptException if an error occurs during script evaluation
-   *
+   */
   @throws(classOf[ScriptException])
   def eval(script: String) = {
     logger.log(this.name + "Context", "evaluating script:\n" + script)
