@@ -302,7 +302,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
           .failure.exception should have message "FileHandle /testJarDir is not writable."
       }
       "allow access into child files" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").child("test7.md").readString shouldEqual "Hi continues."
+        manager.handle("/testJarDir").child("test7.md").readString.success.value shouldEqual "Hi continues."
       }
     }
     "permission is denied by the host OS" should {
@@ -349,7 +349,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         )
 
         val target = new ResourceManager(directories, policy = new AlphabeticLoadPolicy())
-        target.handle("/testLoadOrder.txt").readString shouldEqual "I AM CORRECT"
+        target.handle("/testLoadOrder.txt").readString.success.value shouldEqual "I AM CORRECT"
       }
     }
     "handling the same path multiple times" should {
