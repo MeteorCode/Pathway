@@ -4,8 +4,8 @@ import java.io._
 import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
 
-import com.meteorcode.pathway.io.{AlphabeticLoadPolicy, ResourceManager}
-import com.meteorcode.pathway.io.scala_api.{FilesystemFileHandle, FileHandle}
+import com.meteorcode.pathway.io.ResourceManager
+import com.meteorcode.pathway.io.scala_api.{AlphabeticLoadPolicy, FilesystemFileHandle, FileHandle}
 import com.meteorcode.pathway.test.tags.FilesystemTest
 
 import org.junit.runner.RunWith
@@ -62,7 +62,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         manager.handle("/test1.txt").readString(Charset.defaultCharset()).success.value shouldEqual "hi!"
       }
       "not list any child drectories" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").list shouldBe empty
+        manager.handle("/test1.txt").list.success.value shouldBe empty
       }
       "return a Success(InputStream) from calls to read()" taggedAs FilesystemTest in {
         val result = manager.handle("/test1.txt").read
@@ -121,12 +121,12 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
       }
     }
     "into a nonexistant file outside of the write directory" should {
-      "return a Failure(IOException) when instantiated" taggedAs FilesystemTest in {
-        
+      "throw an IOException when instantiated" taggedAs FilesystemTest in {
+        the[IOException] thrownBy {
           manager.handle("testDir/FILE THAT DOESN'T EXIST")
-        .failure.exception should have message "A filehandle to an empty path (testDir/FILE THAT DOESN'T EXIST) was requested, and the requested path was not writable"
-        }
+        } should have message "A filehandle to an empty path (testDir/FILE THAT DOESN'T EXIST) was requested, and the requested path was not writable"
       }
+    }
     "into an existant directory on the file system" should {
       "be a directory" taggedAs FilesystemTest in { manager.handle("/testDir") should be a ('directory) }
       "not be writable" taggedAs FilesystemTest in { manager.handle("/testDir") should not be 'writable }
