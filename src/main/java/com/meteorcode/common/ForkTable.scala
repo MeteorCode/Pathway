@@ -10,7 +10,7 @@ import scala.collection.{AbstractMap, DefaultMap, mutable}
  */
 
 class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
-                      protected var children: List[ForkTable[K,V]] = Nil) extends AbstractMap[K, V] with DefaultMap[K, V]{
+                      protected var children: Seq[ForkTable[K,V]] = Nil) extends AbstractMap[K, V] with DefaultMap[K, V]{
   val whiteouts = mutable.Set[K]()
   val back = mutable.HashMap[K, V]()
 
@@ -27,14 +27,14 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
    * @return true if this is a bottom-level leaf, false if it is not
    */
   def leaf: Boolean = parent.isDefined && (children.isEmpty)
-  def getParent = parent
-  def getChildren = children
+  def getParent: ForkTable[K,V] = parent
+  def getChildren: Seq[ForkTable[K,V]] = children
 
-  private def removeChild(other: ForkTable[K, V]): Unit = {
+  private[this] def removeChild(other: ForkTable[K, V]): Unit = {
     this.children = children.filter({other != _})
   }
 
-  private def addChild(other: ForkTable[K, V]): Unit = {
+  private[this] def addChild(other: ForkTable[K, V]): Unit = {
     this.children = this.children :+ other
   }
 
@@ -66,11 +66,11 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
     parent flatMap (_ get key) map {(v) => whiteouts += key; v}
   }
 
-  def freeze = ???
+  def freeze: Unit = ???
 
-  override def size = back.size
+  override def size: Int = back.size
 
-  override def iterator = parent match {
+  override def iterator: Iterator[(K,V)] = parent match {
     case None        => back.iterator
     case Some(thing) => back.iterator ++ thing.iterator
   }
@@ -86,18 +86,18 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
   override def contains(key: K): Boolean = back contains key
   override def exists(p: ((K, V)) => Boolean) = back exists p
 
-  override def apply(key: K) = back(key)
+  override def apply(key: K): V = back(key)
 
   /**
    * @return a new child of this scope
    */
-  def fork: ForkTable[K, V] = {
+  def fork(): ForkTable[K, V] = {
     val c = new ForkTable[K, V](parent=Some(this))
     children = children :+ c
     c
   }
 
-  override def toString = this.prettyPrint(0)
+  override def toString: String = this.prettyPrint(0)
 
-  def prettyPrint(indentLevel: Int) = (" "*indentLevel) + this.keys.foldLeft[String](""){(acc, key) => acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"}
+  def prettyPrint(indentLevel: Int): String = (" "*indentLevel) + this.keys.foldLeft[String](""){(acc, key) => acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"}
 }
