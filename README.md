@@ -1,6 +1,8 @@
 MeteorCode Pathway
 ==================
 
+[![Join the chat at https://gitter.im/MeteorCode/Pathway](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/MeteorCode/Pathway?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/MeteorCode/Pathway.svg?branch=master)](https://travis-ci.org/MeteorCode/Pathway) 
 [![Coverage Status](https://coveralls.io/repos/MeteorCode/Pathway/badge.svg?branch=master)](https://coveralls.io/r/MeteorCode/Pathway?branch=master) 
 [![Codacy Badge](https://www.codacy.com/project/badge/9b34c328354647e3b799f6880d1b28e0)](https://www.codacy.com/app/MeteorCode-Labs/Pathway) 
