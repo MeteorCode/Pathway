@@ -32,9 +32,9 @@ import scala.collection.mutable
  *               policy.
  */
 class ResourceManager private[this] (
-  private val directories: util.List[FileHandle],
-  private val writeDir: Option[FileHandle],
-  private val policy: LoadOrderProvider
+  private[this] val directories: util.List[FileHandle],
+  private[this] val writeDir: Option[FileHandle],
+  private[this] val policy: LoadOrderProvider
 ) extends Logging { // TODO: refactor constructor
   /**
    * Constructor for a ResourceManager with a single managed directory.
@@ -97,8 +97,8 @@ class ResourceManager private[this] (
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
-  private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
-  private val cachedHandles = mutable.Map[String, FileHandle]()
+  private[this] val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
+  private[this] val cachedHandles = mutable.Map[String, FileHandle]()
 
   writeDir.foreach{ directory =>
       if (!directory.exists) {

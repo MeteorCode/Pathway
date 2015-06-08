@@ -13,8 +13,8 @@ import com.meteorcode.pathway.script.{ScriptEnvironment, ScriptContainerFactory,
  * @author Hawk Weisman
  */
 object ModLoader extends Logging {
-  private val env = new ScriptEnvironment("require(path) { return container.eval(files.handle(path)); }")
-  private val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstanceWithEnvironment(env)
+  private[this] val env = new ScriptEnvironment("require(path) { return container.eval(files.handle(path)); }")
+  private[this] val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstanceWithEnvironment(env)
   env.addBinding("container", beanshell)
 
 

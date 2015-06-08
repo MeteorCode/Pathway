@@ -53,9 +53,9 @@ import scala.collection.JavaConversions._
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
 class JarEntryFileHandle (virtualPath: String,
-                          private val entry: JarEntry,
-                          private val parentJarfile: JarFileHandle,
-                          private val back: File,
+                          private[this] val entry: JarEntry,
+                          private[this] val parentJarfile: JarFileHandle,
+                          private[this] val back: File,
                           manager: ResourceManager//,
                           //token: IOAccessToken
                           )

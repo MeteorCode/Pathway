@@ -20,7 +20,7 @@ import scala.collection.JavaConversions._
  * Created by hawk on 8/15/14.
  */
 class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) extends LoadOrderProvider {
-  private val order = for (line <- config.readString.split("\n")
+  private[this] val order = for (line <- config.readString.split("\n")
                            if !line.startsWith("//")) yield line
 
   /**

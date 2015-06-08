@@ -24,7 +24,7 @@ import scala.collection.JavaConversions._
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
  * @param virtualPath
- * the virtual path to the file in the fake filesystem
+* the virtual path to the file in the fake filesystem
  * @param back a [[java.io.File]] representing the file in the filesystem
  * @param manager
  * An [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] managing this FileHandle
@@ -32,7 +32,7 @@ import scala.collection.JavaConversions._
  */
 class DesktopFileHandle (virtualPath: String,
                          realPath: String,
-                         private val back: File,
+                         private[this] val back: File,
                          manager: ResourceManager//,
                          //token: IOAccessToken
                           ) extends FileHandle(virtualPath, manager//, token
