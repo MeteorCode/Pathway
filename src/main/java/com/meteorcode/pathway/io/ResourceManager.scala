@@ -121,51 +121,55 @@ class ResourceManager (val directories: Seq[FileHandle],
     }
   }
 
-  private def makeHandle(fakePath: String): FileHandle = {
-    logger.log(this.toString, "making a FileHandle for " + fakePath)
-    val realPath: String = paths.get(trailingSlash(fakePath)) match {
+  private def makeHandle(virtualPath: String): FileHandle = {
+    logger.log(this.toString, s"making a FileHandle for $virtualPath")
+    val physicalPath: String = paths.get(trailingSlash(virtualPath)) match {
       case Some(s: String) => s
       // If the path is not in the tree, handle write attempts.
-      case None if isPathWritable(fakePath) =>
-        logger.log(this.toString, s"handling write attempt to empty path $fakePath")
+      case None if isPathWritable(virtualPath) =>
+        logger.log(this.toString, s"handling write attempt to empty path $virtualPath")
+        assume(writeDir.isDefined)
         writeDir match {
           case Some(FileHandle(writeVirt, writePhys)) =>
-            // the physical path we want to write to is...
-            val physicalPath = writePhys +    // the write dir's physical path, plus
-              fakePath.replace(writeVirt, "") // the virtual path with the write dir's virtual path removed
-            paths put (fakePath, physicalPath)
-            logger.log(this.toString, "successfully handled write attempt")
-            paths(fakePath)
+            val phys = writePhys +               // The physical path is the write dir's physical path, plus
+              virtualPath.replace(writeVirt, "") // the virtual path with the write dir's virtual path removed.
+            paths put (virtualPath, phys) // Since we've created a new FS object, add it to the known paths.
+            logger.log(this.toString, s"successfully handled write attempt to $virtualPath")
+            phys
           case Some(_) => // if the write directory won't destructure, it's missing a physical path.
             // if this is the case, somebody seriously fucked up.
             throw new IOException("Cannot handle write attempt: write directory missing physical path.")
-          case None => throw new IOException("Cannot handle write attempt: no write directory.")
+          case None =>
+            // if there's no write directory, we cannot support write attempts.
+            // This should never happen – isPathWritable() should prevent this.
+            throw new IOException("FATAL: Cannot handle write attempt:" +
+              " no write directory exists, but a path claimed to be writable.\n")
         }
-      case None =>  throw new IOException(s"A filehandle to an empty path ($fakePath) was requested, and the requested path was not writable")
+      case None =>
+        throw new IOException(s"A filehandle to an empty path ($virtualPath) was requested," +
+        " and the requested path was not writable") // TODO: this should maybe return failure instead of throwing?
     }
-    realPath.split('.').drop(1).lastOption match {
-      case Some("jar") => new JarFileHandle(fakePath, new File(realPath), this)
-      case Some("zip") => new ZipFileHandle(fakePath, new File(realPath), this)
-      case _ => inArchiveRE findFirstIn realPath match {
+    physicalPath.split('.').drop(1).lastOption match {
+      case Some("jar") => new JarFileHandle(virtualPath, new File(physicalPath), this)
+      case Some("zip") => new ZipFileHandle(virtualPath, new File(physicalPath), this)
+      case _ => inArchiveRE findFirstIn physicalPath match {
         case Some(inArchiveRE(path, ".zip", name)) =>
             val parent = new ZipFileHandle("/", new File(s"$path.zip"), this)
             new ZipEntryFileHandle(
-              fakePath,
+              virtualPath,
               new ZipFile(
-                parent
-                  .file
+                parent.file
                   .getOrElse(throw new IOException(s"FATAL: ZipFileHandle $parent was not backed by a File object"))
               ).getEntry(name), parent)
         case Some(inArchiveRE(path, ".jar", name)) =>
             val parent = new JarFileHandle("/", new File(s"$path.jar"), this)
             new JarEntryFileHandle(
-              fakePath,
+              virtualPath,
               new JarFile(
-                parent
-                  .file
+                parent.file
                   .getOrElse(throw new IOException(s"FATAL: JarFileHandle at $parent was not backed by a File object"))
               ).getJarEntry(name), parent)
-        case _ => new FilesystemFileHandle(fakePath, realPath, this)
+        case _ => new FilesystemFileHandle(virtualPath, physicalPath, this)
       }
     }
   }
