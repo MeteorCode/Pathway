@@ -111,7 +111,7 @@ class ResourceManager (val directories: Seq[FileHandle],
    * @return A [[com.meteorcode.pathway.io.FileHandle]] wrapping the object that exists at the requested path
    */
   @throws(classOf[IOException])
-  def handle(path: String): FileHandle = {
+  def handle(path: String): FileHandle = { // TODO: maybe this should return a Tr
     if (cachedHandles.keySet contains path)
       cachedHandles.getOrElseUpdate(path, makeHandle(path))
     else {
@@ -128,14 +128,19 @@ class ResourceManager (val directories: Seq[FileHandle],
       // If the path is not in the tree, handle write attempts.
       case None if isPathWritable(fakePath) =>
         logger.log(this.toString, s"handling write attempt to empty path $fakePath")
-        paths put (fakePath,
-          writeDir
-            .getOrElse(throw new IOException("Cannot handle write attempt: no write directory."))
-            .physicalPath
-            .getOrElse(throw new IOException("Cannot handle write attempt: write directory missing physical path."))
-            + fakePath.replace(writeDir.get.path, ""))
-        logger.log(this.toString, "successfully handled write attempt")
-        paths(fakePath)
+        writeDir match {
+          case Some(FileHandle(writeVirt, writePhys)) =>
+            // the physical path we want to write to is...
+            val physicalPath = writePhys +    // the write dir's physical path, plus
+              fakePath.replace(writeVirt, "") // the virtual path with the write dir's virtual path removed
+            paths put (fakePath, physicalPath)
+            logger.log(this.toString, "successfully handled write attempt")
+            paths(fakePath)
+          case Some(_) => // if the write directory won't destructure, it's missing a physical path.
+            // if this is the case, somebody seriously fucked up.
+            throw new IOException("Cannot handle write attempt: write directory missing physical path.")
+          case None => throw new IOException("Cannot handle write attempt: no write directory.")
+        }
       case None =>  throw new IOException(s"A filehandle to an empty path ($fakePath) was requested, and the requested path was not writable")
     }
     realPath.split('.').drop(1).lastOption match {
