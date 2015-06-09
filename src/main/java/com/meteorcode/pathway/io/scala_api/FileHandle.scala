@@ -208,7 +208,7 @@ object FileHandle {
 }
 */
 object FileHandle {
-  def unapply(f: FileHandle): Option[(String,String)] = f.physicalPath map {
+  protected[io] def unapply(f: FileHandle): Option[(String,String)] = f.physicalPath map {
     (physPath) => (f.path,physPath)
   }
 }
