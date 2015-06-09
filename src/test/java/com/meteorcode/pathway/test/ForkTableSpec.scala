@@ -1,15 +1,15 @@
 package com.meteorcode.pathway.test
 
 import com.meteorcode.common.ForkTable
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+
+
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{WordSpec, Matchers}
 
 /**
  * Created by hawk on 5/22/15.
  */
-@RunWith(classOf[JUnitRunner])
+
 class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
 
   "A ForkTable" when {

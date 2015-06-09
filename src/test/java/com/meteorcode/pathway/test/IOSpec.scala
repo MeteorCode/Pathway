@@ -8,9 +8,9 @@ import com.meteorcode.pathway.io.{FileHandle, DesktopFileHandle, AlphabeticLoadP
 import com.meteorcode.pathway.logging.{NullLogger, LoggerFactory}
 import com.meteorcode.pathway.test.tags.FilesystemTest
 
-import org.junit.runner.RunWith
+
 import org.mockito.Mockito._
-import org.scalatest.junit.JUnitRunner
+
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, WordSpec, BeforeAndAfter}
@@ -23,7 +23,7 @@ import scala.collection.JavaConversions._
  *
  * Created by hawk on 5/30/15.
  */
-@RunWith(classOf[JUnitRunner])
+
 class IOSpec extends PathwaySpec {
 
   var manager: ResourceManager = null
