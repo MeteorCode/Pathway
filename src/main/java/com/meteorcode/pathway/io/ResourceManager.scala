@@ -77,18 +77,12 @@ class ResourceManager (val directories: Seq[FileHandle],
   private def makeFS(dirs: Seq[FileHandle]): ForkTable[String,String] = {
     val fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
-      case a: FileHandle if a.isDirectory =>
+      case FileHandle(virtualPath,physicalPath) if current.isDirectory =>
         val newfs = fs.fork
-        newfs put (
-          current.path,
-          current.physicalPath.getOrElse(throw new IOException(s"FATAL: FileHandle $current did not have a physical path") ))
-        policy.orderPaths(a.list.get).foldRight(newfs)((fh, tab) => _walk(fh, tab))
-      case _: FileHandle => fs put (
-        current.path,
-        current
-          .physicalPath
-          .getOrElse(throw new IOException(s"FATAL: FileHandle $current did not have a physical path") ))
-        fs
+        newfs put (virtualPath, physicalPath)
+        policy.orderPaths(current.list.get).foldRight(newfs)((fh, tab) => _walk(fh, tab))
+      case FileHandle(virtualPath, physicalPath) => fs put (virtualPath, physicalPath); fs
+      case _ => throw new IOException(s"FATAL: FileHandle $current did not have a physical path")
     }
     val orderedFS = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
     writeDir match { // TODO: this is where we could "freeze" the un-writedir'd map

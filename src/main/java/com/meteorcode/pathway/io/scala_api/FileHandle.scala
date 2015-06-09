@@ -207,3 +207,8 @@ object FileHandle {
   protected val correctToken = new IOAccessToken
 }
 */
+object FileHandle {
+  def unapply(f: FileHandle): Option[(String,String)] = f.physicalPath map {
+    (physPath) => (f.path,physPath)
+  }
+}
