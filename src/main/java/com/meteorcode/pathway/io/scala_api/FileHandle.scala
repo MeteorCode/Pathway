@@ -63,7 +63,8 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /**
    * Returns the [[java.io.File]] backing this file handle.
-   * @return a [[java.io.File]] that represents this file handle, or null if this file is inside a Jar or Zip archive.
+   * @return an [[scala.Option Option]] containing the [[java.io.File]] that represents this file handle,
+   *         or [[scala.None None]] if this file is inside a Jar or Zip archive.
    */
   protected[io] def file: Option[File]
 
@@ -82,59 +83,68 @@ abstract class FileHandle(protected val virtualPath: String,
   @deprecated(message = "just use FilterMonadic at call site for better performance", since = "v2.0.0")
   def list(suffix: String): Try[Seq[FileHandle]] = list map ( _ filter ( _.path.endsWith(suffix)) )
 
-  /** @return a [[java.io.InputStream]] for reading this file, or null if the file does not exist or is a directory.
+  /** Returns a stream for reading this file as bytes.
+    * @return a [[scala.util.Success Success]] containing a [[java.io.InputStream InputStream]]
+    *         for writing to this file, or a [[scala.util.Failure Failure]] containing a [[java.io.IOException
+    *          IOException]] if this file is not writeable.
     */
   def read: Try[InputStream]
 
   /** Returns a buffered stream for reading this file as bytes.
-    * @throws IOException if the file does not exist or is a directory.
+    * @return a [[scala.util.Success Success]] containing a [[java.io.BufferedInputStream BufferedInputStream]]
+    *         for writing to this file, or a [[scala.util.Failure Failure]] containing a [[java.io.IOException
+    *          IOException]] if this file is not writeable.
     */
   def read(bufferSize: Integer): Try[BufferedInputStream] = read map (new BufferedInputStream(_, bufferSize))
 
   /** Reads the entire file into a string using the platform's default charset.
-    * @throws IOException if the file does not exist or is a directory.
+    * @return a [[scala.util.Success Success]] containing the contents of the file as a String,
+    *         or a [[scala.util.Failure Failure]] containing an [[java.io.IOException IOException]]
+    *         if the rontents could not be read.
     */
   def readString: Try[String] = readString(Charset.defaultCharset())
 
   /** Reads the entire file into a string using the specified charset. */
   def readString(charset: Charset): Try[String] = read map (Source fromInputStream _ mkString)
 
-  /** Returns an [[java.io.OutputStream]] for writing to this file.
-    * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
+  /** Returns a [[java.io.OutputStream]] for writing to this file.
+    * @return an [[Option]] containing a [[java.io.OutputStream OutputStream]]
+    *  for writing to this file, or [[None]] if this file is not writeable.
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     * @throws IOException if something went wrong while opening the file.
     */
   def write(append: Boolean): Option[OutputStream]
 
   /** Returns a [[java.io.BufferedOutputStream]] for writing to this file.
-    * @return a [[java.io.BufferedOutputStream ]] for writing to this file, or null if this file is not writeable.
+    * @return an [[Option]] containing a [[java.io.BufferedOutputStream BufferedOutputStream]]
+    *  for writing to this file, or [[None]] if this file is not writeable.
     * @param bufferSize The size of the buffer
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     */
   def write(bufferSize: Integer, append: Boolean): Option[BufferedOutputStream] = write(append) map ( new BufferedOutputStream(_, bufferSize) )
 
   /** Writes the specified string to the file using the default charset.
-    *
-    * Throws an [[java.io.IOException IOException ]] if the FileHandle represents something that is not writeable;
-    * yes, I am aware that having some of these methods return null and others throw exceptions is Wrong and I should
-    * feel Bad, I wanted them to return an [[scala.Option Option]], but Max wouldn't let me.
-    *
-    * @param string the string to write to the file
-    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
-    * @throws IOException if this file is not writeable
+  *
+  * Returns [[scala.util.Success Success]]`(Unit)` if the string was successfully written,
+  * or a [[scala.util.Failure Failure]] containing an [[java.io.IOException IOException]]
+  * if writing failed or the [[FileHandle]] was not writable.
+  *
+  * @param string the string to write to the file
+  * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
+  * @return `Success(Unit)` if the string was written, `Failure(IOException)` if this file is not writeable
     */
   def writeString(string: String, append: Boolean): Try[Unit] = writeString(string, Charset.defaultCharset(), append)
 
-  /** Writes the specified string to the file using the specified  charset.
+  /** Writes the specified string to the file using the specified charset.
     *
-    * Throws an [[java.io.IOException IOException]] if the FileHandle represents something that is not writeable;
-    * yes, I am aware  that having some of these methods return null and others throw exceptions is Wrong and I should
-    * feel Bad, I wanted them to return an [[scala.Option Option]], but Max wouldn't let me.
+    * Returns [[scala.util.Success Success]]`(Unit)` if the string was successfully written,
+    * or a [[scala.util.Failure Failure]] containing an [[java.io.IOException IOException]]
+    * if writing failed or the [[FileHandle]] was not writable.
     *
     * @param string the string to write to the file
     * @param charset the [[java.nio.charset.Charset Charset]] to use while writing to the file
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
-    * @throws IOException if this file is not writeable
+    * @return `Success(Unit)` if the string was written, `Failure(IOException)` if this file is not writeable
     */
   def writeString(string: String, charset: Charset, append: Boolean): Try[Unit] = write(append) match {
     case Some(stream) => stream.write(string.getBytes(charset)); Success(Unit)
