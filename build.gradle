@@ -103,7 +103,9 @@ javadoc {
 }
 
 test {
-    testLogging.showStandardStreams = true	// log stack traces to stderr
+    testLogging {
+        exceptionFormat = 'full' // log whole stack traces when exceptions cause failures
+    }
     jacoco {
         excludes = jacocoExcludes
     }
