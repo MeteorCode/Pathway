@@ -174,9 +174,8 @@ class ResourceManager (val directories: Seq[FileHandle],
     }
   }
 
-  override def toString = "ResourceManager" + directories.map { (dir) =>
-     dir.physicalPath
-      .getOrElse(throw new IOException(s"FATAL: FileHandle $dir did not have a physical path"))
-      .split(File.separatorChar).last}
-    .mkString(",")
+  override def toString = "ResourceManager" + directories.map {
+    case FileHandle(_, physPath) => physPath.split(File.separatorChar).last
+    case dir => throw new IOException(s"FATAL: FileHandle $dir did not have a physical path")
+  } mkString ","
 }
