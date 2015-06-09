@@ -60,18 +60,6 @@ class ResourceManager private[this] (
   def this(directories: util.List[FileHandle], policy: LoadOrderProvider) = this(directories, None, policy)
 
   /**
-   * Constructor for a ResourceManager with a String representing a path to the managed directory.
-   *
-   * Note that this defaults to using [[com.meteorcode.pathway.io.DesktopFileHandle]] if you  want to use a different type of
-   * FileHandle, use [[com.meteorcode.pathway.io.ResourceManager.handle]]  instead.
-   *
-   * @param path the path to the directory to manage
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
-   * @return a new ResourceManager managing the specified directory.
-   */
-  def this(path: String, policy: LoadOrderProvider) = this(List(new DesktopFileHandle("", path, null)), None, policy)
-
-  /**
    * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
    *
    * @param directory a FileHandle into the directory to manage.
@@ -221,5 +209,5 @@ class ResourceManager private[this] (
     case FileHandle(_, physPath) => physPath.split(File.separatorChar).last
     case dir => throw new IOException(s"FATAL: FileHandle $dir did not have a physical path")
   } mkString
-  
+
 }
