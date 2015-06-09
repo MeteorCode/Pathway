@@ -47,14 +47,14 @@ class Move(
             where: Grid
             )
   extends Event(
-    "Move " + who + " from " + from + " to "  + to,
+    s"$who moves from $from to $to",
     Map("from" -> from, "to" -> to, "Entity" -> who),
     where.getContext,
     from
   ) {
 
-  def this(from: GridCoordinates,
-           to: GridCoordinates,
+  def this(to: GridCoordinates,
+           from: GridCoordinates,
            who: Entity,
            where: Grid) = this(where.getTileAt(to), where.getTileAt(from), who, where)
 

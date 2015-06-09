@@ -8,10 +8,15 @@ import com.meteorcode.pathway.io.ResourceManager
 import com.meteorcode.pathway.io.scala_api.{AlphabeticLoadPolicy, FilesystemFileHandle, FileHandle}
 import com.meteorcode.pathway.test.tags.FilesystemTest
 
-import org.junit.runner.RunWith
+
 import org.mockito.Mockito._
-import org.scalatest.junit.JUnitRunner
+
 import org.scalatest.{TryValues, OptionValues}
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.prop.PropertyChecks
+import org.scalatest.{Matchers, WordSpec, BeforeAndAfter}
+
+import scala.collection.JavaConversions._
 
 /**
  * Non-comprehensive test case to assert that the IO package does the Right Thing
@@ -19,7 +24,6 @@ import org.scalatest.{TryValues, OptionValues}
  *
  * Created by hawk on 5/30/15.
  */
-@RunWith(classOf[JUnitRunner])
 class IOSpec extends PathwaySpec with OptionValues with TryValues {
 
   var manager: ResourceManager = null
@@ -279,6 +283,9 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
       "return None from calls to write() in append mode" taggedAs FilesystemTest in {
         manager.handle("/testJarDir/").write(append=true) shouldBe None
       }
+      "return None from calls to write() in append mode with a specified buffer size" taggedAs FilesystemTest in {
+        manager.handle("/testJarDir").write(8,append=true) shouldBe None
+      }
       "return None from calls to write() in overwrite mode" taggedAs FilesystemTest in {
         manager.handle("/testJarDir").write(append=false) shouldBe None
       }
@@ -327,7 +334,6 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         when(fakeFile.isDirectory).thenReturn(false)
         when(fakeFile.exists).thenReturn(false)
 
-        
         the [IOException] thrownBy {
           new FilesystemFileHandle("/write/fakepath", "/write/fakepath", fakeFile, manager).writable
         } should have message "SOMETHING BAD TOOK PLACE I GUESS"

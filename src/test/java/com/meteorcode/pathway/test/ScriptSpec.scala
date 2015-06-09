@@ -4,8 +4,8 @@ package com.meteorcode.pathway.test
 import java.io.IOException
 import java.util
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+
+
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -31,7 +31,7 @@ import scala.util.{Failure, Success}
 /**
  * Created by hawk on 5/25/15.
  */
-@RunWith(classOf[JUnitRunner])
+
 class ScriptSpec extends PathwaySpec with IdentGenerators {
 
   "A ScriptContainerFactory" when {

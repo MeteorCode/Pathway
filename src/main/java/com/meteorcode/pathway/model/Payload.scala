@@ -24,8 +24,8 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
    * @param stampedBy
    *            the [[com.meteorcode.pathway.model.Property]] stamping this event.
    */
-  def stamp(stampedBy: Property) = stamps += stampedBy
-  def unstamp(stampedBy: Property) = stamps -= stampedBy
+  def stamp(stampedBy: Property): Unit = stamps += stampedBy
+  def unstamp(stampedBy: Property): Unit = stamps -= stampedBy
 
   /**
    * Attempts to stamp this Payload with a [[com.meteorcode.pathway.model.Property]] if this Payload has not already been
@@ -33,7 +33,12 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
    * @param stampedBy the [[com.meteorcode.pathway.model.Property]] stamping this event.
    * @return false if this Payload was already stamped by that Property, true if not
    */
-  def tryToStamp (stampedBy: Property) = if (stampExists(stampedBy)) { false } else { stamp(stampedBy); true }
+  def tryToStamp (stampedBy: Property): Boolean = if (stampExists(stampedBy)) {
+      false
+    } else {
+      stamp(stampedBy)
+      true
+    }
   /**
    * Checks to see if this Payload has been stamped by a [[com.meteorcode.pathway.model.Property]], marking that
    * that Property has "seen" this Payload
@@ -42,22 +47,22 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
    *            the [[com.meteorcode.pathway.model.Property]] who's stamp is being searched for
    * @return true if that Property's stamp is present.
    */
-  def stampExists(stampedBy: Property) = stamps.contains(stampedBy)
+  def stampExists(stampedBy: Property): Boolean = stamps.contains(stampedBy)
 
-  def where = location
+  def where: Tile = location
   def x: Integer = { if (location == null) { null } else location.getPosition.getX }
   def y: Integer = { if (location == null) { null } else location.getPosition.getY }
 
-  def +(kv: (String, Object)) = map += kv
-  def ++(addition: scala.collection.immutable.Map[String, Object]) = map ++= addition
-  def ++(addition: java.util.Map[String, Object]) = map ++= addition.asScala
-  def patch(kv: (String, Object)) = map += kv
-  def patch(key: String, value: Object) = map += (key -> value)
-  def patch(addition: scala.collection.immutable.Map[String, Object]) = map ++= addition
-  def patch(addition: java.util.Map[String, Object]) = map ++= addition.asScala
-  def -(key: String) = map - key
-  def remove(key: String) = map - key
+  def +(kv: (String, Object)): Unit = map += kv
+  def ++(addition: scala.collection.immutable.Map[String, Object]): Unit = map ++= addition
+  def ++(addition: java.util.Map[String, Object]): Unit = map ++= addition.asScala
+  def patch(kv: (String, Object)): Unit = map += kv
+  def patch(key: String, value: Object): Unit = map += (key -> value)
+  def patch(addition: scala.collection.immutable.Map[String, Object]): Unit = map ++= addition
+  def patch(addition: java.util.Map[String, Object]): Unit = map ++= addition.asScala
+  def -(key: String): Unit = map - key
+  def remove(key: String): Unit = map - key
   def contains(key: String): Boolean = map.contains(key)
   def get(key: String): Object = { map getOrElse (key, None) }
-  def toMap = map.asJava
+  def toMap: java.util.Map[String,Object] = map.asJava
 }

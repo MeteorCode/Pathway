@@ -30,7 +30,7 @@ import scala.language.postfixOps
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
 class JarFileHandle protected[io] (virtualPath: String,
-                     private val back: File,
+                    private[this] val back: File,
                      manager: ResourceManager//,
                      //token: IOAccessToken
                       ) extends FileHandle(virtualPath, manager//, token

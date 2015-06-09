@@ -25,7 +25,7 @@ import scala.collection.JavaConversions._
  */
 class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) extends LoadOrderProvider {
 
-  private val order = config
+  private[this] val order = config
     .readString
     .getOrElse(throw new IOException("FATAL: could not read from config file"))
     .split("/") filter ((line) => !line.startsWith("//"))

@@ -35,11 +35,53 @@ import scala.collection.mutable
  * @param policy A [[LoadOrderProvider LoadOrderProvider]] representing the game's load-order
  *               policy.
  */
-class ResourceManager (val directories: Seq[FileHandle],
-                       val writeDir: Option[FileHandle] = None,
-                       val policy: LoadOrderProvider    = new AlphabeticLoadPolicy
-                        ) extends Logging {
-  require(!directories.isEmpty, "Initial list of directories cannot be empty.")
+
+class ResourceManager private[this] (
+  private[this] val directories: util.List[FileHandle],
+  private[this] val writeDir: Option[FileHandle],
+  private[this] val policy: LoadOrderProvider
+) extends Logging { // TODO: refactor constructor
+  /**
+   * Constructor for a ResourceManager with a single managed directory.
+   *
+   * @param directory a FileHandle into the directory to manage.
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @return a new ResourceManager managing the specified directory.
+   */
+  def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), None, policy)
+
+  /**
+   * Constructor for a ResourceManager with a list of managed directories.
+   *
+   * @param directories a list of FileHandles into the directories to manage.
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @return a new ResourceManager managing the specified directory.
+   */
+  def this(directories: util.List[FileHandle], policy: LoadOrderProvider) = this(directories, None, policy)
+
+  /**
+   * Constructor for a ResourceManager with a String representing a path to the managed directory.
+   *
+   * Note that this defaults to using [[com.meteorcode.pathway.io.DesktopFileHandle]] if you  want to use a different type of
+   * FileHandle, use [[com.meteorcode.pathway.io.ResourceManager.handle]]  instead.
+   *
+   * @param path the path to the directory to manage
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @return a new ResourceManager managing the specified directory.
+   */
+  def this(path: String, policy: LoadOrderProvider) = this(List(new DesktopFileHandle("", path, null)), None, policy)
+
+  /**
+   * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
+   *
+   * @param directory a FileHandle into the directory to manage.
+   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @param writeDir a FileHandle into the write directory
+   * @return a new ResourceManager managing the specified directory.
+   */
+  def this(directory: FileHandle,
+           writeDir: FileHandle,
+           policy: LoadOrderProvider) = this(List(directory), Some(writeDir), policy)
 
   /**
    * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
@@ -60,8 +102,8 @@ class ResourceManager (val directories: Seq[FileHandle],
            writeDir: FileHandle,
            policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
-  private val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
-  private val cachedHandles = mutable.Map[String, FileHandle]()
+  private[this] val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
+  private[this] val cachedHandles = mutable.Map[String, FileHandle]()
 
   writeDir.foreach{ directory =>
       if (!directory.exists) {
@@ -74,7 +116,8 @@ class ResourceManager (val directories: Seq[FileHandle],
    * Recursively walk the filesystem down from each FileHandle in a list
    * @param dirs a list of FileHandles to seed the recursive walk
    */
-  private def makeFS(dirs: Seq[FileHandle]): ForkTable[String,String] = {
+
+  private[this] def makeFS(dirs: Seq[FileHandle]): ForkTable[String,String] = {
     val fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case FileHandle(virtualPath,physicalPath) if current.isDirectory =>
@@ -98,7 +141,7 @@ class ResourceManager (val directories: Seq[FileHandle],
    * @param virtualPath a path in the virtual filesystem
    * @return true if that path can be written to, false if it cannot
    */
-  def isPathWritable(virtualPath: String) = if (writeDir.isDefined) virtualPath.contains("write/") else false
+  def isPathWritable(virtualPath: String): Boolean = if (writeDir.isDefined) virtualPath.contains("write/") else false
 
   /**
    * Request that the ResourceManager handle the file at a given path.
@@ -121,7 +164,7 @@ class ResourceManager (val directories: Seq[FileHandle],
     }
   }
 
-  private def makeHandle(virtualPath: String): FileHandle = {
+  private[this] def makeHandle(virtualPath: String): FileHandle = {
     logger.log(this.toString, s"making a FileHandle for $virtualPath")
     val physicalPath: String = paths.get(trailingSlash(virtualPath)) match {
       case Some(s: String) => s
@@ -174,8 +217,9 @@ class ResourceManager (val directories: Seq[FileHandle],
     }
   }
 
-  override def toString = "ResourceManager" + directories.map {
+  override def toString: String = "ResourceManager" + directories.map {
     case FileHandle(_, physPath) => physPath.split(File.separatorChar).last
     case dir => throw new IOException(s"FATAL: FileHandle $dir did not have a physical path")
-  } mkString ","
+  } mkString
+  
 }

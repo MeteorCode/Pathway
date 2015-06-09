@@ -21,8 +21,10 @@ apply plugin: "java"
 apply plugin: "scala"
 apply plugin: "eclipse"
 apply plugin: "idea"
+apply plugin: "scoverage"
 apply plugin: "jacoco"
 apply plugin: "com.github.kt3k.coveralls"
+apply plugin: "com.github.maiflai.scalatest"
 
 
 buildscript {
@@ -62,21 +64,25 @@ tasks.withType(ScalaDoc) {
 }
 
 dependencies {
+    // languages
+    compile group: 'org.scala-lang', name: 'scala-library', version: '2.11.6'
+    compile group: 'org.beanshell',  name: 'bsh',           version: '2+'
 
-    compile "org.scala-lang:scala-library:2.11.6"
-    compile "org.beanshell:bsh:2+"
+    // core libraries on filesystem
     compile fileTree(dir: 'corelib', include: '*.jar')
 
     // right now, the only scalac plugin we are using is genjavadoc
     //scalaCompilerPlugins  group: 'com.typesafe.genjavadoc', name: 'genjavadoc-plugin_2.11.1', version:'0.8'
 
-    testRuntime 'org.pegdown:pegdown:1.1.0'
-    testCompile "junit:junit:4+"
-    testCompile "org.mockito:mockito-all:1.9.5"
-    testCompile "org.powermock:powermock-mockito-release-full:1.5.4+"
-    testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '2.2.4'
-    testCompile group: 'org.scalacheck', name: 'scalacheck_2.11', version: '1.12.2'
-    testCompile group: 'me.hawkweisman', name: 'util_2.11', version: '0.1'
+    testRuntime group: 'org.pegdown',    name: 'pegdown',                        version: '1.1.0'
+    testCompile group: 'org.mockito',    name: 'mockito-all',                    version: '1.9.5'
+    testCompile group: 'org.powermock',  name: 'powermock-mockito-release-full', version: '1.5.4+'
+    testCompile group: 'org.scalatest',  name: 'scalatest_2.11',                 version: '2.2.4'
+    testCompile group: 'org.scalacheck', name: 'scalacheck_2.11',                version: '1.12.2'
+    testCompile group: 'me.hawkweisman', name: 'util_2.11',                      version: '0.1'
+
+    scoverage group: 'org.scoverage', name: 'scalac-scoverage-plugin_2.11',  version: '1.0.4+'
+    scoverage group: 'org.scoverage', name: 'scalac-scoverage-runtime_2.11', version: '1.0.4+'
 }
 
 // stuff that should not have a JaCoCo test report generated
@@ -101,7 +107,7 @@ javadoc {
     source = fileTree(dir: "src", include: '**/*.java', exclude: '**/test/**') //+ fileTree("$buildDir/genjavadoc")
     //options.addStringOption("quiet")
 }
-
+/*
 test {
     testLogging {
         exceptionFormat = 'full' // log whole stack traces when exceptions cause failures
@@ -120,7 +126,7 @@ jacocoTestReport {
         xml.enabled = true // coveralls plugin depends on xml format report
         html.enabled = true
     }
-}
+}*/
 
 ext {
     assetsDir = file("assets");

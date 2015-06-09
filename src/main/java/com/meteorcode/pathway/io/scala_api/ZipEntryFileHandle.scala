@@ -31,9 +31,9 @@ import scala.util.{Failure, Success, Try}
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
 class ZipEntryFileHandle protected[io] (virtualPath: String,
-                          private val entry: ZipEntry,
-                          private val parentZipfile: ZipFileHandle,
-                          private val back: File,
+                          private[this] val entry: ZipEntry,
+                          private[this] val parentZipfile: ZipFileHandle,
+                          private[this] val back: File,
                           manager: ResourceManager//,
                           //token: IOAccessToken
                           )

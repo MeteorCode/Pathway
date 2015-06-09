@@ -1,15 +1,15 @@
 package com.meteorcode.pathway.test
 
 import com.meteorcode.common.ForkTable
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+
+
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{WordSpec, Matchers}
 
 /**
  * Created by hawk on 5/22/15.
  */
-@RunWith(classOf[JUnitRunner])
+
 class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
 
   "A ForkTable" when {
@@ -43,7 +43,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         target.getChildren shouldBe 'empty
       }
       "have no parent" in {
-        target.getParent shouldBe null
+        target.getParent shouldBe None
       }
       "be a root" in {
         target should be a 'root
@@ -134,7 +134,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
       "know its parent" in {
         val parent = new ForkTable[Int, Int]
         val fork = parent.fork
-        fork.getParent should be(parent)
+        fork.getParent shouldBe Some(parent)
       }
       "not be a root" in {
         val target = new ForkTable[Int, Int].fork
@@ -279,6 +279,26 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         }
       }
     }
+    "frozen" should {
+      "not be modified by changes to lower levels" ignore {
+       val root = new ForkTable[Int,Int]
+       root.put(1,1)
+       val level2 = root.fork
+       level2.put(2,2)
+       val level3 = level2.fork
+       level3.put(3,3)
 
-  }
+       level2.freeze
+       level3.put(3,6)
+
+       level2.get(3) shouldBe Some(3)
+       level2 should not contain (3 -> 6)
+
+       root.put(4,4)
+
+       level2.get(4) shouldBe None
+       level2 should not contain (4 -> 4)
+     }
+   }
+ }
 }

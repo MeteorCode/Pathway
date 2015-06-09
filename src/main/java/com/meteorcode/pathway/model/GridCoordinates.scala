@@ -15,7 +15,7 @@ case class GridCoordinates(x: Int, y: Int) {
 
   def getY = y
 
-  override def toString = s"($x, $y)"
+  override def toString: String = s"($x, $y)"
 
   override def equals(other: Any) = other match {
     case GridCoordinates(x2, y2) => x == x2 && y == y2
