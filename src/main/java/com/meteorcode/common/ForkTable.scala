@@ -1,5 +1,6 @@
 package com.meteorcode.common
 
+import scala.annotation.tailrec
 import scala.collection.{AbstractMap, DefaultMap, mutable}
 
 /**
@@ -167,6 +168,22 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
    *         which the predicate holds, false otherwise.
    */
   override def exists(p: ((K, V)) => Boolean) = back exists p
+
+  /**
+   * Search the whole chain down from this level
+   * for a (key, value) pair matching a predicate.
+   *
+   * @param  p the predicate to search for
+   * @return true if there exists a pair for which the
+   *         predicate holds, false otherwise.
+   */
+  @tailrec final def chainExists(p: ((K, V)) => Boolean): Boolean = back exists p match {
+    case true  => true // this method could look much simpler were it not for `tailrec`
+    case false => parent match {
+      case None        => false
+      case Some(thing) => thing chainExists p
+    }
+  }
 
   /**
    * Look up the given key
