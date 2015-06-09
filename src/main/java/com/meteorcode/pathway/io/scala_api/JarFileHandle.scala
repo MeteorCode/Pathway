@@ -29,19 +29,19 @@ import scala.language.postfixOps
  * @since v2.0.0
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
-class JarFileHandle (virtualPath: String,
+class JarFileHandle protected[io] (virtualPath: String,
                      private val back: File,
                      manager: ResourceManager//,
                      //token: IOAccessToken
                       ) extends FileHandle(virtualPath, manager//, token
 ) {
 
-  def this(fileHandle: FileHandle) = this(
+  protected[io] def this(fileHandle: FileHandle) = this(
     fileHandle.path, fileHandle.file
       .getOrElse(throw new IOException("Could not create JarFileHandle from nonexistant file")),
     fileHandle.manager)
 
-  def this(virtualPath: String, fileHandle: FileHandle ) = this(
+  protected[io] def this(virtualPath: String, fileHandle: FileHandle ) = this(
     virtualPath, fileHandle.file
       .getOrElse(throw new IOException("Could not create JarFileHandle from nonexistant file")),
     fileHandle.manager)

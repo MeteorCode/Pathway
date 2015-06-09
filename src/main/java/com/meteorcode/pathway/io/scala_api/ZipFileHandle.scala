@@ -28,7 +28,7 @@ import scala.language.postfixOps
  * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
-class ZipFileHandle (virtualPath: String,
+class ZipFileHandle protected[io] (virtualPath: String,
                      private val back: File,
                      manager: ResourceManager//,
                      //token: IOAccessToken
@@ -60,13 +60,13 @@ class ZipFileHandle (virtualPath: String,
   In short, I hate java.util.zip.
   */
 
-  def this(fileHandle: FileHandle) = this(
+  protected[io] def this(fileHandle: FileHandle) = this(
     fileHandle.path,
     fileHandle.file
       .getOrElse(throw new IOException("Could not create ZipFileHandle from nonexistant file")),
     fileHandle.manager)
 
-  def this(virtualPath: String, fileHandle: FileHandle ) = this(
+  protected[io] def this(virtualPath: String, fileHandle: FileHandle ) = this(
     virtualPath,
     fileHandle.file
       .getOrElse(throw new IOException("Could not create ZipFileHandle from nonexistant file")),

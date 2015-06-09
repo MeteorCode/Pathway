@@ -42,7 +42,7 @@ import scala.util.{Failure, Success, Try}
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
-class JarEntryFileHandle (virtualPath: String,
+class JarEntryFileHandle protected[io] (virtualPath: String,
                           private val entry: JarEntry,
                           private val parentJarfile: JarFileHandle,
                           private val back: File,
@@ -53,7 +53,7 @@ class JarEntryFileHandle (virtualPath: String,
     //, token
   ) {
 
-  def this(virtualPath: String,
+  protected[io] def this(virtualPath: String,
            entry: JarEntry,
            parent: JarFileHandle//,
            //token: IOAccessToken
