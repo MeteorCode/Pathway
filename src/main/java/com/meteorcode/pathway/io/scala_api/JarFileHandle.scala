@@ -26,6 +26,7 @@ import scala.language.postfixOps
  * @param back A [[java.io.File]] representing the Zip archive to handle.
  * @param manager the ResourceManager managing this FileHandle
  * @author Hawk Weisman
+ * @since v2.0.0
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
 class JarFileHandle (virtualPath: String,

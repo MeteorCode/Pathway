@@ -12,6 +12,7 @@ import com.meteorcode.pathway.script.{ScriptEnvironment, ScriptContainerFactory,
 
 /**
  * @author Hawk Weisman
+ * @since v2.0.0
  */
 object ModLoader extends Logging {
   private val env = new ScriptEnvironment("require(path) { return container.eval(files.handle(path)); }")

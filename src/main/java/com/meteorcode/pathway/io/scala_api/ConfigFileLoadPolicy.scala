@@ -18,6 +18,9 @@ import scala.collection.JavaConversions._
  * and then insert them at the end of the list. The default fallback load policy is the
  * [[AlphabeticLoadPolicy AlphabeticLoadPolicy]], but another may be specified.
  *
+ * @author Hawk Weisman
+ * @since v2.0.0
+ *
  * Created by hawk on 8/15/14.
  */
 class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) extends LoadOrderProvider {

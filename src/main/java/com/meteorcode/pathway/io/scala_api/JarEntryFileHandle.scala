@@ -38,6 +38,7 @@ import scala.util.{Failure, Success, Try}
  * @param manager the [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] managing the virtual
  *                filesystem containing this [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]]
  * @author Hawk Weisman
+ * @since v2.0.0
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */

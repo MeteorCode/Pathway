@@ -36,6 +36,7 @@ import scala.util.{Try, Success, Failure}
  * @param manager
  * An [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] managing this FileHandle
  * @author Hawk Weisman
+ * @since v2.0.0
  */
 class FilesystemFileHandle (
   virtualPath: String,

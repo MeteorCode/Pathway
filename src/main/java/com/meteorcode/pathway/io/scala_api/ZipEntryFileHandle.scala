@@ -27,6 +27,7 @@ import scala.util.{Failure, Success, Try}
  * @param back the [[java.io.File]] that backs this FileHandle
  * @param manager the ResourceManager managing the virtual filesystem containing this FileHandle
  * @author Hawk Weisman
+ * @since v2.0.0
  * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
  */
 class ZipEntryFileHandle (virtualPath: String,

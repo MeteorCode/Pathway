@@ -14,6 +14,7 @@ protected object IOAccessToken
  * An abstraction wrapping a file in the filesystem.
  *
  * @author Hawk Weisman
+ * @since v2.0.0
  */
 abstract class FileHandle(protected val virtualPath: String,
                           protected[io] var manager: ResourceManager//,

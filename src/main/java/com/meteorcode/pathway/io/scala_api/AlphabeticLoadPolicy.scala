@@ -11,6 +11,9 @@ import scala.collection.JavaConversions._
  *
  * You can use this as an example while writing your own LoadOrderProviders.
  *
+ * @author Hawk Weisman
+ * @since v2.0.0
+ *
  * Created by hawk on 8/13/14.
  */
 class AlphabeticLoadPolicy extends LoadOrderProvider {

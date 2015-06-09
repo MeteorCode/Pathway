@@ -61,12 +61,14 @@ class ZipFileHandle (virtualPath: String,
   */
 
   def this(fileHandle: FileHandle) = this(
-    fileHandle.path, fileHandle.file
+    fileHandle.path,
+    fileHandle.file
       .getOrElse(throw new IOException("Could not create ZipFileHandle from nonexistant file")),
     fileHandle.manager)
 
   def this(virtualPath: String, fileHandle: FileHandle ) = this(
-    virtualPath, fileHandle.file
+    virtualPath,
+    fileHandle.file
       .getOrElse(throw new IOException("Could not create ZipFileHandle from nonexistant file")),
     fileHandle.manager)
 

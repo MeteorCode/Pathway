@@ -6,9 +6,12 @@ import java.util
 import scala.util.Try
 
 /**
- * Wraps another FileHandle with a different virtual path. This is for internal use only.
+ * Wraps another [[FileHandle]] with a different virtual path. This is for internal use only.
  *
- * Created by hawk on 8/27/14.
+ * @author Hawk Weisman
+ * @since v2.0.0
+ *
+ * This file was created by Hawk on 8/27/14.
  */
 protected[io] class RedirectFileHandle (protected val wrapped: FileHandle,
                                         virtualPath: String//,

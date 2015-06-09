@@ -6,8 +6,9 @@ package scala_api
  * An implementation of this is consulted by a [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] to
  * determine the correct priority order.
  *
- * Created by Hawk on 8/13/14.
+ * This file was created by Hawk on 8/13/14.
  *
+ * @author Hawk Weisman
  * @see [[com.meteorcode.pathway.io.ResourceManager]]
  */
 @deprecated("This can be replaced with a type alias for (Seq[FileHandle]) => Seq[FileHandle]," +
