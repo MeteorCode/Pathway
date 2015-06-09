@@ -39,6 +39,7 @@ class ResourceManager (val directories: Seq[FileHandle],
                        val writeDir: Option[FileHandle] = None,
                        val policy: LoadOrderProvider    = new AlphabeticLoadPolicy
                         ) extends Logging {
+  require(!directories.isEmpty, "Initial list of directories cannot be empty.")
 
   /**
    * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.

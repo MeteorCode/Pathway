@@ -99,7 +99,7 @@ class FilesystemFileHandle (
    */
   override lazy val physicalPath: Some[String] = Some(realPath.replace('/', File.separatorChar))
 
-  override def delete = if(writable && exists) back.delete else false
+  override def delete: Boolean = if(writable && exists) back.delete else false
 
   /**
    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
