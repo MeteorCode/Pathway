@@ -21,7 +21,7 @@ import scala.collection.{AbstractMap, DefaultMap, mutable}
  *
  * @author Hawk Weisman
  * @author Max Clive
- * @since v1.0.2
+ * @since v1.0.3
  *
  * Created by hawk on 10/15/14.
  */
@@ -83,7 +83,7 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
   /**
    * @return the number of keys defined in this level plus all previous levels
    */
-  def chainSize: Int =  size + (parent map (_.chainSize) getOrElse 0)
+  def chainSize: Int =  size + (parent map (_.chainSize) getOrElse 0) // TODO: make tail-recursive?
 
   /**
    * Change the parent corresponding to this scope.
@@ -106,10 +106,15 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
    * @return a [[scala.Option Option]] containing the value of the
    *         key, or [[scala.None None]] if it is undefined.
    */
-  override def get(key: K): Option[V] = if (whiteouts contains key) {
-    None
-  } else {
-    (back get key) orElse (parent flatMap (_ get key ))
+  @tailrec final override def get(key: K): Option[V] = whiteouts contains key match {
+    case true  => None
+    case false => back get key match {
+      case value: Some[V] => value
+      case None           => parent match {
+        case None         => None
+        case Some(thing)  => thing get key
+      }
+    }
   }
 
   /**
@@ -142,7 +147,7 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
   /** @return an Iterator over all of the (key, value) pairs in the tree.
    */
   override def iterator: Iterator[(K,V)] = parent match {
-    case None        => back.iterator
+    case None        => back.iterator // TODO: make tail-recursive?
     case Some(thing) => back.iterator ++ thing.iterator
   }
 
@@ -220,6 +225,7 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
 
   /**
    * Helper method for printing indented levels of a ForkTable
+   *
    * @param indentLevel the level to indent to
    * @return a String representing this table indented at the specified level
    */
