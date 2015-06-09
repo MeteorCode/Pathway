@@ -157,6 +157,16 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
    * @return true if this or any of its' parents contains the selected key.
    */
   @tailrec final def chainContains(key: K): Boolean = back contains key match {
+    // Dear maintainer (or, more likely, future-me),
+    // 
+    // I know this weird pattern matching thing seems needlessly complex,
+    // but it's like this for tail-recursion reasons. If you think you
+    // can express `chainContains()` more elegantly using `flatMap()` or
+    // `orElse()`, yeah, you can, but the recursive call won't be in the
+    // tail position any more.
+    //
+    // Trust me on this. I know LISP.
+    //  ~ Hawk, 6/9/2015
     case true                            => true
     case false if whiteouts contains key => false
     case false                           => parent match {
@@ -229,5 +239,8 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
    * @param indentLevel the level to indent to
    * @return a String representing this table indented at the specified level
    */
-  def prettyPrint(indentLevel: Int): String = (" "*indentLevel) + this.keys.foldLeft[String](""){(acc, key) => acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"}
+  def prettyPrint(indentLevel: Int): String = (" "*indentLevel) + this.keys.foldLeft(""){
+    (acc, key) =>     //TODO: make tail-recursive?
+      acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"
+    }
 }
