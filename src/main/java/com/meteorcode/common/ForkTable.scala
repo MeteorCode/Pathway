@@ -15,6 +15,10 @@ import scala.collection.{AbstractMap, DefaultMap, mutable}
  * mapping will remain in the level it is defined. This means that the parent
  * level will still provide the previous value for that key.
  *
+ * This implementation mixes in [[scala.collection.AbstractMap AbstractMap]],
+ * so any operations you're used to using on Scala standard library map types
+ * are available on `ForkTable` as well.
+ *
  * This implementation of the `ForkTable` is based on one originally developed
  * for a compiler for the Decaf programming language. The data structure
  * was originally described by Max Clive.
