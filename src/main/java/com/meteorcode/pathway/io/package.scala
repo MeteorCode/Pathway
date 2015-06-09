@@ -20,6 +20,7 @@ package com.meteorcode.pathway
  * This file was created by Hawk on 12/27/14.
  */
 package object io {
+
   // Regex for determining if a path is inside an archive
   protected[io] val inArchiveRE = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)*""".r
   // Regex for determining if a path is fo an archive file
