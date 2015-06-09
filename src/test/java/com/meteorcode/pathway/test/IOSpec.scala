@@ -317,6 +317,9 @@ class IOSpec extends PathwaySpec {
       "return null from calls to write() in append mode" taggedAs FilesystemTest in {
         manager.handle("/testJarDir/").write(append=true) shouldBe null
       }
+      "return null from calls to write() in append mode with a specified buffer size" taggedAs FilesystemTest in {
+        manager.handle("/testJarDir").write(8,append=true) shouldBe null
+      }
       "return null from calls to write() in overwrite mode" taggedAs FilesystemTest in {
         manager.handle("/testJarDir").write(append=false) shouldBe null
       }
