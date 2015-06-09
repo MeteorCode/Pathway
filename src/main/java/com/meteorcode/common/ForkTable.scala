@@ -26,8 +26,11 @@ import scala.collection.{AbstractMap, DefaultMap, mutable}
  * Created by hawk on 10/15/14.
  */
 
-class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
-                      protected var children: Seq[ForkTable[K,V]] = Nil) extends AbstractMap[K, V] with DefaultMap[K, V]{
+class ForkTable[K, V](
+  protected var parent: Option[ForkTable[K,V]] = None,
+  protected var children: Seq[ForkTable[K,V]] = Nil
+  ) extends AbstractMap[K, V] with DefaultMap[K, V]{
+
   val whiteouts = mutable.Set[K]()
   val back = mutable.HashMap[K, V]()
 
@@ -158,7 +161,7 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
    */
   @tailrec final def chainContains(key: K): Boolean = back contains key match {
     // Dear maintainer (or, more likely, future-me),
-    // 
+    //
     // I know this weird pattern matching thing seems needlessly complex,
     // but it's like this for tail-recursion reasons. If you think you
     // can express `chainContains()` more elegantly using `flatMap()` or
