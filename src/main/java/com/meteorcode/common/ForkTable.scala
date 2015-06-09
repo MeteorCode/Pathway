@@ -151,8 +151,14 @@ class ForkTable[K, V](protected var parent: Option[ForkTable[K,V]] = None,
    * @param key the key to search for
    * @return true if this or any of its' parents contains the selected key.
    */
-  def chainContains(key: K): Boolean = (back contains key) ||
-  ( !(whiteouts contains key) && (parent map (_ chainContains key) getOrElse false) )
+  @tailrec final def chainContains(key: K): Boolean = back contains key match {
+    case true                            => true
+    case false if whiteouts contains key => false
+    case false                           => parent match {
+      case None        => false
+      case Some(thing) => thing chainContains key
+    }
+  }
 
   /**
    * @param  key the key to look up
