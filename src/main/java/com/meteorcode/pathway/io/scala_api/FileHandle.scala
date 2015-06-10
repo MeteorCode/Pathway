@@ -86,15 +86,13 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /** Returns a stream for reading this file as bytes.
     * @return a [[scala.util.Success Success]] containing a [[java.io.InputStream InputStream]]
-    *         for writing to this file, or a [[scala.util.Failure Failure]] containing a [[java.io.IOException
-    *          IOException]] if this file is not writeable.
+    *         for writing to this file, or a [[scala.util.Failure Failure]] containing a [[java.io.IOException IOException]] if this file is not writeable.
     */
   def read: Try[InputStream]
 
   /** Returns a buffered stream for reading this file as bytes.
     * @return a [[scala.util.Success Success]] containing a [[java.io.BufferedInputStream BufferedInputStream]]
-    *         for writing to this file, or a [[scala.util.Failure Failure]] containing a [[java.io.IOException
-    *          IOException]] if this file is not writeable.
+    *         for writing to this file, or a [[scala.util.Failure Failure]] containing a [[java.io.IOException  IOException]] if this file is not writeable.
     */
   def read(bufferSize: Integer): Try[BufferedInputStream] = read map (new BufferedInputStream(_, bufferSize))
 
