@@ -139,7 +139,8 @@ class ResourceManager private[this] (
    * is a relatively expensive operation.
    *
    * @param path The virtual path to the requested object
-   * @return A [[com.meteorcode.pathway.io.FileHandle]] wrapping the object that exists at the requested path
+   * @return A [[FileHandle]] wrapping the object that exists at the requested path
+   *         in the virutal filesystem.
    */
   @throws(classOf[IOException])
   def handle(path: String): FileHandle = { // TODO: maybe this should return a Tr
@@ -151,6 +152,17 @@ class ResourceManager private[this] (
       f
     }
   }
+
+  /**
+   * Request that the ResourceManager handle the file at a given path
+   * as a Java [[java_api.FileHandle FileHandle]].
+   * @param path
+   * @throws java.io.IOException
+   * @return A [[java_api.FileHandle FileHandle]] for the object that exists at the requested path
+   *         in the virutal filesystem.
+   */
+  @throws(classOf[IOException])
+  def handleJava(path: String): java_api.FileHandle = handle(path)
 
   private[this] def makeHandle(virtualPath: String): FileHandle = {
     logger.log(this.toString, s"making a FileHandle for $virtualPath")
