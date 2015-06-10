@@ -218,7 +218,7 @@ class ResourceManager private[this] (
   }
 
   override def toString: String = "ResourceManager" + directories.map {
-    case FileHandle(_, physPath) => physPath.split(File.separatorChar).last
+    case FileHandle(_, physPath) => physPath.split(File.separatorChar).lastOption.getOrElse("")
     case dir => throw new IOException(s"FATAL: FileHandle $dir did not have a physical path")
   } mkString
 
