@@ -13,6 +13,7 @@ import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.util.{Success, Failure, Try}
 
 /**
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
@@ -142,32 +143,25 @@ class ResourceManager private[this] (
    * @return A [[FileHandle]] wrapping the object that exists at the requested path
    *         in the virutal filesystem.
    */
-  @throws(classOf[IOException])
-  def handle(path: String): FileHandle = { // TODO: maybe this should return a Tr
-    if (cachedHandles.keySet contains path)
-      cachedHandles.getOrElseUpdate(path, makeHandle(path))
-    else {
-      val f = makeHandle(path)
-      cachedHandles += (path -> f)
-      f
-    }
-  }
+  def handle(path: String): Try[FileHandle] = if (cachedHandles.keySet contains path)
+      Try(cachedHandles.getOrElseUpdate(path, makeHandle(path).get))
+    else makeHandle(path) map { (f) => cachedHandles += (path -> f); f }
 
   /**
    * Request that the ResourceManager handle the file at a given path
    * as a Java [[java_api.FileHandle FileHandle]].
-   * @param path
-   * @throws java.io.IOException
+   * @param path the path in the virtual filesystem to handle
+   * @throws java.io.IOException if the file cannot be created
    * @return A [[java_api.FileHandle FileHandle]] for the object that exists at the requested path
    *         in the virutal filesystem.
    */
   @throws(classOf[IOException])
-  def handleJava(path: String): java_api.FileHandle = handle(path)
+  def handleJava(path: String): java_api.FileHandle = handle(path).get
 
-  private[this] def makeHandle(virtualPath: String): FileHandle = {
+  private[this] def makeHandle(virtualPath: String): Try[FileHandle] = {
     logger.log(this.toString, s"making a FileHandle for $virtualPath")
-    val physicalPath: String = paths.get(trailingSlash(virtualPath)) match {
-      case Some(s: String) => s
+    (paths.get(trailingSlash(virtualPath)) match {
+      case Some(s: String) => Success(s)
       // If the path is not in the tree, handle write attempts.
       case None if isPathWritable(virtualPath) =>
         logger.log(this.toString, s"handling write attempt to empty path $virtualPath")
@@ -178,41 +172,38 @@ class ResourceManager private[this] (
               virtualPath.replace(writeVirt, "") // the virtual path with the write dir's virtual path removed.
             paths put (virtualPath, phys) // Since we've created a new FS object, add it to the known paths.
             logger.log(this.toString, s"successfully handled write attempt to $virtualPath")
-            phys
+            Success(phys)
           case Some(_) => // if the write directory won't destructure, it's missing a physical path.
             // if this is the case, somebody seriously fucked up.
-            throw new IOException("Cannot handle write attempt: write directory missing physical path.")
+            Failure(new IOException("Cannot handle write attempt: write directory missing physical path."))
           case None =>
             // if there's no write directory, we cannot support write attempts.
             // This should never happen – isPathWritable() should prevent this.
-            throw new IOException("FATAL: Cannot handle write attempt:" +
-              " no write directory exists, but a path claimed to be writable.\n")
+            Failure(new IOException("FATAL: Cannot handle write attempt:" +
+              " no write directory exists, but a path claimed to be writable.\n"))
         }
       case None =>
-        throw new IOException(s"A filehandle to an empty path ($virtualPath) was requested," +
-        " and the requested path was not writable") // TODO: this should maybe return failure instead of throwing?
-    }
-    physicalPath.split('.').drop(1).lastOption match {
-      case Some("jar") => new JarFileHandle(virtualPath, new File(physicalPath), this)
-      case Some("zip") => new ZipFileHandle(virtualPath, new File(physicalPath), this)
-      case _ => inArchiveRE findFirstIn physicalPath match {
-        case Some(inArchiveRE(path, ".zip", name)) =>
+        Failure(new IOException(s"A filehandle to an empty path ($virtualPath) was requested," +
+        " and the requested path was not writable"))
+    }) flatMap { (physicalPath: String) =>
+      physicalPath.split('.').drop(1).lastOption match {
+        case Some("jar") => Success(new JarFileHandle(virtualPath, new File(physicalPath), this))
+        case Some("zip") => Success(new ZipFileHandle(virtualPath, new File(physicalPath), this))
+        case _ => inArchiveRE findFirstIn physicalPath match {
+          case Some(inArchiveRE(path, ".zip", name)) =>
             val parent = new ZipFileHandle("/", new File(s"$path.zip"), this)
-            new ZipEntryFileHandle(
-              virtualPath,
-              new ZipFile(
-                parent.file
-                  .getOrElse(throw new IOException(s"FATAL: ZipFileHandle $parent was not backed by a File object"))
-              ).getEntry(name), parent)
-        case Some(inArchiveRE(path, ".jar", name)) =>
+            parent.file match {
+              case Some(file) => Success(new ZipEntryFileHandle(virtualPath, new ZipFile(file).getEntry(name), parent))
+              case None => Failure(new IOException(s"FATAL: ZipFileHandle $parent was not backed by a File object"))
+            }
+          case Some(inArchiveRE(path, ".jar", name)) =>
             val parent = new JarFileHandle("/", new File(s"$path.jar"), this)
-            new JarEntryFileHandle(
-              virtualPath,
-              new JarFile(
-                parent.file
-                  .getOrElse(throw new IOException(s"FATAL: JarFileHandle at $parent was not backed by a File object"))
-              ).getJarEntry(name), parent)
-        case _ => new FilesystemFileHandle(virtualPath, physicalPath, this)
+            parent.file match {
+              case Some(file) => Success(new JarEntryFileHandle(virtualPath, new JarFile(file).getJarEntry(name), parent))
+              case None => Failure(new IOException(s"FATAL: JarFileHandle $parent was not backed by a File object"))
+            }
+          case _ => Success(new FilesystemFileHandle(virtualPath, physicalPath, this))
+        }
       }
     }
   }
