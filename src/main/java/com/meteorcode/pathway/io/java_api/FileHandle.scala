@@ -150,19 +150,22 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
    * @param siblingName the name of the sibling file to handle
    * @return a FileHandle into the sibling of this file with the specified name
    */
-  def sibling(siblingName: String): FileHandle = underlying.sibling(siblingName)
+  @throws(classOf[IOException])
+  def sibling(siblingName: String): FileHandle = underlying.sibling(siblingName).get
 
   /**
    * Return a FileHandle into the parent of this file.
    * @return a FileHandle into the parent of this file.
    */
-  def parent: FileHandle = underlying.parent
+  @throws(classOf[IOException])
+  def parent: FileHandle = underlying.parent.get
   /**
    * Returns a FileHandle into the a child of this file with the specified name
    * @param childName the name of the child file to handle
    * @return a FileHandle into the child of this file with the specified name
    */
-  def child(childName: String): FileHandle = underlying.child(childName)
+  @throws(classOf[IOException])
+  def child(childName: String): FileHandle = underlying.child(childName).get
 
   /**
    * Returns the length of this file in bytes, or 0 if this FileHandle is a directory or does not exist
