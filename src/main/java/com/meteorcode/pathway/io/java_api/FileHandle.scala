@@ -3,6 +3,7 @@ package com.meteorcode.pathway.io.java_api
 import java.io._
 import java.nio.charset.Charset
 import java.util
+import java.util.Optional
 
 import com.meteorcode.pathway.io.scala_api
 
@@ -52,7 +53,6 @@ class FileHandle protected[io] (protected[io] val underlying: scala_api.FileHand
    */
   def name: String = underlying.name
 
-
   /**
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
@@ -75,7 +75,7 @@ class FileHandle protected[io] (protected[io] val underlying: scala_api.FileHand
     * @return  a [[java.io.InputStream InputStream]] for reading from this file, or null if this file is not readable
     */
   @throws[IOException]("if something went wrong while reading from the file")
-  def read: InputStream = underlying
+  def read: Optional[InputStream] = underlying
     .read
     .unwrap
 
@@ -85,7 +85,7 @@ class FileHandle protected[io] (protected[io] val underlying: scala_api.FileHand
     *         or null if this file is not readable
     */
   @throws[IOException]("if something went wrong while reading from the file")
-  def read(bufferSize: Int): BufferedInputStream = underlying
+  def read(bufferSize: Int): Optional[BufferedInputStream] = underlying
     .read(bufferSize)
     .unwrap
 
@@ -93,14 +93,14 @@ class FileHandle protected[io] (protected[io] val underlying: scala_api.FileHand
     * @return a String containing the contents of the file
     */
   @throws[IOException]("if something went wrong while reading from the file")
-  def readString: String = underlying.readString.unwrap
+  def readString: Optional[String] = underlying.readString.unwrap
 
   /** Reads the entire file into a string using the specified charset.
     * @param charset the [[Charset]] for reading the file
     * @return a String containing the contents of the file read with the specified charset
     */
   @throws[IOException]("if something went wrong while reading from the file")
-  def readString(charset: Charset): String = underlying
+  def readString(charset: Charset): Optional[String] = underlying
     .readString(charset)
     .unwrap
 
@@ -109,9 +109,8 @@ class FileHandle protected[io] (protected[io] val underlying: scala_api.FileHand
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     * @throws IOException if something went wrong while opening the file.
     */
-  def write(append: Boolean): OutputStream = underlying
+  def write(append: Boolean): Optional[OutputStream] = underlying
     .write(append)
-    .orNull
 
   /** Returns a [[java.io.BufferedOutputStream]] for writing to this file.
     * @return a [[java.io.BufferedOutputStream BufferedOutputStream]] for writing to this file,
@@ -119,10 +118,8 @@ class FileHandle protected[io] (protected[io] val underlying: scala_api.FileHand
     * @param bufferSize The size of the buffer
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     */
-  def write(bufferSize: Int, append: Boolean): BufferedOutputStream = underlying
+  def write(bufferSize: Int, append: Boolean): Optional[BufferedOutputStream] = underlying
     .write(bufferSize,append)
-    .orNull
-
   /** Writes the specified string to the file using the default charset.
     *
     * @param string the string to write to the file
@@ -211,10 +208,10 @@ object FileHandle {
   protected class TryToRead[T >: Null](private[this] val underlying: Try[T]) {
 
     @throws[IOException]
-    protected[java_api] def unwrap: T = underlying match {
-      case Success(fully) => fully
+    protected[java_api] def unwrap: Optional[T] = underlying match {
+      case Success(fully) => Optional of fully
       case Failure(why)  // this message is sent when the file is a directory or nonexistant
-        if why.getMessage startsWith "Could not read from" => null
+        if why.getMessage startsWith "Could not read from" => Optional.ofNullable(null)
       case Failure(up) => throw up // other failures should be thrown
     }
   }
