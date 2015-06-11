@@ -417,13 +417,13 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
   "A ResourceManager" when {
     "ordering paths alphabetically" should {
       "apply the directories in alphabetical order" taggedAs FilesystemTest in {
-        val directories = List[FileHandle](
+        val directories = Seq[FileHandle](
           new FilesystemFileHandle("", "build/resources/test/loadOrder/b", null),
           new FilesystemFileHandle("", "build/resources/test/loadOrder/a", null),
           new FilesystemFileHandle("", "build/resources/test/loadOrder/c", null)
         )
 
-        val target = new ResourceManager(directories, policy = new AlphabeticLoadPolicy())
+        val target = new ResourceManager(directories, order = new AlphabeticLoadPolicy())
         target.handle("/testLoadOrder.txt").success.value
           .readString.success.value shouldEqual "I AM CORRECT"
       }

@@ -7,7 +7,7 @@ import java.util.zip.ZipFile
 
 import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.io._
-import com.meteorcode.pathway.io.java_api.LoadOrderProvider
+import com.meteorcode.pathway.io.java_api.{AlphabeticLoadPolicy, LoadOrderProvider}
 import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
@@ -15,6 +15,9 @@ import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 /**
+ * Pathway ResourceManager
+ * -----------------------
+ *
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
  * as though they were directories.
  *
@@ -34,43 +37,14 @@ import scala.util.{Failure, Success, Try}
  *                 set to `/write/`.
  * @param order A [[LoadOrderPolicy]] representing the game's load-order
  *               policy.
+ *
+ *  @author Hawk Weisman
  */
-
-class ResourceManager private[this] (
-  private[this] val directories: util.List[FileHandle],
-  private[this] val writeDir: Option[FileHandle],
-  private[this] val order: LoadOrderPolicy
-) extends Logging { // TODO: refactor constructor
-  /**
-   * Constructor for a ResourceManager with a single managed directory.
-   *
-   * @param directory a FileHandle into the directory to manage.
-   * @param policy a [[LoadOrderProvider]] for resolving load collisions
-   * @return a new ResourceManager managing the specified directory.
-   */
-  def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), None, policy)
-
-  /**
-   * Constructor for a ResourceManager with a list of managed directories.
-   *
-   * @param directories a list of FileHandles into the directories to manage.
-   * @param policy a [[LoadOrderProvider]] for resolving load collisions
-   * @return a new ResourceManager managing the specified directory.
-   */
-  def this(directories: util.List[FileHandle], policy: LoadOrderProvider) = this(directories, None, policy)
-
-  /**
-   * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
-   *
-   * @param directory a [[FileHandle]] into the directory to manage.
-   * @param policy a [[LoadOrderProvider]] for resolving load collisions
-   * @param writeDir a [[FileHandle]] into the write directory
-   * @return a new ResourceManager managing the specified directory.
-   */
-  def this(directory: FileHandle,
-           writeDir: FileHandle,
-           policy: LoadOrderProvider) = this(List(directory), Some(writeDir), policy)
-
+class ResourceManager (
+  val directories: Seq[FileHandle],
+  val writeDir: Option[FileHandle] = None,
+  val order: LoadOrderPolicy = new AlphabeticLoadPolicy
+) extends Logging {
   /**
    * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
    * The write directory's virtual path will be automatically determined.
@@ -82,13 +56,9 @@ class ResourceManager private[this] (
    */
   def this(path: String,                    // it's okay for the Manager to be null because if it has a path,
            writePath: String,               // it will never need to get the path from the ResourceManager
-           policy: LoadOrderProvider) = this(Seq[FileHandle](new FilesystemFileHandle("", path, null)),
+           policy: LoadOrderPolicy) = this(Seq[FileHandle](new FilesystemFileHandle("", path, null)),
                                              writeDir = Some(new FilesystemFileHandle(writePath.replace(path, ""), writePath, null)),
                                              order = policy)
-
-  def this(directories: util.List[FileHandle],
-           writeDir: FileHandle,
-           policy: LoadOrderProvider) = this(directories, Some(writeDir), policy)
 
   private[this] val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
   private[this] val cachedHandles = mutable.Map[String, FileHandle]()
@@ -109,7 +79,7 @@ class ResourceManager private[this] (
     val fs = new ForkTable[String,String]
     def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
       case FileHandle(virtualPath,physicalPath) if current.isDirectory =>
-        val newfs = fs.fork
+        val newfs = fs.fork()
         newfs put (virtualPath, physicalPath)
         order(current.list.get).foldRight(newfs)((fh, tab) => _walk(fh, tab))
       case FileHandle(virtualPath, physicalPath) => fs put (virtualPath, physicalPath); fs
