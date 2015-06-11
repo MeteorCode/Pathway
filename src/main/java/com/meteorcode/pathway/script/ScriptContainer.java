@@ -49,7 +49,7 @@ public abstract class ScriptContainer {
 	 * </p>
 	 *
 	 * @param file
-	 *            a {@link com.meteorcode.pathway.io.FileHandle}
+	 *            a {@link com.meteorcode.pathway.io.java_api.FileHandle}
 	 *            containing the script to execute.
 	 * @return The object result of the evaluation, or null if there was no
 	 *         result.
