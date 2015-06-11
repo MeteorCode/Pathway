@@ -27,6 +27,7 @@ class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) exte
 
   private[this] val order = config
     .readString
+    .get
     .split("/") filter ((line: String) => !line.startsWith("//"))
 
   /**
