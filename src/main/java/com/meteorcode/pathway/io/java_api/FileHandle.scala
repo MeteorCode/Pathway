@@ -20,7 +20,7 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
   //TODO: replace nulls with Java 8's optional type?
   import FileHandle.tryToRead
 
-  /** Returns true if the file exists. */
+  /** @return true if the file exists. */
   def exists: Boolean = underlying.exists
 
   /** Returns true if this file is a directory.
@@ -32,7 +32,7 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
     * */
   def isDirectory: Boolean = underlying.isDirectory
 
-  /** Returns true if this FileHandle represents something that can be written to */
+  /** @return true if this FileHandle represents something that can be written to */
   def writable: Boolean = underlying.writable
 
   /** Returns the virtual path to this FileHandle.
@@ -57,7 +57,7 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
    * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
    *         directory or does not have contents.
    */
-  @throws(classOf[IOException])
+  @throws[IOException]("if something went wrong while accessing the FileHandle's contents")
   def list: util.List[FileHandle] = underlying.list map { _ map (new FileHandle(_)) asJava } get
 
   /**
@@ -66,7 +66,7 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
    * @param suffix the the specified suffix.
    *
    */
-  @throws(classOf[IOException])
+  @throws[IOException]("if something went wrong while accessing the FileHandle's contents")
   def list(suffix: String): util.List[FileHandle] = underlying.list map {
     _ filter ( _.path.endsWith(suffix)) map (new FileHandle(_)) asJava
   } get
@@ -74,7 +74,7 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
   /** Returns a stream for reading this file as bytes.
     * @return  a [[java.io.InputStream InputStream]] for reading from this file, or null if this file is not readable
     */
-  @throws(classOf[IOException])
+  @throws[IOException]("if something went wrong while reading from the file")
   def read: InputStream = underlying
     .read
     .unwrap
@@ -84,18 +84,22 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
     * @return a [[java.io.BufferedInputStream BufferedInputStream]] for reading from this file,
     *         or null if this file is not readable
     */
-  @throws(classOf[IOException])
+  @throws[IOException]("if something went wrong while reading from the file")
   def read(bufferSize: Int): BufferedInputStream = underlying
     .read(bufferSize)
     .unwrap
 
   /** Reads the entire file into a string using the platform's default charset.
-    * @return a String
+    * @return a String containing the contents of the file
     */
-  @throws(classOf[IOException])
+  @throws[IOException]("if something went wrong while reading from the file")
   def readString: String = underlying.readString.unwrap
 
-  /** Reads the entire file into a string using the specified charset. */
+  /** Reads the entire file into a string using the specified charset.
+    * @param charset the [[Charset]] for reading the file
+    * @return a String containing the contents of the file read with the specified charset
+    */
+  @throws[IOException]("if something went wrong while reading from the file")
   def readString(charset: Charset): String = underlying
     .readString(charset)
     .unwrap
@@ -125,7 +129,7 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     *
     */
-  @throws(classOf[IOException])
+  @throws[IOException]("if the file does not exist")
   def writeString(string: String, append: Boolean): Unit = underlying
     .writeString(string, Charset.defaultCharset(), append)
     .get
@@ -141,6 +145,7 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     * @return `Success(Unit)` if the string was written, `Failure(IOException)` if this file is not writeable
     */
+  @throws[IOException]("if the file does not exist")
   def writeString(string: String, charset: Charset, append: Boolean): Unit = underlying
     .writeString(string, charset, append)
     .get
@@ -150,21 +155,21 @@ class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
    * @param siblingName the name of the sibling file to handle
    * @return a FileHandle into the sibling of this file with the specified name
    */
-  @throws(classOf[IOException])
+  @throws[IOException]("if the requested sibling cannot be accessed")
   def sibling(siblingName: String): FileHandle = underlying.sibling(siblingName).get
 
   /**
    * Return a FileHandle into the parent of this file.
    * @return a FileHandle into the parent of this file.
    */
-  @throws(classOf[IOException])
+  @throws[IOException]("if the parent cannot be accessed")
   def parent: FileHandle = underlying.parent.get
   /**
    * Returns a FileHandle into the a child of this file with the specified name
    * @param childName the name of the child file to handle
    * @return a FileHandle into the child of this file with the specified name
    */
-  @throws(classOf[IOException])
+  @throws[IOException]("if the requested child cannot be accessed")
   def child(childName: String): FileHandle = underlying.child(childName).get
 
   /**
@@ -204,7 +209,8 @@ object FileHandle {
   implicit def asScala(handle: FileHandle): scala_api.FileHandle = handle.underlying
 
   protected class TryToRead[T >: Null](private[this] val underlying: Try[T]) {
-    @throws(classOf[IOException])
+
+    @throws[IOException]
     protected[java_api] def unwrap: T = underlying match {
       case Success(fully) => fully
       case Failure(why)  // this message is sent when the file is a directory or nonexistant

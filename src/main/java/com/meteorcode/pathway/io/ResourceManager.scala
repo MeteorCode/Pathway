@@ -29,11 +29,11 @@ import scala.util.{Success, Failure, Try}
  * be attached at `/write/` in the virtual filesystem. Note that if the write directory doesn't exist when this
  * ResourceManager is initialized, it will be created, along with any directories containing it, if necessary.
  *
- * @param directories A list of FileHandles into the directories to be fused into the top level roots of the virtual
+ * @param directories A list of [[FileHandle]] into the directories to be fused into the top level roots of the virtual
  *                    filesystem.
- * @param writeDir An optional FileHandle into the specified write directory. The write directory's virtual path will be
+ * @param writeDir An optional [[FileHandle]] into the specified write directory. The write directory's virtual path will be
  *                 set to `/write/`.
- * @param policy A [[LoadOrderProvider LoadOrderProvider]] representing the game's load-order
+ * @param policy A [[LoadOrderProvider]] representing the game's load-order
  *               policy.
  */
 
@@ -46,7 +46,7 @@ class ResourceManager private[this] (
    * Constructor for a ResourceManager with a single managed directory.
    *
    * @param directory a FileHandle into the directory to manage.
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @param policy a [[LoadOrderProvider]] for resolving load collisions
    * @return a new ResourceManager managing the specified directory.
    */
   def this(directory: FileHandle, policy: LoadOrderProvider) = this(List(directory), None, policy)
@@ -55,7 +55,7 @@ class ResourceManager private[this] (
    * Constructor for a ResourceManager with a list of managed directories.
    *
    * @param directories a list of FileHandles into the directories to manage.
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @param policy a [[LoadOrderProvider]] for resolving load collisions
    * @return a new ResourceManager managing the specified directory.
    */
   def this(directories: util.List[FileHandle], policy: LoadOrderProvider) = this(directories, None, policy)
@@ -63,9 +63,9 @@ class ResourceManager private[this] (
   /**
    * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
    *
-   * @param directory a FileHandle into the directory to manage.
-   * @param policy a [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]] for resolving load collisions
-   * @param writeDir a FileHandle into the write directory
+   * @param directory a [[FileHandle]] into the directory to manage.
+   * @param policy a [[LoadOrderProvider]] for resolving load collisions
+   * @param writeDir a [[FileHandle]] into the write directory
    * @return a new ResourceManager managing the specified directory.
    */
   def this(directory: FileHandle,
@@ -77,9 +77,9 @@ class ResourceManager private[this] (
    * The write directory's virtual path will be automatically determined.
    *
    * @param path a String representing the path to the directory to manage.
-   * @param policy a [[LoadOrderProvider LoadOrderProvider]] for resolving load collisions
+   * @param policy a [[LoadOrderProvider]] for resolving load collisions
    * @param writePath a String representing the path into the write directory
-   * @return a new ResourceManager managing the specified directory.
+   * @return a new [[ResourceManager]] managing the specified directory.
    */
   def this(path: String,                    // it's okay for the Manager to be null because if it has a path,
            writePath: String,               // it will never need to get the path from the ResourceManager
@@ -140,8 +140,9 @@ class ResourceManager private[this] (
    * is a relatively expensive operation.
    *
    * @param path The virtual path to the requested object
-   * @return A [[FileHandle]] wrapping the object that exists at the requested path
-   *         in the virutal filesystem.
+   * @return A [[Success]] containing a [[FileHandle]] into the object that exists at the requested path
+   *         in the virutal filesystem, or a [[Failure]] containing an [[IOException]] if something went
+   *         wrong while handling the path.
    */
   def handle(path: String): Try[FileHandle] = if (cachedHandles.keySet contains path)
       Try(cachedHandles.getOrElseUpdate(path, makeHandle(path).get))
@@ -151,7 +152,7 @@ class ResourceManager private[this] (
    * Request that the ResourceManager handle the file at a given path
    * as a Java [[java_api.FileHandle FileHandle]].
    * @param path the path in the virtual filesystem to handle
-   * @throws java.io.IOException if the file cannot be created
+   * @throws java.io.IOException if the FileHandle cannot be created
    * @return A [[java_api.FileHandle FileHandle]] for the object that exists at the requested path
    *         in the virutal filesystem.
    */
