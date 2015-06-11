@@ -98,7 +98,7 @@ class ForkTable[K, V](
    * @throws IllegalArgumentException if the specified parent was invalid
    */
   @throws[IllegalArgumentException]("if the specified parent was invalid")
-  def reparent(nParent: ForkTable[K, V]) = if (nParent == this) {
+  def reparent(nParent: ForkTable[K, V]): Unit = if (nParent == this) {
     throw new IllegalArgumentException ("Scope attempted to mount itself as parent!")
   } else {
     parent.foreach{ _.removeChild(this)}
@@ -195,7 +195,7 @@ class ForkTable[K, V](
    * @return true if there exists a pair defined at this level for
    *         which the predicate holds, false otherwise.
    */
-  override def exists(p: ((K, V)) => Boolean) = back exists p
+  override def exists(p: ((K, V)) => Boolean): Boolean = back exists p
 
   /**
    * Search the whole chain down from this level
