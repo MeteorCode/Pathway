@@ -230,7 +230,7 @@ public abstract class Event {
 	public void invalidate() {
 		this.valid = false;
         logger.log(this.name, "invalidated");
-		if (this.children.isEmpty() == false) {
+		if (!this.children.isEmpty()) {
 			for (Event child : children)
 				child.invalidate();
 		}

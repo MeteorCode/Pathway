@@ -238,7 +238,7 @@ class ForkTable[K, V](
  /**
   * @return a String representation of this ForkTable
   */
-  override def toString: String = this.prettyPrint(0)
+  override def toString(): String = this.prettyPrint(0)
 
   /**
    * Helper method for printing indented levels of a ForkTable

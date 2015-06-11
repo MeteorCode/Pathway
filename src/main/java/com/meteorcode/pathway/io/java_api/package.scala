@@ -2,6 +2,8 @@ package com.meteorcode.pathway.io
 
 import java.util.Optional
 
+import scala.language.implicitConversions
+
 /**
  * Created by hawk on 6/10/15.
  */

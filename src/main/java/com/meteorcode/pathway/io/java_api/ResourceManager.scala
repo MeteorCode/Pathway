@@ -4,6 +4,8 @@ import java.io.IOException
 
 import com.meteorcode.pathway.io.{java_api, scala_api}
 
+import scala.language.implicitConversions
+
 /**
  * Created by hawk on 6/10/15.
  */

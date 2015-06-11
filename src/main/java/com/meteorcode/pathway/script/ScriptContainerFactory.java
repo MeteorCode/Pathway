@@ -216,12 +216,12 @@ public class ScriptContainerFactory {
 			// check if the requested variable is a valid Java identifier
 			char[] letters = variable.toCharArray();
 
-			if (Character.isJavaIdentifierStart(letters[0]) == false)
+			if (!Character.isJavaIdentifierStart(letters[0]))
 				throw new IllegalArgumentException(
 						"Variable name was not a valid Java identifier; illegal character at position 0");
 
 			for (int i = 0; i < letters.length; i++)
-				if (Character.isJavaIdentifierPart(letters[i]) == false)
+				if (!Character.isJavaIdentifierPart(letters[i]))
 					throw new IllegalArgumentException(
 							"Variable name was not a valid Java identifier; illegal character at position "
 									+ i);
