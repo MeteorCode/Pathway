@@ -1,19 +1,20 @@
 package com.meteorcode.pathway.io.java_api
 
 import com.meteorcode.pathway.io.scala_api
+import com.meteorcode.pathway.io.scala_api.ResourceManager
 
 import scala.collection.JavaConverters.{seqAsJavaListConverter,asScalaBufferConverter}
 import scala.language.implicitConversions
 
 /**
  * Interface representing a policy provider for resolving load-order conflicts.
- * An implementation of this is consulted by a [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] to
+ * An implementation of this is consulted by a [[ResourceManager ResourceManager]] to
  * determine the correct priority order.
  *
  * This file was created by Hawk on 8/13/14.
  *
  * @author Hawk Weisman
- * @see [[com.meteorcode.pathway.io.ResourceManager]]
+ * @see [[ResourceManager]]
  */
 abstract class LoadOrderProvider {
   /**

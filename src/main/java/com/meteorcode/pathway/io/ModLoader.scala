@@ -3,7 +3,7 @@
  */
 package com.meteorcode.pathway.io
 
-import com.meteorcode.pathway.io.scala_api.FileHandle
+import com.meteorcode.pathway.io.scala_api.{ResourceManager, FileHandle}
 import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
@@ -25,7 +25,7 @@ object ModLoader extends Logging {
    *
    * Mods are loaded by running a BeanShell script called `init.java` contained within the mod's archive or directory.
    * This script is always executed within a clean BeanShell interpreter. The game's
-   * [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] is bound to a variable called `files` in the
+   * [[ResourceManager ResourceManager]] is bound to a variable called `files` in the
    * BeanShell script environment.
    *
    * @param directory A [[com.meteorcode.pathway.io.FileHandle]] representing the mods directory

@@ -5,7 +5,7 @@ import java.util.Collections
 import java.util.jar.{JarEntry, JarFile}
 import java.util.zip.ZipException
 
-import com.meteorcode.pathway.io.ResourceManager
+import com.meteorcode.pathway.io.scala_api.ResourceManager
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.util.{Failure, Success, Try}
@@ -14,7 +14,7 @@ import scala.util.{Failure, Success, Try}
  * A [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]] into an item within a Jar archive.
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
- * [[com.meteorcode.pathway.io.ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
+ * [[ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
  * allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only
  * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]].
  * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
@@ -35,12 +35,12 @@ import scala.util.{Failure, Success, Try}
  *                     [[java.util.jar.JarEntry JarEntry]]  - this is necessary so that we can do things like
  *                     list the children of a directory in a Jar archive.
  * @param back the [[java.io.File]] that backs this [[FileHandle]]
- * @param manager the [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] managing the virtual
+ * @param manager the [[ResourceManager ResourceManager]] managing the virtual
  *                filesystem containing this [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]]
  * @author Hawk Weisman
  * @since v2.0.0
- * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
- * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
+ * @see [[ResourceManager ResourceManager]]
+ * @see [[ResourceManager ResourceManager]]
  */
 class JarEntryFileHandle protected[io] (virtualPath: String,
                           private[this] val entry: JarEntry,

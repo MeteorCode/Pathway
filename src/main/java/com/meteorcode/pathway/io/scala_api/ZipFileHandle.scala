@@ -4,7 +4,8 @@ import java.io.{OutputStream, File, IOException, InputStream}
 import java.util.zip.ZipFile
 import java.util.Collections
 
-import com.meteorcode.pathway.io.{ResourceManager,subdirRE,trailingSlash}
+import com.meteorcode.pathway.io.scala_api.ResourceManager
+import com.meteorcode.pathway.io.{subdirRE,trailingSlash}
 
 import scala.util.{Try,Failure}
 import scala.collection.JavaConverters.asScalaBufferConverter
@@ -14,7 +15,7 @@ import scala.language.postfixOps
  * A FileHandle into the top level of a Zip archive (treated as a directory).
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
- * [[com.meteorcode.pathway.io.ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
+ * [[ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
  * allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only
  * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]].
  * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
@@ -26,7 +27,7 @@ import scala.language.postfixOps
  * @param back A [[java.io.File]] representing the Zip archive to handle.
  * @param manager the ResourceManager managing this FileHandle
  * @author Hawk Weisman
- * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
+ * @see [[ResourceManager ResourceManager]]
  */
 class ZipFileHandle protected[io] (virtualPath: String,
                      private val back: File,

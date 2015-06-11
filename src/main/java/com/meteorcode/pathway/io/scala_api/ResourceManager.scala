@@ -1,20 +1,18 @@
-package com.meteorcode.pathway.io
+package com.meteorcode.pathway.io.scala_api
 
 import java.io.{File, IOException}
-
 import java.util
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
-import com.meteorcode.pathway.io.java_api.LoadOrderProvider
-import com.meteorcode.pathway.io.scala_api.FileHandle
-import com.meteorcode.pathway.io.scala_api._
 import com.meteorcode.common.ForkTable
+import com.meteorcode.pathway.io._
+import com.meteorcode.pathway.io.java_api.LoadOrderProvider
 import com.meteorcode.pathway.logging.Logging
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.util.{Success, Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 /**
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
@@ -148,17 +146,6 @@ class ResourceManager private[this] (
   def handle(path: String): Try[FileHandle] = if (cachedHandles.keySet contains path)
       Try(cachedHandles.getOrElseUpdate(path, makeHandle(path).get))
     else makeHandle(path) map { (f) => cachedHandles += (path -> f); f }
-
-  /**
-   * Request that the ResourceManager handle the file at a given path
-   * as a Java [[java_api.FileHandle FileHandle]].
-   * @param path the path in the virtual filesystem to handle
-   * @throws java.io.IOException if the FileHandle cannot be created
-   * @return A [[java_api.FileHandle FileHandle]] for the object that exists at the requested path
-   *         in the virutal filesystem.
-   */
-  @throws(classOf[IOException])
-  def handleJava(path: String): java_api.FileHandle = handle(path).get
 
   private[this] def makeHandle(virtualPath: String): Try[FileHandle] = {
     logger.log(this.toString, s"making a FileHandle for $virtualPath")

@@ -1,6 +1,7 @@
 package com.meteorcode.pathway.io.scala_api
 
-import com.meteorcode.pathway.io.{ResourceManager,subdirRE,trailingSlash}
+import com.meteorcode.pathway.io.scala_api.ResourceManager
+import com.meteorcode.pathway.io.{subdirRE,trailingSlash}
 
 import java.io.{OutputStream, File, IOException, InputStream}
 import java.util.jar.JarFile
@@ -14,7 +15,7 @@ import scala.language.postfixOps
  * A FileHandle into the top level of a Jar archive (treated as a directory).
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
- * [[com.meteorcode.pathway.io.ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
+ * [[ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
  * allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only
  * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]].
  * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
@@ -27,7 +28,7 @@ import scala.language.postfixOps
  * @param manager the ResourceManager managing this FileHandle
  * @author Hawk Weisman
  * @since v2.0.0
- * @see [[com.meteorcode.pathway.io.ResourceManager ResourceManager]]
+ * @see [[ResourceManager ResourceManager]]
  */
 class JarFileHandle protected[io] (virtualPath: String,
                     private[this] val back: File,

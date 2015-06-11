@@ -9,9 +9,8 @@ FileOutputStream,
 IOException
 }
 import java.util.Collections
-
-import com.meteorcode.pathway.io.ResourceManager
 import com.meteorcode.pathway.io.isArchiveRE
+import com.meteorcode.pathway.io.scala_api.ResourceManager
 
 import scala.collection.JavaConversions._
 
@@ -22,7 +21,7 @@ import scala.util.{Try, Success, Failure}
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
  *
- * [[com.meteorcode.pathway.io.ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
+ * [[ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
  * allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only
  * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.FileHandle FileHandle]].
  * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
@@ -34,7 +33,7 @@ import scala.util.{Try, Success, Failure}
 * the virtual path to the file in the fake filesystem
  * @param back a [[java.io.File]] representing the file in the filesystem
  * @param manager
- * An [[com.meteorcode.pathway.io.ResourceManager ResourceManager]] managing this FileHandle
+ * An [[ResourceManager ResourceManager]] managing this FileHandle
  * @author Hawk Weisman
  * @since v2.0.0
  */
