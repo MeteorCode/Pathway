@@ -6,6 +6,7 @@ import java.util
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
+import com.meteorcode.pathway.io.java_api.LoadOrderProvider
 import com.meteorcode.pathway.io.scala_api.FileHandle
 import com.meteorcode.pathway.io.scala_api._
 import com.meteorcode.common.ForkTable
@@ -33,14 +34,14 @@ import scala.util.{Success, Failure, Try}
  *                    filesystem.
  * @param writeDir An optional [[FileHandle]] into the specified write directory. The write directory's virtual path will be
  *                 set to `/write/`.
- * @param policy A [[LoadOrderProvider]] representing the game's load-order
+ * @param order A [[LoadOrderPolicy]] representing the game's load-order
  *               policy.
  */
 
 class ResourceManager private[this] (
   private[this] val directories: util.List[FileHandle],
   private[this] val writeDir: Option[FileHandle],
-  private[this] val policy: LoadOrderProvider
+  private[this] val order: LoadOrderPolicy
 ) extends Logging { // TODO: refactor constructor
   /**
    * Constructor for a ResourceManager with a single managed directory.
@@ -85,7 +86,7 @@ class ResourceManager private[this] (
            writePath: String,               // it will never need to get the path from the ResourceManager
            policy: LoadOrderProvider) = this(Seq[FileHandle](new FilesystemFileHandle("", path, null)),
                                              writeDir = Some(new FilesystemFileHandle(writePath.replace(path, ""), writePath, null)),
-                                             policy = policy)
+                                             order = policy)
 
   def this(directories: util.List[FileHandle],
            writeDir: FileHandle,
@@ -112,11 +113,11 @@ class ResourceManager private[this] (
       case FileHandle(virtualPath,physicalPath) if current.isDirectory =>
         val newfs = fs.fork
         newfs put (virtualPath, physicalPath)
-        policy.orderPaths(current.list.get).foldRight(newfs)((fh, tab) => _walk(fh, tab))
+        order(current.list.get).foldRight(newfs)((fh, tab) => _walk(fh, tab))
       case FileHandle(virtualPath, physicalPath) => fs put (virtualPath, physicalPath); fs
       case _ => throw new IOException(s"FATAL: FileHandle $current did not have a physical path")
     }
-    val orderedFS = policy.orderPaths(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
+    val orderedFS = order(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
     writeDir match { // TODO: this is where we could "freeze" the un-writedir'd map
       case Some(dir) => _walk(dir, orderedFS)
       case _ => orderedFS
@@ -212,6 +213,6 @@ class ResourceManager private[this] (
   override def toString: String = "ResourceManager" + directories.map {
     case FileHandle(_, physPath) => physPath.split(File.separatorChar).lastOption.getOrElse("")
     case dir => throw new IOException(s"FATAL: FileHandle $dir did not have a physical path")
-  } mkString
+  }.mkString
 
 }

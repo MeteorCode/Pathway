@@ -16,7 +16,7 @@ import scala.util.{Try,Success,Failure}
  *
  * Created by hawk on 6/10/15.
  */
-class FileHandle protected[io] (private val underlying: scala_api.FileHandle) {
+class FileHandle protected[io] (protected[io] val underlying: scala_api.FileHandle) {
   //TODO: replace nulls with Java 8's optional type?
   import FileHandle.tryToRead
 

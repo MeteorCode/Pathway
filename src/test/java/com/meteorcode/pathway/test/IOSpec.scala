@@ -5,7 +5,8 @@ import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
 
 import com.meteorcode.pathway.io.ResourceManager
-import com.meteorcode.pathway.io.scala_api.{AlphabeticLoadPolicy, FilesystemFileHandle, FileHandle}
+import com.meteorcode.pathway.io.java_api.AlphabeticLoadPolicy
+import com.meteorcode.pathway.io.scala_api.{FilesystemFileHandle, FileHandle}
 import com.meteorcode.pathway.test.tags.FilesystemTest
 
 

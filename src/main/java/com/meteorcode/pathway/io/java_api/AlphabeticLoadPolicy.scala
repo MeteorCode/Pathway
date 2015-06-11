@@ -1,9 +1,8 @@
-package com.meteorcode.pathway.io
-package scala_api
+package com.meteorcode.pathway.io.java_api
 
-import java.io.{IOException, File}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters.{seqAsJavaListConverter,asScalaBufferConverter}
+import java.io.{File, IOException}
 
 /**
  * Simple [[LoadOrderProvider LoadOrderProvider]] implementation.
@@ -22,7 +21,8 @@ class AlphabeticLoadPolicy extends LoadOrderProvider {
    * @param paths a set of Strings representing top-level paths in the physical filesystem.
    * @return a List of those paths ordered by their load priority
    */
-  def orderPaths(paths: Seq[FileHandle]): Seq[FileHandle] = paths.sortWith(
+  // TODO: rewrite this as Scala API compliant
+  def orderPaths(paths: java.util.List[FileHandle]): java.util.List[FileHandle] = paths.asScala.sortWith(
     _.physicalPath
       .getOrElse(throw new IOException("FATAL: FileHandle did not have a physical path"))
       .split(File.separatorChar)
@@ -33,5 +33,5 @@ class AlphabeticLoadPolicy extends LoadOrderProvider {
         .getOrElse(throw new IOException("FATAL: FileHandle did not have a physical path"))
         .split(File.separatorChar)
         .last
-  )
+  ).asJava
 }

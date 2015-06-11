@@ -1,4 +1,4 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io.java_api
 
 import java.io.IOException
 
@@ -27,8 +27,7 @@ class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) exte
 
   private[this] val order = config
     .readString
-    .getOrElse(throw new IOException("FATAL: could not read from config file"))
-    .split("/") filter ((line) => !line.startsWith("//"))
+    .split("/") filter ((line: String) => !line.startsWith("//"))
 
   /**
    * Constructor for a ConfigFileLoadPolicy without a specified fallback option. The fallback option will default to
@@ -43,10 +42,10 @@ class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) exte
    * @param paths a set of Strings representing top-level paths in the physical filesystem.
    * @return a List of those paths ordered by their load priority
    */
-  def orderPaths(paths: Seq[FileHandle]): Seq[FileHandle] = {
+  def orderPaths(paths: java.util.List[FileHandle]): java.util.List[FileHandle] = {
     var result = List[FileHandle]()
     for (path <- order)
-      result = result :+ paths.find {f =>
+      result = result :+ paths.find {f: FileHandle =>
         f.physicalPath
           .getOrElse(throw new IOException("FATAL: FileHandle did not have a physical path")) == path}.get
     if (result.length < paths.length)
