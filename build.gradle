@@ -192,7 +192,7 @@ tasks.withType(ScalaCompile) {
     //scalaCompileOptions.useCompileDaemon = true
 }
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 sourceSets.main.scala.srcDir "src/main/java"
 sourceSets.main.java.srcDirs = []
