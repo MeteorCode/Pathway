@@ -6,7 +6,7 @@ import java.nio.charset.Charset
 import com.meteorcode.pathway.io.ResourceManager
 
 import scala.io.Source
-import scala.util.{Try,Success,Failure}
+import scala.util.{Try, Success, Failure}
 
 protected object IOAccessToken
 
@@ -17,7 +17,7 @@ protected object IOAccessToken
  * @since v2.0.0
  */
 abstract class FileHandle(protected val virtualPath: String,
-                          protected[io] var manager: ResourceManager//,
+                          protected[io] var manager: ResourceManager //,
                           //protected val token: IOAccessToken // todo: implement
                            ) {
   // TODO: Implement
@@ -25,7 +25,7 @@ abstract class FileHandle(protected val virtualPath: String,
   //  throw new SecurityException("Could not create FileHande with bad security access token.")
   //}
 
-  /** Returns true if the file exists. */
+  /** @return true if the file exists, false otherwise */
   def exists: Boolean
 
   /** Returns true if this file is a directory.
@@ -34,10 +34,10 @@ abstract class FileHandle(protected val virtualPath: String,
     * This is Not My Fault, it's [[java.io.File]] behaviour.
     *
     * @return true if this file is a directory, false otherwise
-    * */
+    **/
   def isDirectory: Boolean
 
-  /** Returns true if this FileHandle represents something that can be written to */
+  /** @return true if this FileHandle represents something that can be written to */
   def writable: Boolean
 
   /** Returns the virtual path to this FileHandle.
@@ -48,12 +48,15 @@ abstract class FileHandle(protected val virtualPath: String,
   def path: String = virtualPath
 
   /**
-   * Returns the physical path to the actual filesystem object represented by this FileHandle.
+   * @return an [[Option]] containing physical path to the actual filesystem object
+   *         represented by this FileHandle, or [[None]] if this FileHandle does not represent
+   *         something with a physical path
    */
   protected[io] def physicalPath: Option[String]
 
   /**
-   * @return The filename extension of the object wrapped by this FileHandle, or emptystring if there is no extension.
+   * @return The filename extension of the object wrapped by this FileHandle, or an
+   *         empty string if there is no extension.
    */
   def extension: String = path.split('.').drop(1).lastOption.getOrElse("")
 
@@ -70,90 +73,96 @@ abstract class FileHandle(protected val virtualPath: String,
   protected[io] def file: Option[File]
 
   /**
-   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
-   *         directory or does not have contents.
+   * @return a [[Success]] containing a [[Seq sequence]] of FileHandles to the contents of FileHandle,
+   *         or an empty list if this file is not a directory or does not have contents, or a [[Failure]]
+   *         containing an [[IOException]] if the file cannot be accessed.
    */
   def list: Try[Seq[FileHandle]]
 
   /**
-   * @return a list containing FileHandles to the contents of this FileHandle with the specified suffix, or an
-   *         an empty list if this file is not a directory or does not have contents.
-   * @param suffix the the specified suffix.
+   * @return a [[Success]] containing a [[Seq sequence]] of FileHandles to the contents of this FileHandle
+   *         with the specified suffix, or an empty list if this file is not a directory or does not
+   *         have contents, or a [[Failure]] containing an [[IOException]] if the file cannot be accessed.
+   * @param suffix the specified suffix.
    *
    */
   @deprecated(message = "just use FilterMonadic at call site for better performance", since = "v2.0.0")
-  def list(suffix: String): Try[Seq[FileHandle]] = list map ( _ filter ( _.path.endsWith(suffix)) )
+  def list(suffix: String): Try[Seq[FileHandle]] = list map (_ filter (_.path.endsWith(suffix)))
 
   /** Returns a stream for reading this file as bytes.
-    * @return a [[scala.util.Success Success]] containing a [[java.io.InputStream InputStream]]
-    *         for writing to this file, or a [[scala.util.Failure Failure]] containing a [[java.io.IOException IOException]] if this file is not writeable.
+    * @return a [[Success]] containing an [[InputStream]] for reading from or a [[Failure]]
+    *         containing an [[IOException]] if this file cannot be written to.
     */
   def read: Try[InputStream]
 
   /** Returns a buffered stream for reading this file as bytes.
-    * @return a [[scala.util.Success Success]] containing a [[java.io.BufferedInputStream BufferedInputStream]]
-    *         for writing to this file, or a [[scala.util.Failure Failure]] containing a [[java.io.IOException  IOException]] if this file is not writeable.
+    * @return a [[Success]] containing a [[BufferedInputStream]] for reading from this file,
+    *         or a [[Failure]] containing an [[IOException]] if this file cannot be read.
     */
   def read(bufferSize: Integer): Try[BufferedInputStream] = read map (new BufferedInputStream(_, bufferSize))
 
   /** Reads the entire file into a string using the platform's default charset.
-    * @return a [[scala.util.Success Success]] containing the contents of the file as a String,
-    *         or a [[scala.util.Failure Failure]] containing an [[java.io.IOException IOException]]
-    *         if the rontents could not be read.
+    * @return a [[Success]] containing the contents of the file as a String, or a [[Failure]]
+    *         containing an [[IOException]] if the contents could not be read.
     */
   def readString: Try[String] = readString(Charset.defaultCharset())
 
-  /** Reads the entire file into a string using the specified charset. */
+  /** Reads the entire file into a string using the specified [[Charset]].
+    * @param charset  the [[Charset]] with which to read the file.
+    * @return a [[Success]] containing the contents of the file as a String, or a [[Failure]]
+    *         containing an [[IOException]] if the contents could not be read.
+    */
   def readString(charset: Charset): Try[String] = read map (Source fromInputStream _ mkString)
 
-  /** Returns a [[java.io.OutputStream]] for writing to this file.
-    * @return an [[Option]] containing a [[java.io.OutputStream OutputStream]]
-    *  for writing to this file, or [[None]] if this file is not writeable.
+  /** Returns a [[OutputStream]] for writing to this file.
+    * @return an [[Option]] containing an  [[OutputStream]] for writing to this file,
+    *         or [[None]] if this file cannot be written to
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
-    * @throws IOException if something went wrong while opening the file.
     */
   def write(append: Boolean): Option[OutputStream]
 
-  /** Returns a [[java.io.BufferedOutputStream]] for writing to this file.
-    * @return an [[Option]] containing a [[java.io.BufferedOutputStream BufferedOutputStream]]
-    *  for writing to this file, or [[None]] if this file is not writeable.
+  /** Returns a [[BufferedOutputStream]] for writing to this file.
+    * @return an [[Option]] containing a [[BufferedOutputStream]] for writing to this file, or
+    *         [[None]] if this file cannot be written to.
     * @param bufferSize The size of the buffer
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     */
-  def write(bufferSize: Integer, append: Boolean): Option[BufferedOutputStream] = write(append) map ( new BufferedOutputStream(_, bufferSize) )
+  def write(bufferSize: Integer, append: Boolean): Option[BufferedOutputStream] = write(append) map
+    (new BufferedOutputStream(_, bufferSize))
 
   /** Writes the specified string to the file using the default charset.
-  *
-  * Returns [[scala.util.Success Success]]`(Unit)` if the string was successfully written,
-  * or a [[scala.util.Failure Failure]] containing an [[java.io.IOException IOException]]
-  * if writing failed or the [[FileHandle]] was not writable.
-  *
-  * @param string the string to write to the file
-  * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
-  * @return `Success(Unit)` if the string was written, `Failure(IOException)` if this file is not writeable
+    *
+    * Returns [[Success]]`(Unit)` if the string was successfully written,
+    * or a [[Failure]] containing an [[IOException]]
+    * if writing failed or the [[FileHandle]] was not writable.
+    *
+    * @param string the string to write to the file
+    * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
+    * @return `Success(Unit)` if the string was written, `Failure(IOException)` if this file is not writeable
     */
   def writeString(string: String, append: Boolean): Try[Unit] = writeString(string, Charset.defaultCharset(), append)
 
   /** Writes the specified string to the file using the specified charset.
     *
-    * Returns [[scala.util.Success Success]]`(Unit)` if the string was successfully written,
-    * or a [[scala.util.Failure Failure]] containing an [[java.io.IOException IOException]]
+    * Returns [[Success]]`(Unit)` if the string was successfully written,
+    * or a [[Failure]] containing an [[java.io.IOException IOException]]
     * if writing failed or the [[FileHandle]] was not writable.
     *
     * @param string the string to write to the file
-    * @param charset the [[java.nio.charset.Charset Charset]] to use while writing to the file
+    * @param charset the [[Charset]] to use while writing to the file
     * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
     * @return `Success(Unit)` if the string was written, `Failure(IOException)` if this file is not writeable
     */
   def writeString(string: String, charset: Charset, append: Boolean): Try[Unit] = write(append) match {
     case Some(stream) => stream.write(string.getBytes(charset)); Success(Unit)
-    case None         => Failure(new IOException("FileHandle " + path + " is not writable."))
+    case None => Failure(new IOException("FileHandle " + path + " is not writable."))
   }
 
   /**
    * Returns a FileHandle into the a sibling of this file with the specified name
    * @param siblingName the name of the sibling file to handle
-   * @return a FileHandle into the sibling of this file with the specified name
+   * @return a [[Success]] containing a [[FileHandle]] into the sibling of this file with the specified name,
+   *         or a [[Failure]] containing an [[IOException]] if the sibling cannot be accessed
    */
   def sibling(siblingName: String): Try[FileHandle] = manager.handle(path.replace(
     if (extension == "") name else name + "." + extension, siblingName)
@@ -161,7 +170,8 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /**
    * Return a FileHandle into the parent of this file.
-   * @return a FileHandle into the parent of this file.
+   * @return a [[Success]] containing a [[FileHandle]] into this file's parent, or a [[Failure]] containing an
+   *         [[IOException]] if the parent cannot be accessed
    */
   def parent: Try[FileHandle] = manager.handle(path.replace(
     if (extension == "") "/" + name else "/" + name + "." + extension, "")
@@ -170,7 +180,8 @@ abstract class FileHandle(protected val virtualPath: String,
   /**
    * Returns a FileHandle into the a child of this file with the specified name
    * @param childName the name of the child file to handle
-   * @return a FileHandle into the child of this file with the specified name
+   * @return a [[Success]] containing a [[FileHandle]] into the child of this file with the specified name,
+   *         or a [[Failure]] containing an [[IOException]] if the childcannot be accessed
    */
   def child(childName: String): Try[FileHandle] = manager.handle(path + "/" + childName)
 
@@ -190,8 +201,8 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /**
    * Overriden equality method for FileHandles. Returns true if the other FileHandle is:
-   *  1. the same path as this Filehandle
-   *  2. the same subclass of FileHandle as this FileHandle
+   * 1. the same path as this Filehandle
+   * 2. the same subclass of FileHandle as this FileHandle
    * @param other another object
    * @return true if other is a FileHandle of the same class and path as this
    */
@@ -200,13 +211,14 @@ abstract class FileHandle(protected val virtualPath: String,
     case _ => false
   }
 }
+
 /**
 object FileHandle {
   protected val correctToken = new IOAccessToken
 }
-*/
+  */
 object FileHandle {
-  protected[io] def unapply(f: FileHandle): Option[(String,String)] = f.physicalPath map {
-    (physPath) => (f.path,physPath)
+  protected[io] def unapply(f: FileHandle): Option[(String, String)] = f.physicalPath map {
+    (physPath) => (f.path, physPath)
   }
 }
