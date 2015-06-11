@@ -48,268 +48,338 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
   "A FileHandle" when {
     "into a file that exists in the file system" should {
       "have the correct extension" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").extension shouldEqual "txt"
+        manager.handle("/test1.txt").success.value.extension shouldEqual "txt"
       }
       "have the correct name" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").name shouldEqual "test1"
+        manager.handle("/test1.txt").success.value.name shouldEqual "test1"
       }
       "not be a directory" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt") should not be a ('directory)
+        manager.handle("/test1.txt").success.value should not be a ('directory)
       }
       "not be writable" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt") should not be 'writable
+        manager.handle("/test1.txt").success.value should not be 'writable
       }
       "allow the contents to be read as a String" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").readString.success.value shouldEqual "hi!"
+        manager.handle("/test1.txt").success.value
+          .readString.success.value shouldEqual "hi!"
       }
       "allow the contents to be read as a String with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").readString(Charset.defaultCharset()).success.value shouldEqual "hi!"
+        manager.handle("/test1.txt").success.value
+          .readString(Charset.defaultCharset()).success.value shouldEqual "hi!"
       }
       "not list any child drectories" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").list.success.value shouldBe empty
+        manager.handle("/test1.txt").success.value
+          .list.success.value shouldBe empty
       }
       "return a Success(InputStream) from calls to read()" taggedAs FilesystemTest in {
-        val result = manager.handle("/test1.txt").read
-        result.success.value shouldBe an [InputStream]
+        manager.handle("/test1.txt").success.value
+          .read.success.value shouldBe an [InputStream]
       }
       "return a Success(BufferedInputStream) from calls to read() with a buffer sized" taggedAs FilesystemTest in {
-        val result = manager.handle("/test1.txt").read(8)
-        result.success.value shouldBe a [BufferedInputStream]
+        manager.handle("/test1.txt").success.value
+          .read(8).success.value shouldBe a [BufferedInputStream]
       }
       "return None from calls to write() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").write(append=true) shouldBe None
+        manager.handle("/test1.txt").success.value
+          .write(append=true) shouldBe None
       }
       "return None from calls to write() in append mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").write(8,append=true) shouldBe None
+        manager.handle("/test1.txt").success.value
+          .write(8,append=true) shouldBe None
       }
       "return None from calls to write() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").write(append=false) shouldBe None
+        manager.handle("/test1.txt").success.value
+          .write(append=false) shouldBe None
       }
       "return None from calls to write() in overwrite mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").write(8,append=false) shouldBe None
+        manager.handle("/test1.txt").success.value
+          .write(8,append=false) shouldBe None
       }
       "return a Failure(IOException) from calls to writeString() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").writeString("hi", append=true)
+        manager.handle("/test1.txt").success.value
+          .writeString("hi", append=true)
           .failure.exception should have message "FileHandle /test1.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").writeString("hi", append=false)
+        manager.handle("/test1.txt").success.value
+          .writeString("hi", append=false)
           .failure.exception should have message "FileHandle /test1.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in append mode with a specified charset" taggedAs FilesystemTest  in {
-        manager.handle("/test1.txt").writeString("hi", Charset.defaultCharset(),append=true)
+        manager.handle("/test1.txt")
+          .success.value
+          .writeString("hi", Charset.defaultCharset(),append=true)
           .failure.exception should have message "FileHandle /test1.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt").writeString("hi", Charset.defaultCharset(),append=false)
+        manager.handle("/test1.txt").success.value
+          .writeString("hi", Charset.defaultCharset(),append=false)
           .failure.exception should have message "FileHandle /test1.txt is not writable."
       }
     }
     "into a nonexistant file in the write directory" should {
       "contain the written string after a call to writeString()" taggedAs FilesystemTest in {
-        val target = manager.handle("/write/test5.txt")
+        val target = manager.handle("/write/test5.txt").success.value
         target.writeString("hello", append=false)
         target.readString.success.value shouldEqual "hello"
       }
       "return Some(OutputStream) from calls to write() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/write/test5.txt").write(append=true).value shouldBe an [OutputStream]
+        manager.handle("/write/test5.txt").success.value
+          .write(append=true).value shouldBe an [OutputStream]
       }
       "return Some(BufferedOutputStream) from calls to write() in append mode with a buffer size" taggedAs FilesystemTest in {
-        manager.handle("/write/test5.txt").write(8,append=true).value shouldBe a [BufferedOutputStream]
+        manager.handle("/write/test5.txt").success.value
+          .write(8,append=true).value shouldBe a [BufferedOutputStream]
       }
       "return Some(OutputStream) from calls to write() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/write/test5.txt").write(append=false).value shouldBe an [OutputStream]
+        manager.handle("/write/test5.txt").success.value
+          .write(append=false).value shouldBe an [OutputStream]
       }
       "return Some(BufferedOutputStream) from calls to write() in overwrite mode with a buffer size" taggedAs FilesystemTest in {
-        manager.handle("/write/test5.txt").write(8,append=false).value shouldBe a [BufferedOutputStream]
+        manager.handle("/write/test5.txt").success.value
+          .write(8,append=false).value shouldBe a [BufferedOutputStream]
       }
     }
     "into a nonexistant file outside of the write directory" should {
       "throw an IOException when instantiated" taggedAs FilesystemTest in {
-        the[IOException] thrownBy {
-          manager.handle("testDir/FILE THAT DOESN'T EXIST")
-        } should have message "A filehandle to an empty path (testDir/FILE THAT DOESN'T EXIST) was requested, and the requested path was not writable"
+        manager.handle("testDir/FILE THAT DOESN'T EXIST")
+          .failure.exception should have message "A filehandle to an empty path (testDir/FILE THAT DOESN'T EXIST) was requested, and the requested path was not writable"
       }
     }
     "into an existant directory on the file system" should {
-      "be a directory" taggedAs FilesystemTest in { manager.handle("/testDir") should be a ('directory) }
-      "not be writable" taggedAs FilesystemTest in { manager.handle("/testDir") should not be 'writable }
-      "not have an extension" taggedAs FilesystemTest in { manager.handle("/testDir").extension shouldEqual ""}
-      "know its name" taggedAs FilesystemTest in {manager.handle("/testDir").name shouldEqual "testDir"}
+      "be a directory" taggedAs FilesystemTest in { manager.handle("/testDir").success.value should be a ('directory) }
+      "not be writable" taggedAs FilesystemTest in { manager.handle("/testDir").success.value should not be 'writable }
+      "not have an extension" taggedAs FilesystemTest in { manager.handle("/testDir").success.value.extension shouldEqual ""}
+      "know its name" taggedAs FilesystemTest in {manager.handle("/testDir").success.value.name shouldEqual "testDir"}
       "return None from calls to write() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/testDir").write(append=true) shouldBe None
+        manager.handle("/testDir").success.value
+          .write(append=true) shouldBe None
       }
       "return None from calls to write() in append mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/testDir").write(8,append=true) shouldBe None
+        manager.handle("/testDir").success.value
+          .write(8,append=true) shouldBe None
       }
       "return None from calls to write() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/testDir").write(append=false) shouldBe None
+        manager.handle("/testDir").success.value
+          .write(append=false) shouldBe None
       }
       "return None from calls to write() in overwrite mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/testDir").write(8,append=false) shouldBe None
+        manager.handle("/testDir").success.value
+          .write(8,append=false) shouldBe None
       }
       "return a Failure(IOException) from calls to writeString() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/testDir").writeString("hi", append=true)
+        manager.handle("/testDir").success.value
+          .writeString("hi", append=true)
           .failure.exception should have message "FileHandle /testDir is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/testDir").writeString("hi", append=false)
+        manager.handle("/testDir").success.value
+          .writeString("hi", append=false)
           .failure.exception should have message "FileHandle /testDir is not writable."
       }
       "return a Failure(IOException)n from calls to writeString() in append mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/testDir").writeString("hi", Charset.defaultCharset(),append=true)
+        manager.handle("/testDir").success.value
+          .writeString("hi", Charset.defaultCharset(),append=true)
           .failure.exception should have message "FileHandle /testDir is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/testDir").writeString("hi", Charset.defaultCharset(),append=false)
+        manager.handle("/testDir").success.value
+          .writeString("hi", Charset.defaultCharset(),append=false)
           .failure.exception should have message "FileHandle /testDir is not writable."
       }
       "allow access into child files" taggedAs FilesystemTest in {
-        manager.handle("/testDir").child("test3.txt").readString.success.value shouldEqual "yet again hi"
-        manager.handle("/testDir").child("test4.txt").readString.success.value shouldEqual "still hi"
+        manager.handle("/testDir").success.value
+          .child("test3.txt").success.value
+          .readString.success.value shouldEqual "yet again hi"
+        manager.handle("/testDir").success.value
+          .child("test4.txt").success.value
+          .readString.success.value shouldEqual "still hi"
       }
     }
     "into a file within a directory on the file system" should {
       "allow access to the parent" taggedAs FilesystemTest in {
-        manager.handle("/testDir").child("test3.txt").parent shouldEqual manager.handle("/testDir")
+        manager.handle("/testDir").success.value
+          .child("test3.txt").success.value
+          .parent.success.value shouldEqual manager.handle("/testDir").success.value
       }
       "allow access to its siblings" taggedAs FilesystemTest in {
-        manager.handle("/testDir").child("test3.txt").sibling("test4.txt") shouldEqual manager.handle("/testDir/test4.txt")
+        manager.handle("/testDir").success.value
+          .child("test3.txt").success.value
+          .sibling("test4.txt").success.value shouldEqual manager.handle("/testDir/test4.txt").success.value
       }
     }
     "into a file in a Zip archive" should {
-      "have the correct extension" taggedAs FilesystemTest in {manager.handle("/zippedtest.txt").extension shouldEqual "txt"}
-      "have the correct name" taggedAs FilesystemTest in {manager.handle("/zippedtest.txt").name shouldEqual "zippedtest"}
-      "not be a directory" taggedAs FilesystemTest in {manager.handle("/zippedtest.txt") should not be a ('directory)}
-      "not be writable" taggedAs FilesystemTest in {manager.handle("/zippedtest.txt") should not be 'writable}
+      "have the correct extension" taggedAs FilesystemTest in {manager.handle("/zippedtest.txt").success.value.extension shouldEqual "txt"}
+      "have the correct name" taggedAs FilesystemTest in {manager.handle("/zippedtest.txt").success.value.name shouldEqual "zippedtest"}
+      "not be a directory" taggedAs FilesystemTest in {manager.handle("/zippedtest.txt").success.value should not be a ('directory)}
+      "not be writable" taggedAs FilesystemTest in {manager.handle("/zippedtest.txt").success.value should not be 'writable}
       "allow the contents to be read as a String" in {
-        manager.handle("/zippedtest.txt").readString.success.value shouldEqual "also hi!"
+        manager.handle("/zippedtest.txt")
+          .success.value
+          .readString.success.value shouldEqual "also hi!"
       }
       "allow the contents to be read as a String with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").readString(Charset.defaultCharset()).success.value shouldEqual "also hi!"
+        manager.handle("/zippedtest.txt")
+          .success.value
+          .readString(Charset.defaultCharset()).success.value shouldEqual "also hi!"
       }
       "not list any child items" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").list.success.value shouldBe empty
+        manager.handle("/zippedtest.txt").success.value
+          .list.success.value shouldBe empty
       }
       "return Some(InputStream) from calls to read()" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").read.success.value shouldBe an [InputStream]
+        manager.handle("/zippedtest.txt").success.value
+          .read.success.value shouldBe an [InputStream]
       }
       "return Some(BufferedInputStream) from calls to read() with a buffer sized" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").read(8).success.value shouldBe a [BufferedInputStream]
+        manager.handle("/zippedtest.txt").success.value
+          .read(8).success.value shouldBe a [BufferedInputStream]
       }
       "return None from calls to write() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").write(append=true) shouldBe None
+        manager.handle("/zippedtest.txt").success.value
+          .write(append=true) shouldBe None
       }
       "return None from calls to write() in append mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").write(8,append=true) shouldBe None
+        manager.handle("/zippedtest.txt").success.value
+          .write(8,append=true) shouldBe None
       }
       "return None from calls to write() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").write(append=false) shouldBe None
+        manager.handle("/zippedtest.txt").success.value
+          .write(append=false) shouldBe None
       }
       "return None from calls to write() in overwrite mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").write(8,append=false) shouldBe None
+        manager.handle("/zippedtest.txt").success.value
+          .write(8,append=false) shouldBe None
       }
       "return a Failure(IOException) from calls to writeString() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").writeString("hi", append=true)
+        manager.handle("/zippedtest.txt").success.value
+          .writeString("hi", append=true)
           .failure.exception should have message "FileHandle /zippedtest.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").writeString("hi", append=false)
+        manager.handle("/zippedtest.txt").success.value
+          .writeString("hi", append=false)
           .failure.exception should have message "FileHandle /zippedtest.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in append mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").writeString("hi", Charset.defaultCharset(),append=true)
+        manager.handle("/zippedtest.txt").success.value
+          .writeString("hi", Charset.defaultCharset(),append=true)
           .failure.exception should have message "FileHandle /zippedtest.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/zippedtest.txt").writeString("hi", Charset.defaultCharset(),append=false)
+        manager.handle("/zippedtest.txt").success.value
+          .writeString("hi", Charset.defaultCharset(),append=false)
           .failure.exception should have message "FileHandle /zippedtest.txt is not writable."
       }
     }
     "into a file in a Jar archive" should {
-      "have the correct extension" taggedAs FilesystemTest in { manager.handle("/test6.txt").extension shouldEqual "txt" }
-      "have the correct name" taggedAs FilesystemTest in { manager.handle("/test6.txt").name shouldEqual "test6" }
-      "not be a directory" taggedAs FilesystemTest in { manager.handle("/test6.txt") should not be a ('directory) }
-      "not be writable" taggedAs FilesystemTest in { manager.handle("/test6.txt") should not be 'writable }
+      "have the correct extension" taggedAs FilesystemTest in { manager.handle("/test6.txt").success.value.extension shouldEqual "txt" }
+      "have the correct name" taggedAs FilesystemTest in { manager.handle("/test6.txt").success.value.name shouldEqual "test6" }
+      "not be a directory" taggedAs FilesystemTest in { manager.handle("/test6.txt").success.value should not be a ('directory) }
+      "not be writable" taggedAs FilesystemTest in { manager.handle("/test6.txt").success.value should not be 'writable }
       "allow the contents to be read as a String" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").readString.success.value shouldEqual "Continued hi."
+        manager.handle("/test6.txt")
+          .success.value
+          .readString.success.value shouldEqual "Continued hi."
       }
       "allow the contents to be read as a String with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").readString(Charset.defaultCharset()).success.value shouldEqual "Continued hi."
+        manager.handle("/test6.txt").success.value
+          .readString(Charset.defaultCharset()).success.value shouldEqual "Continued hi."
       }
       "not list any child items" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").list.success.value shouldBe empty
+        manager.handle("/test6.txt").success.value
+          .list.success.value shouldBe empty
       }
       "return Some(InputStream) from calls to read()" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").read.success.value shouldBe an [InputStream]
+        manager.handle("/test6.txt").success.value
+          .read.success.value shouldBe an [InputStream]
       }
       "return Some(BufferedInputStream) from calls to read() with a buffer sized" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").read(8).success.value shouldBe a [BufferedInputStream]
+        manager.handle("/test6.txt").success.value
+          .read(8).success.value shouldBe a [BufferedInputStream]
       }
       "return None from calls to write() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").write(append=true) shouldBe None
+        manager.handle("/test6.txt").success.value
+          .write(append=true) shouldBe None
       }
       "return None from calls to write() in append mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").write(8,append=true) shouldBe None
+        manager.handle("/test6.txt").success.value
+          .write(8,append=true) shouldBe None
       }
       "return None from calls to write() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").write(append=false) shouldBe None
+        manager.handle("/test6.txt").success.value
+          .write(append=false) shouldBe None
       }
       "return None from calls to write() in overwrite mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").write(8,append=false) shouldBe None
+        manager.handle("/test6.txt").success.value
+          .write(8,append=false) shouldBe None
       }
       "return a Failure(IOException) from calls to writeString() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").writeString("hi", append=true)
+        manager.handle("/test6.txt").success.value
+          .writeString("hi", append=true)
           .failure.exception should have message "FileHandle /test6.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").writeString("hi", append=false)
+        manager.handle("/test6.txt").success.value
+          .writeString("hi", append=false)
           .failure.exception should have message "FileHandle /test6.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in append mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").writeString("hi", Charset.defaultCharset(),append=true)
+        manager.handle("/test6.txt").success.value
+          .writeString("hi", Charset.defaultCharset(),append=true)
           .failure.exception should have message "FileHandle /test6.txt is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/test6.txt").writeString("hi", Charset.defaultCharset(),append=false)
+        manager.handle("/test6.txt").success.value
+          .writeString("hi", Charset.defaultCharset(),append=false)
           .failure.exception should have message "FileHandle /test6.txt is not writable."
       }
     }
     "into a directory in a Jar archive" should {
-      "be a directory" taggedAs FilesystemTest in {manager.handle("/testJarDir") should be a ('directory) }
-      "not be writable" taggedAs FilesystemTest in {manager.handle("/testJarDir") should not be ('writable) }
-      "not have an extension" taggedAs FilesystemTest in { manager.handle("/testJarDir").extension shouldEqual ""}
-      "know its name" taggedAs FilesystemTest in {manager.handle("/testJarDir").name shouldEqual "testJarDir"}
+      "be a directory" taggedAs FilesystemTest in {manager.handle("/testJarDir").success.value should be a ('directory) }
+      "not be writable" taggedAs FilesystemTest in {manager.handle("/testJarDir").success.value should not be ('writable) }
+      "not have an extension" taggedAs FilesystemTest in { manager.handle("/testJarDir").success.value.extension shouldEqual ""}
+      "know its name" taggedAs FilesystemTest in {manager.handle("/testJarDir").success.value.name shouldEqual "testJarDir"}
       "return None from calls to write() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir/").write(append=true) shouldBe None
+        manager.handle("/testJarDir/").success.value
+          .write(append=true) shouldBe None
       }
       "return None from calls to write() in append mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").write(8,append=true) shouldBe None
+        manager.handle("/testJarDir").success.value
+          .write(8,append=true) shouldBe None
       }
       "return None from calls to write() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").write(append=false) shouldBe None
+        manager.handle("/testJarDir").success.value
+          .write(append=false) shouldBe None
       }
       "return None from calls to write() in overwrite mode with a specified buffer size" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").write(8,append=false) shouldBe None
+        manager.handle("/testJarDir").success.value
+          .write(8,append=false) shouldBe None
       }
       "return a Failure(IOException) from calls to writeString() in append mode" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").writeString("hi", append=true)
+        manager.handle("/testJarDir").success.value
+          .writeString("hi", append=true)
           .failure.exception should have message "FileHandle /testJarDir is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").writeString("hi", append=false)
+        manager.handle("/testJarDir").success.value
+          .writeString("hi", append=false)
           .failure.exception should have message "FileHandle /testJarDir is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in append mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").writeString("hi", Charset.defaultCharset(),append=true)
+        manager.handle("/testJarDir").success.value
+          .writeString("hi", Charset.defaultCharset(),append=true)
           .failure.exception should have message "FileHandle /testJarDir is not writable."
       }
       "return a Failure(IOException) from calls to writeString() in overwrite mode with a specified charset" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").writeString("hi", Charset.defaultCharset(),append=false)
+        manager.handle("/testJarDir").success.value
+          .writeString("hi", Charset.defaultCharset(),append=false)
           .failure.exception should have message "FileHandle /testJarDir is not writable."
       }
       "allow access into child files" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").child("test7.md").readString.success.value shouldEqual "Hi continues."
+        manager.handle("/testJarDir").success.value
+          .child("test7.md").success.value
+          .readString.success.value shouldEqual "Hi continues."
       }
     }
     "permission is denied by the host OS" should {
@@ -355,12 +425,13 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         )
 
         val target = new ResourceManager(directories, policy = new AlphabeticLoadPolicy())
-        target.handle("/testLoadOrder.txt").readString.success.value shouldEqual "I AM CORRECT"
+        target.handle("/testLoadOrder.txt").success.value
+          .readString.success.value shouldEqual "I AM CORRECT"
       }
     }
     "handling the same path multiple times" should {
       "return a cached FileHandle rather than a new one" taggedAs FilesystemTest in {
-        manager.handle("/test1.txt") shouldBe manager.handle("/test1.txt")
+        manager.handle("/test1.txt").success.value shouldBe manager.handle("/test1.txt").success.value
       }
     }
   }
