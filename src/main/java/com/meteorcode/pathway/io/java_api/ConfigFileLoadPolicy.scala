@@ -1,6 +1,7 @@
-package com.meteorcode.pathway.io
+package com.meteorcode.pathway.io.java_api
 
-import scala.collection.mutable
+import java.io.IOException
+
 import scala.collection.JavaConversions._
 
 /**
@@ -13,20 +14,26 @@ import scala.collection.JavaConversions._
  *
  * This also demonstrates the use of "fallback" load orders. If the configuration file cannot be used to order all
  * roots, it will pass any roots it could not order to the fallback
- * [[com.meteorcode.pathway.io.LoadOrderProvider LoadOrderProvider]], order them according to that provider's policy,
+ * [[LoadOrderProvider LoadOrderProvider]], order them according to that provider's policy,
  * and then insert them at the end of the list. The default fallback load policy is the
- * [[com.meteorcode.pathway.io.AlphabeticLoadPolicy AlphabeticLoadPolicy]], but another may be specified.
+ * [[AlphabeticLoadPolicy AlphabeticLoadPolicy]], but another may be specified.
+ *
+ * @author Hawk Weisman
+ * @since v2.0.0
  *
  * Created by hawk on 8/15/14.
  */
 class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) extends LoadOrderProvider {
-  private[this] val order = for (line <- config.readString.split("\n")
-                           if !line.startsWith("//")) yield line
+
+  private[this] val order = config
+    .readString
+    .get
+    .split("/") filter ((line: String) => !line.startsWith("//"))
 
   /**
    * Constructor for a ConfigFileLoadPolicy without a specified fallback option. The fallback option will default to
-   * [[com.meteorcode.pathway.io.AlphabeticLoadPolicy alphabetic order]].
-   * @param config a [[com.meteorcode.pathway.io.FileHandle FileHandle]] into a text file containing the specified
+   * [[AlphabeticLoadPolicy alphabetic order]].
+   * @param config a [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]] into a text file containing the specified
    *               load order
    */
   def this (config: FileHandle) = this(config, new AlphabeticLoadPolicy())
@@ -39,9 +46,11 @@ class ConfigFileLoadPolicy(config: FileHandle, fallback: LoadOrderProvider) exte
   def orderPaths(paths: java.util.List[FileHandle]): java.util.List[FileHandle] = {
     var result = List[FileHandle]()
     for (path <- order)
-      result = result :+ paths.find{f => f.physicalPath == path}.get
+      result = result :+ paths.find {f: FileHandle =>
+        f.physicalPath
+          .getOrElse(throw new IOException("FATAL: FileHandle did not have a physical path")) == path}.get
     if (result.length < paths.length)
-      result = result ++ fallback.orderPaths(paths.filter(p => !(result contains p)))
+      result = result ++ fallback.orderPaths(paths filter (p => !(result contains p)))
     result
   }
 

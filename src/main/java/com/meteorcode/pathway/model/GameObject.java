@@ -3,7 +3,6 @@ package com.meteorcode.pathway.model;
 import com.meteorcode.pathway.logging.LoggerFactory;
 import com.meteorcode.pathway.logging.LogDestination;
 import com.meteorcode.pathway.model.Context;
-import scala.None;
 import scala.Option;
 
 /**

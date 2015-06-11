@@ -6,7 +6,7 @@ import bsh.EvalError;
 import bsh.Interpreter;
 import bsh.InterpreterError;
 
-import com.meteorcode.pathway.io.FileHandle;
+import com.meteorcode.pathway.io.scala_api.FileHandle;
 
 /**
  * The means by which one obtains a ScriptContainer.
@@ -112,7 +112,7 @@ public class ScriptContainerFactory {
 		 * </p>
 		 *
 		 * @param file
-		 *            a {@link com.meteorcode.pathway.io.FileHandle FileHandle}
+		 *            a {@link com.meteorcode.pathway.io.java_api.FileHandle FileHandle}
 		 *            containing the script to execute.
 		 * @return The object result of the evaluation, or null if there was no
 		 *         result.
@@ -127,7 +127,7 @@ public class ScriptContainerFactory {
 		@Override
 		public Object eval(FileHandle file) throws ScriptException, IOException {
 			try {
-				String script = file.readString();
+				String script = file.readString().get();
 				return i.eval(script);
 			} catch (EvalError e) {
 				throw new ScriptException(
@@ -216,12 +216,12 @@ public class ScriptContainerFactory {
 			// check if the requested variable is a valid Java identifier
 			char[] letters = variable.toCharArray();
 
-			if (Character.isJavaIdentifierStart(letters[0]) == false)
+			if (!Character.isJavaIdentifierStart(letters[0]))
 				throw new IllegalArgumentException(
 						"Variable name was not a valid Java identifier; illegal character at position 0");
 
 			for (int i = 0; i < letters.length; i++)
-				if (Character.isJavaIdentifierPart(letters[i]) == false)
+				if (!Character.isJavaIdentifierPart(letters[i]))
 					throw new IllegalArgumentException(
 							"Variable name was not a valid Java identifier; illegal character at position "
 									+ i);

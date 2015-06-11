@@ -7,4 +7,6 @@ package com.meteorcode.pathway.logging
  */
 trait Logging {
   protected lazy val logger: LogDestination = LoggerFactory.getLogger
+  def log (message: String) = logger.log(message)
+  def log (tag: String, message: String) = logger.log(tag,message)
 }

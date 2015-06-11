@@ -2,7 +2,7 @@ package com.meteorcode.pathway.script;
 
 import java.io.IOException;
 
-import com.meteorcode.pathway.io.FileHandle;
+import com.meteorcode.pathway.io.scala_api.FileHandle;
 
 /**
  * A fully formed evaluator for a scripting language, complete with environment
@@ -49,7 +49,7 @@ public abstract class ScriptContainer {
 	 * </p>
 	 *
 	 * @param file
-	 *            a {@link com.meteorcode.pathway.io.FileHandle}
+	 *            a {@link com.meteorcode.pathway.io.java_api.FileHandle}
 	 *            containing the script to execute.
 	 * @return The object result of the evaluation, or null if there was no
 	 *         result.

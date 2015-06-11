@@ -2,9 +2,10 @@ package com.meteorcode.pathway.test
 
 import com.meteorcode.common.ForkTable
 
-
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{WordSpec, Matchers}
+
+import scala.language.postfixOps
 
 /**
  * Created by hawk on 5/22/15.

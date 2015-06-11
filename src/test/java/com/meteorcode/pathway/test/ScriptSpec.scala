@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 
 import bsh.{InterpreterError, EvalError, Interpreter}
 
-import com.meteorcode.pathway.io.FileHandle
+import com.meteorcode.pathway.io.scala_api.FileHandle
 import com.meteorcode.pathway.script.{ScriptContainer, ScriptException, ScriptContainerFactory, ScriptEnvironment}
 
 import me.hawkweisman.util._
@@ -25,6 +25,8 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, WordSpec}
 
 import org.mockito.Mockito._
+
+import scala.util.{Failure, Success}
 
 /**
  * Created by hawk on 5/25/15.
@@ -108,7 +110,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
             val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
             val fakeFileHandle = mock[FileHandle]
 
-            when(fakeFileHandle.readString) thenReturn script
+            when(fakeFileHandle.readString) thenReturn Success(script)
             doReturn(result).when(fakeInterpreter).eval(script)
 
             val target = fakeFactory.getNewInstance
@@ -125,7 +127,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
         val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
         val fakeFileHandle = mock[FileHandle]
 
-        when(fakeFileHandle.readString) thenThrow new IOException
+        when(fakeFileHandle.readString) thenReturn Failure(new IOException)
 
         val target = fakeFactory.getNewInstance
 
@@ -138,7 +140,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
             val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
             val fakeFileHandle = mock[FileHandle]
 
-            when(fakeFileHandle.readString) thenReturn script
+            when(fakeFileHandle.readString) thenReturn Success(script)
             when(fakeInterpreter.eval(script)) thenThrow new EvalError(null, null, null)
 
             val target = fakeFactory.getNewInstance
@@ -155,7 +157,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
             val fakeFactory = new ScriptContainerFactory(fakeInterpreter)
             val fakeFileHandle = mock[FileHandle]
 
-            when(fakeFileHandle.readString) thenReturn script
+            when(fakeFileHandle.readString) thenReturn Success(script)
             when(fakeInterpreter.eval(script)) thenThrow new InterpreterError("fake interp. error")
 
             val target = fakeFactory.getNewInstance
