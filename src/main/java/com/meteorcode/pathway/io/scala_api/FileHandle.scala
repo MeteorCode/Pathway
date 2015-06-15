@@ -197,7 +197,7 @@ abstract class FileHandle(protected val virtualPath: String,
    */
   def delete: Boolean
 
-  override lazy val toString = this.getClass.getSimpleName + ": " + path
+  override lazy val toString: String = this.getClass.getSimpleName + ": " + path
 
   /**
    * Overriden equality method for FileHandles. Returns true if the other FileHandle is:
@@ -206,7 +206,7 @@ abstract class FileHandle(protected val virtualPath: String,
    * @param other another object
    * @return true if other is a FileHandle of the same class and path as this
    */
-  override def equals(other: Any) = other match {
+  override def equals(other: Any): Boolean = other match {
     case handle: FileHandle => (handle.path == path) && (handle.getClass == this.getClass)
     case _ => false
   }

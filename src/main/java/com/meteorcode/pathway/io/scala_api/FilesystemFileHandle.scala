@@ -23,9 +23,9 @@ import scala.util.{Try, Success, Failure}
  *
  * [[ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
  * allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only
- * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.FileHandle FileHandle]].
- * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
- * [[com.meteorcode.pathway.io.ZipFileHandle, ZipFileHandle]], or
+ * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]].
+ * If you  ever refer to files as [[com.meteorcode.pathway.io.scala_api.FilesystemFileHandle FilesystemFileHandle]],
+ * [[com.meteorcode.pathway.io.scala_api.ZipFileHandle, ZipFileHandle]], or
  * [[JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
  * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
@@ -44,6 +44,8 @@ class FilesystemFileHandle (
   manager: ResourceManager//,
   //token: IOAccessToken
   ) extends FileHandle(virtualPath, manager) {
+
+  require(realPath != "", "Physical path cannot be empty.")
 
   def this(virtualPath: String,
            realPath: String,

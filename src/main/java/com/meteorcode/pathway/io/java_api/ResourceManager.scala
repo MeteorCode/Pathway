@@ -55,9 +55,8 @@ class ResourceManager protected[io](protected val underlying: scala_api.Resource
    * @param loadPolicy A [[LoadOrderPolicy]] representing the game's load-order
    * @return A new ResourceManager
    */
-  def this(rootDir: String, writeDir: String, loadPolicy: LoadOrderProvider) = this(
-    new scala_api.ResourceManager(rootDir,writeDir,loadPolicy)
-  )
+  def this(rootDir: String, writeDir: String, loadPolicy: LoadOrderProvider) =
+    this(new scala_api.ResourceManager(rootDir,writeDir,loadPolicy))
 
   /**
    * Request that the ResourceManager handle the file at a given path
