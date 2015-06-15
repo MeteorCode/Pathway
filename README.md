@@ -9,6 +9,7 @@ MeteorCode Pathway
 [![GitHub release](https://img.shields.io/github/release/MeteorCode/pathway.svg?style=flat)](https://github.com/MeteorCode/Pathway/releases) 
 [![Latest JavaDoc](https://img.shields.io/badge/javadoc-latest-brightgreen.svg?style=flat)](http://meteorcode.github.io/Pathway/javadoc-latest/) 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+[![Dependency Status](https://www.versioneye.com/user/projects/557f46cf38666400200000bc/badge.svg?style=flat)](https://www.versioneye.com/user/projects/557f46cf38666400200000bc)
 
 [Documentation & Tutorials](https://github.com/MeteorCode/Pathway/wiki) |  [JavaDoc](http://meteorcode.github.io/Pathway/javadoc-latest/) | [MeteorCode Labs](https://www.meteorcodelabs.com)
 
