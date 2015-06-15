@@ -74,15 +74,15 @@ dependencies {
     // right now, the only scalac plugin we are using is genjavadoc
     //scalaCompilerPlugins  group: 'com.typesafe.genjavadoc', name: 'genjavadoc-plugin_2.11.1', version:'0.8'
 
-    testRuntime group: 'org.pegdown',    name: 'pegdown',                        version: '1.1.0'
-    testCompile group: 'org.mockito',    name: 'mockito-all',                    version: '1.9.5'
-    testCompile group: 'org.powermock',  name: 'powermock-mockito-release-full', version: '1.5.4+'
-    testCompile group: 'org.scalatest',  name: 'scalatest_2.11',                 version: '2.2.4'
-    testCompile group: 'org.scalacheck', name: 'scalacheck_2.11',                version: '1.12.2'
+    testRuntime group: 'org.pegdown',    name: 'pegdown',                        version: '1.5.0+'
+    testCompile group: 'org.mockito',    name: 'mockito-all',                    version: '1.10.19+'
+    testCompile group: 'org.powermock',  name: 'powermock-mockito-release-full', version: '1.6.2+'
+    testCompile group: 'org.scalatest',  name: 'scalatest_2.11',                 version: '2.2.4+'
+    testCompile group: 'org.scalacheck', name: 'scalacheck_2.11',                version: '1.12.2+'
     testCompile group: 'me.hawkweisman', name: 'util_2.11',                      version: '0.1'
 
-    scoverage group: 'org.scoverage', name: 'scalac-scoverage-plugin_2.11',  version: '1.0.4+'
-    scoverage group: 'org.scoverage', name: 'scalac-scoverage-runtime_2.11', version: '1.0.4+'
+    scoverage group: 'org.scoverage', name: 'scalac-scoverage-plugin_2.11',  version: '1.1.0+'
+    scoverage group: 'org.scoverage', name: 'scalac-scoverage-runtime_2.11', version: '1.1.0+'
 }
 
 // stuff that should not have a JaCoCo test report generated
