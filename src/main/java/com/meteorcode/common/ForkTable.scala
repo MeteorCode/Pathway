@@ -7,7 +7,7 @@ import scala.collection.{AbstractMap, DefaultMap, mutable}
  * An associative map data structure for representing scopes.
  *
  * A `ForkTable` functions similarly to a standard associative map
- * data structure (such as a [[HashMap]]), but with the ability to
+ * data structure (such as a [[scala.collection.mutable.HashMap]]), but with the ability to
  * fork children off of each level of the map. If a key exists in any
  * of a child's parents, the child will 'pass through' that key. If a
  * new value is bound to a key in a child level, that child will overwrite
@@ -66,7 +66,7 @@ class ForkTable[K, V](
   /**
    * @return true if this is a bottom-level leaf, false if it is not
    */
-  def leaf: Boolean = parent.isDefined && (children.isEmpty)
+  def leaf: Boolean = parent.isDefined && children.isEmpty
   /**
    * @return an [[scala.Option Option]] containing a reference to
    *         the parent table, or [[scala.None None]] if this is
@@ -119,7 +119,7 @@ class ForkTable[K, V](
       case value: Some[V] => value
       case None           => parent match {
         case None         => None
-        case Some(thing)  => thing get key
+        case Some(thing)  => thing.get(key)
       }
     }
   }
@@ -178,7 +178,7 @@ class ForkTable[K, V](
     case false if whiteouts contains key => false
     case false                           => parent match {
       case None        => false
-      case Some(thing) => thing chainContains key
+      case Some(thing) => thing.chainContains(key)
     }
   }
 
@@ -209,7 +209,7 @@ class ForkTable[K, V](
     case true  => true // this method could look much simpler were it not for `tailrec`
     case false => parent match {
       case None        => false
-      case Some(thing) => thing chainExists p
+      case Some(thing) => thing.chainExists(p)
     }
   }
 
@@ -225,7 +225,7 @@ class ForkTable[K, V](
    *
    * This level of the table will be set as the child's
    * parent. The child will be created with an empty backing
-   * [[scala.collection.HashMap HashMap]] and no keys whited out.
+   * [[scala.collection.mutable.HashMap HashMap]] and no keys whited out.
    *
    * @return a new child of this scope
    */
