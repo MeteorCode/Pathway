@@ -145,7 +145,14 @@ class ForkTable[K, V](
     parent flatMap (_ get key) map {(v) => whiteouts += key; v}
   }
 
-  def freeze: Unit = ???
+  def freeze(): Unit = {
+    parent foreach { oldParent =>
+      this.parent = None
+      this.back ++= oldParent.iterator withFilter {
+        case((key,_)) => !back.contains(key) && !whiteouts.contains(key)
+      }
+    }
+  }
 
   /** @return the number of entries in this level over the table.
    */
