@@ -285,7 +285,9 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
        val root = new ForkTable[Int,Int]
        root.put(1,1)
        val level2 = root.fork
+       
        level2.put(2,2)
+       level2.freeze()
 
        root.put(4,4)
 
