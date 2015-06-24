@@ -152,10 +152,12 @@ class ForkTable[K, V](
   override def size: Int = back.size
 
   /** @return an Iterator over all of the (key, value) pairs in the tree.
-   */
+    */
   override def iterator: Iterator[(K,V)] = parent match {
     case None        => back.iterator // TODO: make tail-recursive?
-    case Some(thing) => back.iterator ++ thing.iterator
+    case Some(thing) => back.iterator ++ thing.iterator withFilter {
+      case ((key, _)) => !(whiteouts contains key)
+    }
   }
 
   /**
