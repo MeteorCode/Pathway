@@ -155,9 +155,9 @@ class ForkTable[K, V](
     */
   override def iterator: Iterator[(K,V)] = parent match {
     case None        => back.iterator // TODO: make tail-recursive?
-    case Some(thing) => back.iterator ++ thing.iterator withFilter {
-      case ((key, _)) => !(whiteouts contains key)
-    }
+    case Some(parent) => back.iterator ++ parent.iterator.withFilter({
+      case ((key,_)) => !back.contains(key) && !whiteouts.contains(key)
+    })
   }
 
   /**
