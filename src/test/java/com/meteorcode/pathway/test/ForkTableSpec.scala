@@ -268,9 +268,9 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         forAll {
           (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
             val parent = new ForkTable[Int, Int]
-            parentContents.foreach { case ((k, v)) => parent.put(k, v) }
+            parentContents foreach { case ((k, v)) => parent.put(k, v) }
             val fork = parent.fork
-            myContents.foreach { case ((k, v)) => fork.put(k, v) }
+            myContents foreach { case ((k, v)) => fork.put(k, v) }
 
             val allContents = parentContents ++ myContents
 
@@ -281,19 +281,11 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
       }
     }
     "frozen" should {
-      "not be modified by changes to lower levels" ignore {
+      "not be modified by changes to lower levels" in {
        val root = new ForkTable[Int,Int]
        root.put(1,1)
        val level2 = root.fork
        level2.put(2,2)
-       val level3 = level2.fork
-       level3.put(3,3)
-
-       level2.freeze
-       level3.put(3,6)
-
-       level2.get(3) shouldBe Some(3)
-       level2 should not contain (3 -> 6)
 
        root.put(4,4)
 
