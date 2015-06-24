@@ -85,8 +85,8 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
           (key1: Int, val1: Int, key2: Int, val2: Int) =>
             whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
-              val aFork = target fork
-              val anotherFork = target fork
+              val aFork = target.fork()
+              val anotherFork = target.fork()
 
               // this is so ScalaTest doesn't think the two forks are the same object
               aFork.put(key1, val1)
@@ -101,8 +101,8 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
           (key1: Int, val1: Int, key2: Int, val2: Int) =>
             whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
-              val aFork = target fork
-              val anotherFork = target fork
+              val aFork = target.fork()
+              val anotherFork = target.fork()
 
               // this is so ScalaTest doesn't think the two forks are the same object
               aFork.put(key1, val1)
@@ -118,8 +118,8 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
           (key1: Int, val1: Int, key2: Int, val2: Int) =>
             whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
-              val aFork = target fork
-              val anotherFork = target fork
+              val aFork = target.fork()
+              val anotherFork = target.fork()
 
               // this is so ScalaTest doesn't think the two forks are the same object
               aFork.put(key1, val1)
@@ -134,22 +134,22 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
     "a fork" should {
       "know its parent" in {
         val parent = new ForkTable[Int, Int]
-        val fork = parent.fork
+        val fork = parent.fork()
         fork.getParent shouldBe Some(parent)
       }
       "not be a root" in {
-        val target = new ForkTable[Int, Int].fork
+        val target = new ForkTable[Int, Int].fork()
         target shouldNot be a 'root
       }
       "be a leaf" in {
-        val target = new ForkTable[Int, Int].fork
+        val target = new ForkTable[Int, Int].fork()
         target should be a 'leaf
       }
       "chain contain all keys in its parent" in {
         forAll {
           (key: Int, value: Int) =>
             val parent = new ForkTable[Int, Int]
-            val fork = parent.fork
+            val fork = parent.fork()
             parent.put(key, value)
             fork.chainContains(key) shouldBe true
         }
@@ -158,7 +158,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         forAll {
           (key: Int, value: Int) =>
             val parent = new ForkTable[Int, Int]
-            val fork = parent.fork
+            val fork = parent.fork()
             parent.put(key, value)
             fork.get(key) should equal(parent.get(key))
         }
@@ -169,8 +169,8 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
             whenever(key1 != key2) {
               // we are not testing for hash collisions here
               val parent = new ForkTable[Int, Int]
-              val fork = parent.fork
-              val another = parent.fork
+              val fork = parent.fork()
+              val another = parent.fork()
 
               fork.put(key1, val1)
 
@@ -190,8 +190,8 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
             whenever(key1 != key2) {
               // we are not testing for hash collisions here
               val parent = new ForkTable[Int, Int]
-              val fork = parent.fork
-              val another = parent.fork
+              val fork = parent.fork()
+              val another = parent.fork()
 
               fork.put(key1, val1)
 
@@ -211,8 +211,8 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
             whenever(key1 != key2) {
               // we are not testing for hash collisions here
               val parent = new ForkTable[Int, Int]
-              val fork = parent.fork
-              val another = parent.fork
+              val fork = parent.fork()
+              val another = parent.fork()
 
               fork.put(key1, val1)
 
@@ -230,7 +230,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         forAll {
           (key: Int, value: Int) =>
             val parent = new ForkTable[Int, Int]
-            val fork = parent.fork
+            val fork = parent.fork()
             parent.put(key, value)
 
             fork.remove(key) shouldBe Some(value)
@@ -245,7 +245,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         forAll {
           (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
             val parent = new ForkTable[Int, Int]
-            val fork = parent.fork
+            val fork = parent.fork()
 
             parentContents.foreach { case ((k, v)) => parent.put(k, v) }
             myContents.foreach { case ((k, v)) => fork.put(k, v) }
@@ -257,7 +257,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
         forAll {
           (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
             val parent = new ForkTable[Int, Int]
-            val fork = parent.fork
+            val fork = parent.fork()
             parentContents.foreach { case ((k, v)) => parent.put(k, v) }
             myContents.foreach { case ((k, v)) => fork.put(k, v) }
 
@@ -269,7 +269,7 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
           (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
             val parent = new ForkTable[Int, Int]
             parentContents foreach { case ((k, v)) => parent.put(k, v) }
-            val fork = parent.fork
+            val fork = parent.fork()
             myContents foreach { case ((k, v)) => fork.put(k, v) }
 
             val allContents = parentContents ++ myContents
@@ -284,8 +284,8 @@ class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
       "not be modified by changes to lower levels" in {
        val root = new ForkTable[Int,Int]
        root.put(1,1)
-       val level2 = root.fork
-       
+       val level2 = root.fork()
+
        level2.put(2,2)
        level2.freeze()
 
