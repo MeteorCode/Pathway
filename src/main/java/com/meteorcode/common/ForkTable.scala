@@ -146,12 +146,11 @@ class ForkTable[K, V](
   }
 
   def freeze(): Unit = {
-    if(this.parent.nonEmpty) {
-      val oldParent = this.parent.get
+    parent foreach { oldParent =>
       this.parent = None
-      this.back ++= oldParent.iterator.withFilter({
+      this.back ++= oldParent.iterator withFilter {
         case((key,_)) => !back.contains(key) && !whiteouts.contains(key)
-      })
+      }
     }
   }
 
