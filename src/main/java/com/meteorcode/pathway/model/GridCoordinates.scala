@@ -15,6 +15,18 @@ case class GridCoordinates(x: Int, y: Int) {
 
   def getY: Int = y
 
+  def setX(newX: Int): GridCoordinates = this.copy(x = newX)
+
+  def setY(newY: Int): GridCoordinates = this.copy(y = newY)
+
+  def + (other: GridCoordinates) = this.copy(
+    x = x + other.x,
+    y = y + other.y)
+
+  def - (other: GridCoordinates) = this.copy(
+    x = x - other.x,
+    y = y - other.y)
+
   override def toString: String = s"($x, $y)"
 
   override def equals(other: Any) = other match {

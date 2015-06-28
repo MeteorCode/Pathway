@@ -668,5 +668,18 @@ public boolean onEvent(Event event, Context publishedBy) {
         }
       }
     }
+    "when added to another GridCoordinates" - {
+      "should have the sum of the two ordered pairs" in {
+        forAll { (x1: Int, y1: Int, x2: Int, y2: Int) =>
+          GridCoordinates(x1, y1) + GridCoordinates(x2, y2) shouldEqual GridCoordinates(x1 + x2, y1 + y2)
+      }
+    }
+    "when subtracted from another GridCoordinates" - {
+      "should have the difference of the two ordered pairs" in {
+        forAll { (x1: Int, y1: Int, x2: Int, y2: Int) =>
+          GridCoordinates(x1, y1) - GridCoordinates(x2, y2) shouldEqual GridCoordinates(x1 - x2, y1 - y2)
+        }
+      }
+
   }
 }

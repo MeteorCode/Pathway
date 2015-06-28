@@ -73,6 +73,7 @@ class ResourceManager (
   }
   writePaths.freeze()
 
+  // TODO: is caching file handles still necessary now that we flatten the virtual FS?
   private[this] val cachedHandles = mutable.Map[String, FileHandle]()
 
   writeDir.foreach{ directory =>

@@ -2,15 +2,14 @@ package com.meteorcode.pathway.model
 
 import com.meteorcode.pathway.logging.Logging
 
-abstract class Property (initDrawID: Integer, var parent: Option[Context] = None) extends Logging
+abstract class Property (initDrawID: Option[Integer] = None,
+                         var parent: Option[Context] = None)
+ extends Logging
  with Drawable {
   var drawID = initDrawID
-  parent foreach(_ subscribe this)
+    .getOrElse(???) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
 
-  def this(initDrawID: Integer, parent: Context) = this(initDrawID, Some(parent))
-  def this(initParent: Context) = this(null, Some(initParent)) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
-  def this() = this(null, None) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
-  def this(initDrawID: Integer) = this (initDrawID, None)
+  parent foreach (_ subscribe this)
 
   def getParent = parent match {
     case Some(thing)=> thing    // this exists for Java api compatibility only
@@ -30,7 +29,7 @@ abstract class Property (initDrawID: Integer, var parent: Option[Context] = None
   *            the [[com.meteorcode.pathway.model.Context]] this Property is entering
   */
   def changeContext(newContext: Context) {
-    parent foreach( _ unsubscribe this )
+    parent foreach ( _ unsubscribe this )
     parent = Some(newContext)
     parent foreach ( _ subscribe this )
   }
