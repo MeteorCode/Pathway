@@ -145,14 +145,12 @@ class ForkTable[K, V](
     parent flatMap (_ get key) map {(v) => whiteouts += key; v}
   }
 
-  def freeze(): Unit = {
-    parent foreach { oldParent =>
+  def freeze(): Unit = parent foreach { oldParent =>
       this.parent = None
       this.back ++= oldParent.iterator withFilter {
         case((key,_)) => !back.contains(key) && !whiteouts.contains(key)
       }
     }
-  }
 
   /** @return the number of entries in this level over the table.
    */
@@ -161,9 +159,9 @@ class ForkTable[K, V](
   /** @return an Iterator over all of the (key, value) pairs in the tree.
     */
   override def iterator: Iterator[(K,V)] = parent match {
-    case None        => back.iterator // TODO: make tail-recursive?
+    case None         => back.iterator // TODO: make tail-recursive?
     case Some(parent) => back.iterator ++ parent.iterator.withFilter({
-      case ((key,_)) => !back.contains(key) && !whiteouts.contains(key)
+      case ((key,_))  => !back.contains(key) && !whiteouts.contains(key)
     })
   }
 
