@@ -45,6 +45,8 @@ class ResourceManager (
   val writeDir: Option[FileHandle] = None,
   val order: LoadOrderPolicy = new AlphabeticLoadPolicy
 ) extends Logging {
+
+  type PathTable = ForkTable[String,String]
   /**
    * Constructor for a ResourceManager with a single managed directory and a specified directory for writing.
    * The write directory's virtual path will be automatically determined.
@@ -60,7 +62,17 @@ class ResourceManager (
                                              writeDir = Some(new FilesystemFileHandle(writePath.replace(path, ""), writePath, null)),
                                              order = policy)
 
-  private[this] val paths = makeFS(directories)//buildVirtualFS(collectVirtualPaths(directories))
+  private[this] val paths = order(directories).foldRight(new PathTable){
+    (fh, tab) => walk(fh, tab)
+  }
+  paths.freeze()
+
+  private[this] val writePaths = writeDir match {
+    case Some(dir) => walk(dir, paths.fork())
+    case _ => paths
+  }
+  writePaths.freeze()
+
   private[this] val cachedHandles = mutable.Map[String, FileHandle]()
 
   writeDir.foreach{ directory =>
@@ -72,25 +84,18 @@ class ResourceManager (
   }
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
-   * @param dirs a list of FileHandles to seed the recursive walk
+   * @param current the current FileHandle being walked
+   * @param fs the current filesystem state
    */
-
-  private[this] def makeFS(dirs: Seq[FileHandle]): ForkTable[String,String] = {
-    val fs = new ForkTable[String,String]
-    def _walk(current: FileHandle, fs: ForkTable[String,String]): ForkTable[String,String] = current match {
-      case FileHandle(virtualPath,physicalPath) if current.isDirectory =>
-        val newfs = fs.fork()
-        newfs put (virtualPath, physicalPath)
-        order(current.list.get).foldRight(newfs)((fh, tab) => _walk(fh, tab))
-      case FileHandle(virtualPath, physicalPath) => fs put (virtualPath, physicalPath); fs
-      case _ => throw new IOException(s"FATAL: FileHandle $current did not have a physical path")
-    }
-    val orderedFS = order(dirs).foldRight(fs)((fh, tab) => _walk(fh, tab))
-    writeDir match { // TODO: this is where we could "freeze" the un-writedir'd map
-      case Some(dir) => _walk(dir, orderedFS)
-      case _ => orderedFS
-    }
+  private[this] def walk(current: FileHandle,  fs: PathTable): PathTable = current match {
+    case FileHandle(virtualPath,physicalPath) if current.isDirectory =>
+      val newfs = fs.fork()
+      newfs put (virtualPath, physicalPath)
+      order(current.list.get).foldRight(newfs)((fh, tab) => walk(fh, tab))
+    case FileHandle(virtualPath, physicalPath) => fs put (virtualPath, physicalPath); fs
+    case _ => throw new IOException(s"FATAL: FileHandle $current did not have a physical path")
   }
+
 
   /**
    * Returns true if a given virtual path is writable, false if it is not.
@@ -119,7 +124,7 @@ class ResourceManager (
 
   private[this] def makeHandle(virtualPath: String): Try[FileHandle] = {
     logger.log(this.toString, s"making a FileHandle for $virtualPath")
-    (paths.get(trailingSlash(virtualPath)) match {
+    (writePaths.get(trailingSlash(virtualPath)) match {
       case Some(s: String) => Success(s)
       // If the path is not in the tree, handle write attempts.
       case None if isPathWritable(virtualPath) =>
@@ -129,7 +134,7 @@ class ResourceManager (
           case Some(FileHandle(writeVirt, writePhys)) =>
             val phys = writePhys +               // The physical path is the write dir's physical path, plus
               virtualPath.replace(writeVirt, "") // the virtual path with the write dir's virtual path removed.
-            paths put (virtualPath, phys) // Since we've created a new FS object, add it to the known paths.
+            writePaths put (virtualPath, phys) // Since we've created a new FS object, add it to the known paths.
             logger.log(this.toString, s"successfully handled write attempt to $virtualPath")
             Success(phys)
           case Some(_) => // if the write directory won't destructure, it's missing a physical path.
