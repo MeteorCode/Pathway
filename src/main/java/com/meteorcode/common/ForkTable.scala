@@ -98,12 +98,11 @@ class ForkTable[K, V](
    * @throws IllegalArgumentException if the specified parent was invalid
    */
   @throws[IllegalArgumentException]("if the specified parent was invalid")
-  def reparent(nParent: ForkTable[K, V]): Unit = if (nParent == this) {
-    throw new IllegalArgumentException ("Scope attempted to mount itself as parent!")
-  } else {
-    parent.foreach{ _.removeChild(this)}
+  def reparent(nParent: ForkTable[K, V]): Unit = {
+    require(nParent != this, "Scope cannot mount itself as parent!")
+    parent.foreach{ _.removeChild(this) }
     parent = Some(nParent)
-    nParent.addChild (this)
+    nParent.addChild(this)
   }
 
   /**
