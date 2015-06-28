@@ -2,7 +2,8 @@ package com.meteorcode.pathway.model
 
 import com.meteorcode.pathway.logging.Logging
 
-abstract class Property (initDrawID: Integer, var parent: Option[Context] = None) extends Logging {
+abstract class Property (initDrawID: Integer, var parent: Option[Context] = None) extends Logging
+ with Drawable {
   var drawID = initDrawID
   parent foreach(_ subscribe this)
 
@@ -10,9 +11,6 @@ abstract class Property (initDrawID: Integer, var parent: Option[Context] = None
   def this(initParent: Context) = this(null, Some(initParent)) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
   def this() = this(null, None) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
   def this(initDrawID: Integer) = this (initDrawID, None)
-
-  def getDrawID = drawID
-  def setDrawID(newID: Integer) { drawID = newID }
 
   def getParent = parent match {
     case Some(thing)=> thing    // this exists for Java api compatibility only
