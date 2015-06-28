@@ -11,9 +11,9 @@ import scala.language.implicitConversions
 case class GridCoordinates(x: Int, y: Int) {
   def this(xy: (Int, Int)) = this(xy._1, xy._2)
 
-  def getX = x
+  def getX: Int = x
 
-  def getY = y
+  def getY: Int = y
 
   override def toString: String = s"($x, $y)"
 
