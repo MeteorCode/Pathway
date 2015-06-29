@@ -53,7 +53,7 @@ class Context(protected var name: String) extends Logging {
    * @throws ScriptException if an error occurs during script evaluation
    */
   @throws(classOf[ScriptException])
-  def eval(script: String) = {
+  def eval(script: String): AnyRef = {
     logger.log(this.name + "Context", "evaluating script:\n" + script)
     beanshell.eval(script)
   }
@@ -63,7 +63,7 @@ class Context(protected var name: String) extends Logging {
    * @throws ScriptException if an error occurs during script evaluation
    */
   @throws(classOf[ScriptException])
-  def eval(file: FileHandle) = {
+  def eval(file: FileHandle): AnyRef = {
     logger.log(this.name + "Context", "evaluating script from file: " + file)
     beanshell.eval(file)
   }

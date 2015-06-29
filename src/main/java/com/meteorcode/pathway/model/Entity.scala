@@ -18,7 +18,7 @@ class Entity(
 
   if (name.isEmpty) name = Some(this.getClass.getSimpleName)
 
-  def setLocation (newCoords: GridCoordinates) = this.coordinates = Some(newCoords)
+  def setLocation (newCoords: GridCoordinates): Unit = this.coordinates = Some(newCoords)
   def getCoordinates: GridCoordinates = coordinates match {
     case Some(thing) => thing
     case None => null
@@ -27,7 +27,7 @@ class Entity(
     case Some(g) => g.getTileAt(getCoordinates)
     case None => null
   }
-  def getName = new String(name.getOrElse("NamelessEntity (this shouldn't happen)"))
+  def getName: String = new String(name.getOrElse("NamelessEntity (this shouldn't happen)"))
   override def toString: String = s"Entity $name ${coordinates.map(c => s"at $c").getOrElse("")}"
 
 }

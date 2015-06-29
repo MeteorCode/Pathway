@@ -11,9 +11,11 @@ import scala.language.implicitConversions
 case class GridCoordinates(x: Int, y: Int) {
   def this(xy: (Int, Int)) = this(xy._1, xy._2)
 
-  def getX = x
+  // Why does this have getters and setters? What the fuck. Is this just
+  // some kind of Java-placating cruft or am I just that stupid?
+  def getX: Int = x
 
-  def getY = y
+  def getY: Int = y
 
   override def toString: String = s"($x, $y)"
 

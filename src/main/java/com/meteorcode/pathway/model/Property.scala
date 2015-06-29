@@ -11,15 +11,15 @@ abstract class Property (initDrawID: Integer, var parent: Option[Context] = None
   def this() = this(null, None) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
   def this(initDrawID: Integer) = this (initDrawID, None)
 
-  def getDrawID = drawID
-  def setDrawID(newID: Integer) { drawID = newID }
+  def getDrawID: Integer = drawID
+  def setDrawID(newID: Integer): Unit = { drawID = newID }
 
-  def getParent = parent match {
-    case Some(thing)=> thing    // this exists for Java api compatibility only
-    case None => null           // and I am sorry
-  }                             // ~ hawk
+  def getParent: Context = parent orNull
+  // this exists for Java api compatibility only
+  // and I am sorry
+  // ~ hawk
 
-  def eval(script: String) = parent foreach (_ eval script )
+  def eval(script: String): AnyRef = parent map (_ eval script ) orNull // todo: ugh
 
  /**
   * Move the Property from the currently-occupied [[com.meteorcode.pathway.model.Context]] to a new Context.
@@ -31,7 +31,7 @@ abstract class Property (initDrawID: Integer, var parent: Option[Context] = None
   * @param newContext
   *            the [[com.meteorcode.pathway.model.Context]] this Property is entering
   */
-  def changeContext(newContext: Context) {
+  def changeContext(newContext: Context): Unit = {
     parent foreach( _ unsubscribe this )
     parent = Some(newContext)
     parent foreach ( _ subscribe this )
