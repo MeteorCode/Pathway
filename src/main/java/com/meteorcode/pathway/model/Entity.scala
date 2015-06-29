@@ -6,6 +6,8 @@ class Entity(protected var gameID: Option[Long] = None,
              protected var name: Option[String] = None)
   extends GameObject(gameID) {
 
+  def this(gameID: Long, name: String) = this(Some(gameID), Some(name))
+
   if (name.isEmpty) name = Some(this.getClass.getSimpleName)
 
   def getName = new String(name.getOrElse("NamelessEntity (this shouldn't happen)"))
@@ -23,9 +25,9 @@ class TileEntity(
 
   def this( grid: Grid,
             tile: Tile,
-            gameID: Option[Long] = None,
-            name: Option[String] = None) =
-    this(   grid,
+            gameID: Option[Long],
+            name: Option[String]) =
+      this( grid,
             tile.getPosition,
             gameID,
             name)

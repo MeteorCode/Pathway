@@ -20,8 +20,8 @@ abstract class TileProperty(protected var coords: GridCoordinates,
 
   def this( tile: Tile,
             grid: Grid,
-            initDrawID: Option[Integer] = None,
-            context: Option[Context] = None) =
+            initDrawID: Option[Integer],
+            context: Option[Context]) =
     this(
             tile.getPosition,
             grid,
