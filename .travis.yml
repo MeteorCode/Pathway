@@ -1,9 +1,12 @@
 sudo: false
-language: java
+language: scala
+scala:
+- 2.11.7
+- 2.11.6
 jdk: oraclejdk8
-script: ./gradlew build --rerun-tasks
-after_success:
-  - ./gradlew jacocoTestReport coveralls
+script:
+- sbt ++$TRAVIS_SCALA_VERSION compile
+- sbt ++$TRAVIS_SCALA_VERSION clean coverage test
 env:
   global:
     secure: gjz7bI9ROGjG7S8wW3dwabGBsdi0wsYhcSM6UTwd9JA2GeJXCJVg3uVPd1GAg5iY8elmWhB+aOh7o8b6FdLaFTaz5qTuUWBShNzYgi16glCIpD0yk9d0GASnSxV3SJmnJyTvsYukjkxvrJ6aOwQGZTTJ1+7gudKHwXjYVcVgWk0=
@@ -27,5 +30,5 @@ notifications:
     urls:
       - https://webhooks.gitter.im/e/714d475d97646f75819a
     on_success: change
-    on_failure: always 
+    on_failure: always
     on_start: false
