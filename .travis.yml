@@ -1,22 +1,21 @@
 sudo: false
 language: scala
-scala:
-- 2.11.7
-- 2.11.6
+scala:  2.11.7
 jdk: oraclejdk8
 script:
-- sbt ++$TRAVIS_SCALA_VERSION compile
-- sbt ++$TRAVIS_SCALA_VERSION clean coverage test
+  - sbt compile
+  - sbt clean coverage test
 env:
   global:
     secure: gjz7bI9ROGjG7S8wW3dwabGBsdi0wsYhcSM6UTwd9JA2GeJXCJVg3uVPd1GAg5iY8elmWhB+aOh7o8b6FdLaFTaz5qTuUWBShNzYgi16glCIpD0yk9d0GASnSxV3SJmnJyTvsYukjkxvrJ6aOwQGZTTJ1+7gudKHwXjYVcVgWk0=
 after_success:
-- bash <(curl -s https://codecov.io/bash)
-- sbt ++$TRAVIS_SCALA_VERSION coverageReport
-- sbt ++$TRAVIS_SCALA_VERSION coverageAggregate
-- sbt ++$TRAVIS_SCALA_VERSION codacyCoverage
+  - bash <(curl -s https://codecov.io/bash)
+  - sbt coverageReport
+  - sbt coverageAggregate
+  - sbt codacyCoverage
 before_deploy:
   - .travis/publish.sh
+  - sbt pathwayJVM/assembly
 deploy:
   provider: releases
   api_key:
