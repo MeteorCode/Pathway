@@ -7,19 +7,18 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
 script:
-  - sbt compile test
+  - sbt compile
+  - sbt clean coverage pathwayJVM/test
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
-# coverage does not currently work, due to scoverage/sbt-scoverage#111
-# - sbt pathwayJVM/clean pathwayJVM/coverage pathwayJVM/test
 env:
   global:
     secure: gjz7bI9ROGjG7S8wW3dwabGBsdi0wsYhcSM6UTwd9JA2GeJXCJVg3uVPd1GAg5iY8elmWhB+aOh7o8b6FdLaFTaz5qTuUWBShNzYgi16glCIpD0yk9d0GASnSxV3SJmnJyTvsYukjkxvrJ6aOwQGZTTJ1+7gudKHwXjYVcVgWk0=
 after_success:
-#  - bash <(curl -s https://codecov.io/bash)
-#  - sbt pathwayJVM/coverageReport
-#  - sbt pathwayJVM/coverageAggregate
-#  - sbt pathwayJVM/codacyCoverage
+  - bash <(curl -s https://codecov.io/bash)
+  - sbt pathwayJVM/coverageReport
+  - sbt pathwayJVM/coverageAggregate
+  - sbt pathwayJVM/codacyCoverage
 before_deploy:
   - .travis/publish.sh
   - sbt pathwayJVM/package  # build light JVM jars
