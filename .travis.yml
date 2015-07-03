@@ -16,8 +16,8 @@ after_success:
 #  - sbt pathwayJVM/codacyCoverage
 before_deploy:
   - .travis/publish.sh
-  - sbt pathwayJVM/assembly
-  - sbt pathwayJS/fullOptJS
+  - sbt pathwayJVM/assembly # build the fat jar from the JVM version
+  - sbt pathwayJS/fullOptJS # build the JavaScript from Scala.js
 deploy:
   provider: releases
   api_key:
