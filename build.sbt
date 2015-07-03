@@ -14,10 +14,11 @@ lazy val pathway = crossProject.in(file("."))
     version := "0.1-SNAPSHOT",
     resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven",
     libraryDependencies ++= Seq(
-      "org.beanshell"   % "bsh"          % "2+",
+      "org.beanshell"   %  "bsh"         % "2+",
       // --- test dependencies ------------------------------
       "org.scalacheck"  %% "scalacheck"  % "1.12.2+"            % "test",
       "org.scalatest"   %% "scalatest"   % "2.2.4+"             % "test",
+      "org.mockito"     %  "mockito-all" % "1.10.19+"           % "test",
       "me.hawkweisman"  %% "util"        % "0.0.2-ed7622b.37"   % "test"
     )
   )

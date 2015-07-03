@@ -2,7 +2,7 @@ package com.meteorcode.pathway.test
 
 import com.meteorcode.pathway.logging.{NullLogger, LoggerFactory}
 
-import me.hawkweisman.util._
+import me.hawkweisman.util.random._
 
 import org.scalacheck.Gen
 import org.scalatest.mock.MockitoSugar
@@ -12,7 +12,12 @@ import org.scalatest.{Matchers, WordSpec, BeforeAndAfterEach}
 /**
  * Created by hawk on 5/30/15.
  */
-abstract class PathwaySpec extends WordSpec with Matchers with MockitoSugar with PropertyChecks with BeforeAndAfterEach{
+abstract class PathwaySpec
+extends WordSpec
+  with Matchers
+  with MockitoSugar
+  with PropertyChecks
+  with BeforeAndAfterEach{
   // quash the obnoxious and unnecessary log messages during testing
   LoggerFactory setLogger new NullLogger
 
