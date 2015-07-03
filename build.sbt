@@ -1,5 +1,7 @@
 enablePlugins(ScalaJSPlugin)
 
+scalaVersion  := "2.11.7"
+
 val projectVersion = "2.0.0" // current release version
 val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
 gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD")
@@ -10,6 +12,7 @@ gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD")
 lazy val root = project.in(file("."))
   .aggregate(pathwayJS, pathwayJVM)
   .settings(
+    scalaVersion  := "2.11.7",
     version := s"$projectVersion-${gitHeadCommitSha.value}",
     publish := {},
     publishLocal := {}
@@ -20,6 +23,7 @@ lazy val pathway = crossProject.in(file("."))
     name          := "pathway",
     organization  := "com.meteorcode",
     version       := s"$projectVersion-${gitHeadCommitSha.value}",
+    scalaVersion  := "2.11.7",
     resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven",
     libraryDependencies ++= Seq(
       "org.beanshell"   %  "bsh"         % "2+",
@@ -31,12 +35,10 @@ lazy val pathway = crossProject.in(file("."))
     )
   )
   .jvmSettings(
-    scalaVersion  := "2.11.7",
     assemblyJarName in assembly := s"pathway-fat-$projectVersion-${gitHeadCommitSha.value}.jar",
     test in assembly := {} // skip tests, they should have already been run
   )
   .jsSettings(
-    scalaVersion  := "2.11.6"
   )
 
   lazy val pathwayJVM = pathway.jvm
