@@ -4,24 +4,28 @@ scala:  2.11.7
 jdk: oraclejdk8
 script:
   - sbt compile
-  - sbt clean coverage test
+  - sbt pathwayJVM/clean pathwayJVM/coverage pathwayJVM/test
 env:
   global:
     secure: gjz7bI9ROGjG7S8wW3dwabGBsdi0wsYhcSM6UTwd9JA2GeJXCJVg3uVPd1GAg5iY8elmWhB+aOh7o8b6FdLaFTaz5qTuUWBShNzYgi16glCIpD0yk9d0GASnSxV3SJmnJyTvsYukjkxvrJ6aOwQGZTTJ1+7gudKHwXjYVcVgWk0=
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - sbt coverageReport
-  - sbt coverageAggregate
-  - sbt codacyCoverage
+  - sbt pathwayJVM/coverageReport
+  - sbt pathwayJVM/coverageAggregate
+  - sbt pathwayJVM/codacyCoverage
 before_deploy:
   - .travis/publish.sh
   - sbt pathwayJVM/assembly
+  - sbt pathwayJS/fullOptJS
 deploy:
   provider: releases
   api_key:
     secure: L6BZnOGDMk1SasV9sxkEOd4gQkKJiaewCLJ6TVZa4E40kIKnZ1L1knxVssgk2v/a5NAcJggLsdU+QJ4AmM2LpCbnMWARHghwMc4W94RUsMPwYizYGBIp4a3MsGPcQ4CgjWN/v1UIpuxHVjyxfEt+4HS6hkQfW6uMXFj14MtVTH4=
   file:
     - "jvm/target/scala-2.11/pathway.jar"
+    - "js/target/scala-2.11/pathway-opt.js"
+    - "js/target/scala-2.11/pathway-opt.js.map"
+    - "js/target/scala-2.11/pathway-jsdeps.js"
   skip_cleanup: true
   on:
     tags: true
