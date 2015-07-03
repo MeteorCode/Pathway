@@ -2,8 +2,14 @@ sudo: false
 language: scala
 scala:  2.11.7
 jdk: oraclejdk8
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
 script:
   - sbt compile test
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 # coverage does not currently work, due to scoverage/sbt-scoverage#111
 # - sbt pathwayJVM/clean pathwayJVM/coverage pathwayJVM/test
 env:
@@ -16,6 +22,7 @@ after_success:
 #  - sbt pathwayJVM/codacyCoverage
 before_deploy:
   - .travis/publish.sh
+  - sbt pathwayJVM/package  # build light JVM jars
   - sbt pathwayJVM/assembly # build the fat jar from the JVM version
   - sbt pathwayJS/fullOptJS # build the JavaScript from Scala.js
 deploy:
