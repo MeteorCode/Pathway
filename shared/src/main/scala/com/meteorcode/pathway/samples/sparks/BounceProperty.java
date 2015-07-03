@@ -11,20 +11,20 @@ import com.meteorcode.pathway.model.Event;
 public class BounceProperty extends com.meteorcode.pathway.model.Property {
 
 	private int maxWidth, maxHeight;
-	
+
 	public BounceProperty(Context c, int maxWidth, int maxHeight) {
 		super(c);
 		this.maxWidth = maxWidth;
 		this.maxHeight = maxHeight;
 	}
-	
+
 	@Override
 	public boolean onEvent(Event e, Context c) {
 		if(e.stampExists(this)) {
 			return true;
 		}
 		e.stamp(this);
-		
+
 		if(e instanceof MoveEvent) {
 			MoveEvent m = (MoveEvent)e;
 			Ball target = m.getTarget();

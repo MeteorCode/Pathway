@@ -3,10 +3,10 @@ package com.meteorcode.pathway.test
 import java.io._
 import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
+
 import com.meteorcode.pathway.io.java_api.AlphabeticLoadPolicy
 import com.meteorcode.pathway.io.scala_api.{ResourceManager, FilesystemFileHandle, FileHandle}
 import com.meteorcode.pathway.test.tags.FilesystemTest
-
 
 import org.mockito.Mockito._
 
@@ -16,6 +16,7 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, WordSpec, BeforeAndAfter}
 
 import scala.collection.JavaConversions._
+import scala.io.Source
 
 /**
  * Non-comprehensive test case to assert that the IO package does the Right Thing
@@ -28,10 +29,11 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
   var manager: ResourceManager = null
 
   override def beforeEach() {
-    manager = new ResourceManager("build/resources/test",
-      "build/resources/test/write",
+    manager = new ResourceManager(
+      "./jvm/target/scala-2.11/test-classes/",
+      "./jvm/target/scala-2.11/test-classes/write",
       new AlphabeticLoadPolicy)
-    new File("build/resources/test/testDir/emptyTestDir").mkdir
+    new File("./jvm/target/scala-2.11/test-classes/emptyTestDir").mkdir
     super.beforeEach()
   }
 
@@ -418,9 +420,9 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
     "ordering paths alphabetically" should {
       "apply the directories in alphabetical order" taggedAs FilesystemTest in {
         val directories = Seq[FileHandle](
-          new FilesystemFileHandle("", "build/resources/test/loadOrder/b", null),
-          new FilesystemFileHandle("", "build/resources/test/loadOrder/a", null),
-          new FilesystemFileHandle("", "build/resources/test/loadOrder/c", null)
+          new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/a", null),
+          new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/b", null),
+          new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/c", null)
         )
 
         val target = new ResourceManager(directories, order = new AlphabeticLoadPolicy())
