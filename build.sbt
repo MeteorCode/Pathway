@@ -32,6 +32,10 @@ lazy val pathway = crossProject.in(file("."))
       "org.scalatest"   %% "scalatest"   % "2.2.4+"             % "test",
       "org.mockito"     %  "mockito-all" % "1.10.19+"           % "test",
       "me.hawkweisman"  %% "util"        % "0.0.2-ed7622b.37"   % "test"
+    ),
+    wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
+      Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
+      Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.Var
     )
   )
   .jvmSettings(
@@ -43,8 +47,3 @@ lazy val pathway = crossProject.in(file("."))
 
   lazy val pathwayJVM = pathway.jvm
   lazy val pathwayJS  = pathway.js
-
-  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
-    Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
-    Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad
-  )
