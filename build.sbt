@@ -12,21 +12,20 @@ lazy val pathway = crossProject.in(file("."))
     name := "pathway",
     organization  := "com.meteorcode",
     version := "0.1-SNAPSHOT",
-    scalaVersion  := "2.11.7",
     resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven",
     libraryDependencies ++= Seq(
-      "org.beanshell"   % "bsh"         % "2+",
+      "org.beanshell"   % "bsh"          % "2+",
       // --- test dependencies ------------------------------
-      "org.scalacheck"  %%% "scalacheck" % "1.12.2+"  % "test",
-      "org.scalatest"   %%% "scalatest"  % "2.2.4+"   % "test",
-      "me.hawkweisman"  %%% "util"       % "0.1+"     % "test"
+      "org.scalacheck"  %% "scalacheck"  % "1.12.2+"            % "test",
+      "org.scalatest"   %% "scalatest"   % "2.2.4+"             % "test",
+      "me.hawkweisman"  %% "util"        % "0.0.2-ed7622b.37"   % "test"
     )
   )
   .jvmSettings(
-    // Add JVM-specific settings here
+    scalaVersion  := "2.11.7"
   )
   .jsSettings(
-    // Add JS-specific settings here
+    scalaVersion  := "2.11.6"
   )
 
   lazy val pathwayJVM = pathway.jvm
