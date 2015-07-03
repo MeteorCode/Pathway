@@ -33,3 +33,8 @@ lazy val pathway = crossProject.in(file("."))
 
   lazy val pathwayJVM = pathway.jvm
   lazy val pathwayJS  = pathway.js
+
+  wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
+    Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
+    Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad
+  )
