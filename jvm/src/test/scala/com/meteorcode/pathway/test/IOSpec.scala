@@ -3,10 +3,10 @@ package com.meteorcode.pathway.test
 import java.io._
 import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
+
 import com.meteorcode.pathway.io.java_api.AlphabeticLoadPolicy
 import com.meteorcode.pathway.io.scala_api.{ResourceManager, FilesystemFileHandle, FileHandle}
 import com.meteorcode.pathway.test.tags.FilesystemTest
-
 
 import org.mockito.Mockito._
 
@@ -16,6 +16,7 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, WordSpec, BeforeAndAfter}
 
 import scala.collection.JavaConversions._
+import scala.io.Source
 
 /**
  * Non-comprehensive test case to assert that the IO package does the Right Thing
