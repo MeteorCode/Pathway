@@ -32,7 +32,7 @@ lazy val pathway = crossProject.in(file("."))
   )
   .jvmSettings(
     scalaVersion  := "2.11.7",
-    assemblyJarName in assembly := "pathway.jar",
+    assemblyJarName in assembly := s"pathway-fat-$projectVersion-${gitHeadCommitSha.value}.jar",
     test in assembly := {} // skip tests, they should have already been run
   )
   .jsSettings(

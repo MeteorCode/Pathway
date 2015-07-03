@@ -25,12 +25,17 @@ before_deploy:
   - sbt pathwayJVM/package  # build light JVM jars
   - sbt pathwayJVM/assembly # build the fat jar from the JVM version
   - sbt pathwayJS/fullOptJS # build the JavaScript from Scala.js
+  - export RELEASE_VERSION=$(ls jvm/target/scala-2.11/pathway*.jar | grep -Eow -e '(\d+\.\d+\.\d+-[0-9a-f]+)' -m 1)
+  - echo "Releasing $RELEASE_VERSION"
 deploy:
   provider: releases
   api_key:
     secure: L6BZnOGDMk1SasV9sxkEOd4gQkKJiaewCLJ6TVZa4E40kIKnZ1L1knxVssgk2v/a5NAcJggLsdU+QJ4AmM2LpCbnMWARHghwMc4W94RUsMPwYizYGBIp4a3MsGPcQ4CgjWN/v1UIpuxHVjyxfEt+4HS6hkQfW6uMXFj14MtVTH4=
   file:
-    - "jvm/target/scala-2.11/pathway.jar"
+    - "jvm/target/scala-2.11/pathway_2.11-${RELEASE_VERSION}.jar"
+    - "jvm/target/scala-2.11/pathway_2.11-${RELEASE_VERSION}-javadoc.jar"
+    - "jvm/target/scala-2.11/pathway_2.11-${RELEASE_VERSION}-sources.jar"
+    - "jvm/target/scala-2.11/pathway-fat-${RELEASE_VERSION}.jar"
     - "js/target/scala-2.11/pathway-opt.js"
     - "js/target/scala-2.11/pathway-opt.js.map"
     - "js/target/scala-2.11/pathway-jsdeps.js"
