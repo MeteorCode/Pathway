@@ -420,8 +420,8 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
     "ordering paths alphabetically" should {
       "apply the directories in alphabetical order" taggedAs FilesystemTest in {
         val directories = Seq[FileHandle](
+          new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/a", null),
           new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/b", null),
-          new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/a", null),
           new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/c", null)
         )
 
