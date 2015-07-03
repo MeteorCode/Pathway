@@ -21,10 +21,7 @@ deploy:
   api_key:
     secure: L6BZnOGDMk1SasV9sxkEOd4gQkKJiaewCLJ6TVZa4E40kIKnZ1L1knxVssgk2v/a5NAcJggLsdU+QJ4AmM2LpCbnMWARHghwMc4W94RUsMPwYizYGBIp4a3MsGPcQ4CgjWN/v1UIpuxHVjyxfEt+4HS6hkQfW6uMXFj14MtVTH4=
   file:
-    - "build/libs/pathway.jar"
-    - "build/libs/pathway-scaladoc.jar"
-    - "build/libs/pathway-javadoc.jar"
-    - "build/libs/pathway-sources.jar"
+    - "jvm/target/scala-2.11/pathway.jar"
   skip_cleanup: true
   on:
     tags: true

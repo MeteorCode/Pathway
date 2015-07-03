@@ -11,7 +11,7 @@ lazy val pathway = crossProject.in(file("."))
   .settings(
     name := "pathway",
     organization  := "com.meteorcode",
-    version := "0.1-SNAPSHOT",
+    version := "2.0.0-SNAPSHOT",
     resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven",
     libraryDependencies ++= Seq(
       "org.beanshell"   %  "bsh"         % "2+",
@@ -24,6 +24,8 @@ lazy val pathway = crossProject.in(file("."))
   )
   .jvmSettings(
     scalaVersion  := "2.11.7"
+    assemblyJarName in assembly := "pathway.jar"
+    test in assembly := {} // skip tests, they should have already been run
   )
   .jsSettings(
     scalaVersion  := "2.11.6"
