@@ -114,8 +114,9 @@ class ResourceManager (
    * is a relatively expensive operation.
    *
    * @param path The virtual path to the requested object
-   * @return A [[Success]] containing a [[FileHandle]] into the object that exists at the requested path
-   *         in the virutal filesystem, or a [[Failure]] containing an [[IOException]] if something went
+   * @return A [[scala.util.Success Success]]
+      containing a [[FileHandle]] into the object that exists at the requested path
+   *         in the virutal filesystem, or a [[scala.util.Failure Failure]] containing an [[IOException]] if something went
    *         wrong while handling the path.
    */
   def handle(path: String): Try[FileHandle] = if (cachedHandles.keySet contains path)

@@ -1,6 +1,7 @@
 enablePlugins(ScalaJSPlugin)
 
 scalaVersion  := "2.11.7"
+autoAPIMappings := true // link Scala standard lib in docs
 
 val projectVersion = "2.0.0" // current release version
 val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
@@ -15,15 +16,16 @@ lazy val root = project.in(file("."))
     scalaVersion  := "2.11.7",
     version := s"$projectVersion-${gitHeadCommitSha.value}",
     publish := {},
-    publishLocal := {}
+    publishLocal := {},
+    autoAPIMappings := true // link Scala standard lib in docs
   )
 
 lazy val pathway = crossProject.in(file("."))
   .settings(
-    name          := "pathway",
-    organization  := "com.meteorcode",
-    version       := s"$projectVersion-${gitHeadCommitSha.value}",
-    scalaVersion  := "2.11.7",
+    name            := "pathway",
+    organization    := "com.meteorcode",
+    version         := s"$projectVersion-${gitHeadCommitSha.value}",
+    scalaVersion    := "2.11.7",
     resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven",
     libraryDependencies ++= Seq(
       "org.beanshell"   %  "bsh"         % "2+",
@@ -36,7 +38,9 @@ lazy val pathway = crossProject.in(file("."))
     wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
       Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
       Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.Var
-    )
+    ),
+    autoAPIMappings := true,
+    apiMappings += (scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/"))
   )
   .jvmSettings(
     assemblyJarName in assembly := s"pathway-fat-$projectVersion-${gitHeadCommitSha.value}.jar",

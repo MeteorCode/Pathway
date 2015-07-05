@@ -62,9 +62,10 @@ abstract class FileHandle(protected val virtualPath: String,
   def path: String = virtualPath
 
   /**
-   * @return an [[Option]] containing physical path to the actual filesystem
-   *         object represented by this FileHandle, or [[None]] if this
-   *         FileHandle does not represent something with a physical path
+   * @return an [[scala.Option Option]] containing physical path to the
+   *         actual filesystem object represented by this FileHandle, or
+   *         [[scala.None None]] if this FileHandle does not represent
+   *         something with a physical path
    */
   protected[io] def physicalPath: Option[String]
 
@@ -93,19 +94,20 @@ abstract class FileHandle(protected val virtualPath: String,
   protected[io] def file: Option[File]
 
   /**
-   * @return a [[Success]] containing a [[Seq sequence]] of FileHandles to the
-   *         contents of FileHandle, or an empty list if this file is not a
-   *         directory or does not have contents, or a [[Failure]] containing
-   *         an [[IOException]] if the file cannot be accessed.
+   * @return a [[scala.util.Success Success]] containing a [[Seq sequence]] of
+   *         FileHandles to the contents of this FileHandle, or an empty list
+   *         if this file is not a  directory or does not have contents, or a
+   *         [[scala.util.Failure Failure]] containing an
+   *         [[java.io.IOException IOException]] if  the file cannot be accessed.
    */
   def list: Try[Seq[FileHandle]]
 
   /**
-   * @return a [[Success]] containing a [[Seq sequence]] of FileHandles to the
-   *         contents of this FileHandle with the specified suffix, or an empty
-   *         list if this file is not a directory or does not have contents, or
-   *         a [[Failure]] containing an [[IOException]] if the file cannot be
-   *         accessed.
+   * @return a [[scala.util.Success Success]] containing a [[Seq sequence]] of
+   *         FileHandles to the contents of this FileHandle with the specified
+   *         suffix, or an empty list if this file is not a directory or does not
+   *         have contents, or a [[scala.util.Failure Failure]] containing an
+   *         [[java.io.IOException IOException]] if  the file cannot be accessed.
    * @param suffix the specified suffix.
    *
    */
@@ -117,23 +119,28 @@ abstract class FileHandle(protected val virtualPath: String,
     = list map (_ filter (_.path.endsWith(suffix)))
 
   /** Returns a stream for reading this file as bytes.
-    * @return a [[Success]] containing an [[InputStream]] for reading from this
-    *         file, or a [[Failure]] containing an [[IOException]] if this file
-    *         cannot be written to.
+    * @return a [[scala.util.Success Success]] containing an
+    *         [[java.io.InputStream InputStream]] for reading from this file,
+    *         or a [[scala.util.Failure Failure]]  containing an
+    *         [[java.io.IOException IOException]] if the file cannot be
+    *         accessed.
     */
   def read: Try[InputStream]
 
   /** Returns a buffered stream for reading this file as bytes.
-    * @return a [[Success]] containing a [[BufferedInputStream]] for reading
-    *         from this file, or a [[Failure]] containing an [[IOException]]
-    *         if this file cannot be read.
-    */
+  * @return a [[scala.util.Success Success]] containing an
+  *         [[java.io.BufferedInputStream BufferedInputStream]] for reading
+  *         from this file, or a [[scala.util.Failure Failure]] containing
+  *         an [[java.io.IOException IOException]] if the file cannot be
+  *         accessed.
+  */
   def read(bufferSize: Integer): Try[BufferedInputStream]
    = read map (new BufferedInputStream(_, bufferSize))
 
   /** Reads the entire file into a string using the platform's default charset.
-    * @return a [[Success]] containing the contents of the file as a String,
-    *         or a [[Failure]] containing an [[IOException]] if the contents
+    * @return a [[scala.util.Success Success]]
+      containing the contents of the file as a String,
+    *         or a [[scala.util.Failure Failure]] containing an [[IOException]] if the contents
     *         could not be read.
     */
   def readString: Try[String]
@@ -141,8 +148,9 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /** Reads the entire file into a string using the specified [[Charset]].
     * @param charset  the [[Charset]] with which to read the file.
-    * @return a [[Success]] containing the contents of the file as a String,
-    *         or a [[Failure]] containing an [[IOException]] if the contents
+    * @return a [[scala.util.Success Success]]
+      containing the contents of the file as a String,
+    *         or a [[scala.util.Failure Failure]] containing an [[IOException]] if the contents
     *         could not be read.
     */
   def readString(charset: Charset): Try[String]
@@ -168,8 +176,9 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /** Writes the specified string to the file using the default charset.
     *
-    * Returns [[Success]]`(Unit)` if the string was successfully written,
-    * or a [[Failure]] containing an [[IOException]]
+    * Returns [[scala.util.Success Success]]
+     `(Unit)` if the string was successfully written,
+    * or a [[scala.util.Failure Failure]] containing an [[IOException]]
     * if writing failed or the [[FileHandle]] was not writable.
     *
     * @param string the string to write to the file
@@ -183,8 +192,9 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /** Writes the specified string to the file using the specified charset.
     *
-    * Returns [[Success]]`(Unit)` if the string was successfully written,
-    * or a [[Failure]] containing an [[java.io.IOException IOException]]
+    * Returns [[scala.util.Success Success]]
+     `(Unit)` if the string was successfully written,
+    * or a [[scala.util.Failure Failure]] containing an [[java.io.IOException IOException]]
     * if writing failed or the [[FileHandle]] was not writable.
     *
     * @param string the string to write to the file
@@ -203,8 +213,9 @@ abstract class FileHandle(protected val virtualPath: String,
   /**
    * Returns a FileHandle into a sibling of this file with the specified name
    * @param siblingName the name of the sibling file to handle
-   * @return a [[Success]] containing a [[FileHandle]] into the sibling of this
-   *         file with the specified name,  or a [[Failure]] containing an
+   * @return a [[scala.util.Success Success]]
+      containing a [[FileHandle]] into the sibling of this
+   *         file with the specified name,  or a [[scala.util.Failure Failure]] containing an
    *         [[IOException]] if the sibling cannot be accessed
    */
   def sibling(siblingName: String): Try[FileHandle]
@@ -214,8 +225,9 @@ abstract class FileHandle(protected val virtualPath: String,
 
   /**
    * Return a FileHandle into the parent of this file.
-   * @return a [[Success]] containing a [[FileHandle]] into this file's
-   *          parent, or a [[Failure]] containing an [[IOException]]
+   * @return a [[scala.util.Success Success]]
+      containing a [[FileHandle]] into this file's
+   *          parent, or a [[scala.util.Failure Failure]] containing an [[IOException]]
    *          if the parent cannot be accessed
    */
   def parent: Try[FileHandle]
@@ -226,8 +238,9 @@ abstract class FileHandle(protected val virtualPath: String,
   /**
    * Returns a FileHandle into the a child of this file with the specified name
    * @param childName the name of the child file to handle
-   * @return a [[Success]] containing a [[FileHandle]] into the child of this
-   *         file with the specified name, or a [[Failure]] containing an
+   * @return a [[scala.util.Success Success]]
+      containing a [[FileHandle]] into the child of this
+   *         file with the specified name, or a [[scala.util.Failure Failure]] containing an
    *         [[IOException]] if the child cannot be accessed.
    */
   def child(childName: String): Try[FileHandle]
