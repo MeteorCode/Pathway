@@ -1,6 +1,5 @@
 package com.meteorcode.pathway.io.java_api
 
-
 import scala.collection.JavaConverters.{
   seqAsJavaListConverter,
   asScalaBufferConverter
@@ -22,12 +21,9 @@ import java.util
  * Created by hawk on 8/13/14.
  */
 class AlphabeticLoadPolicy extends LoadOrderProvider {
-  private[this] val missingPhysMsg: String
-    = "FATAL: FileHandle did not have a physical path"
 
   private[this] def lastPathElem(handle: FileHandle): String
-    = handle.physicalPath
-            .getOrElse(throw new IOException(missingPhysMsg))
+    = handle.assumePhysPath
             .split(File.separatorChar)
             .last
             .toLowerCase

@@ -18,6 +18,7 @@ object UnsafeImplicits {
    * @return a [[scala.io.Source]]
    */
   @throws(classOf[IOException])
-  implicit def filehandleAsSource(f: FileHandle): Source = Source fromInputStream f.read.get
+  implicit def filehandleAsSource(f: FileHandle): Source
+    = Source fromInputStream f.read.get
 
 }

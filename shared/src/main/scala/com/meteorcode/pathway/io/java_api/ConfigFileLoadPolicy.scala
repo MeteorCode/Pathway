@@ -48,9 +48,6 @@ extends LoadOrderProvider {
                  }
             .getOrElse( throw new IOException("Could not read config file.") )
 
-  private[this] def NoPathException = new IOException (
-    "FATAL: FileHandle did not have a physical path"
-  )
   /**
    * Constructor for a ConfigFileLoadPolicy without a specified fallback
    * option. The fallback option will default to
@@ -63,19 +60,12 @@ extends LoadOrderProvider {
 
   private[this] def orderScalaPaths(paths: Seq[FileHandle]): Seq[FileHandle]
     = order.flatMap { path =>
-      paths.find  { f: FileHandle =>
-          path == f.physicalPath
-                   .getOrElse(throw NoPathException)
-           }
-         } ++ fallback
-          .orderPaths( paths
-            .filterNot( (f: FileHandle) =>
-               order.contains(f.physicalPath
-                               .getOrElse(throw NoPathException))
-           ).asJava
-         ).asScala
-
-
+        paths.find  { f: FileHandle => path == f.assumePhysPath }
+      } ++ fallback
+        .orderPaths( paths
+          .filterNot( f: FileHandle => order.contains(f.assumePhysPath) )
+          .asJava)
+        .asScala
 
   /**
    * Takes an unordered set of top-level paths and returns a list of those

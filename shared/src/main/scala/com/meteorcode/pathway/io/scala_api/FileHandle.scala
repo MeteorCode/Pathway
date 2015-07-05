@@ -116,7 +116,9 @@ abstract class FileHandle(protected val virtualPath: String,
     " just use FilterMonadic at call site for better performance",
     since = "v2.0.0")
   def list(suffix: String): Try[Seq[FileHandle]]
-    = list map (_ filter (_.path.endsWith(suffix)))
+    = list map ( _ filter (
+      _.path.endsWith(suffix))
+    )
 
   /** Returns a stream for reading this file as bytes.
     * @return a [[scala.util.Success Success]] containing an
@@ -278,6 +280,11 @@ abstract class FileHandle(protected val virtualPath: String,
                                  (handle.getClass == this.getClass)
     case _                     => false
   }
+
+  protected[io] lazy val assumePhysPath: String
+    = this.physicalPath
+          .getOrElse(throw new IOException(
+            s"FATAL: FileHandle $this had no physical path."))
 }
 
 /**
