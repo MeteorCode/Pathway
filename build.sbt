@@ -31,7 +31,7 @@ lazy val pathway = crossProject.in(file("."))
       "org.scalacheck"  %% "scalacheck"  % "1.12.2+"            % "test",
       "org.scalatest"   %% "scalatest"   % "2.2.4+"             % "test",
       "org.mockito"     %  "mockito-all" % "1.10.19+"           % "test",
-      "me.hawkweisman"  %% "util"        % "0.0.2-ed7622b.37"   % "test"
+      "me.hawkweisman"  %% "util"        % "0.0.3"
     ),
     wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
       Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
