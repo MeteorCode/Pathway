@@ -4,7 +4,7 @@ MeteorCode Pathway
 [![Join the chat at https://gitter.im/MeteorCode/Pathway](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/MeteorCode/Pathway?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://travis-ci.org/MeteorCode/Pathway.svg?branch=master)](https://travis-ci.org/MeteorCode/Pathway)
-[![Coverage](https://img.shields.io/codecov/c/github/MeteorCode/Pathway.svg)]()
+[![Coverage](https://img.shields.io/codecov/c/github/MeteorCode/Pathway.svg?branch=master)]()
 [![Codacy Badge](https://www.codacy.com/project/badge/9b34c328354647e3b799f6880d1b28e0)](https://www.codacy.com/app/MeteorCode-Labs/Pathway)
 [![GitHub release](https://img.shields.io/github/release/MeteorCode/pathway.svg?style=flat)](https://github.com/MeteorCode/Pathway/releases)
 [![Latest JavaDoc](https://img.shields.io/badge/javadoc-latest-brightgreen.svg?style=flat)](http://meteorcode.github.io/Pathway/javadoc-latest/)
