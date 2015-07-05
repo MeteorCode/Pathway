@@ -1,12 +1,18 @@
 package com.meteorcode.pathway.io.java_api
 
 
-import scala.collection.JavaConverters.{seqAsJavaListConverter,asScalaBufferConverter}
+import scala.collection.JavaConverters.{
+  seqAsJavaListConverter,
+  asScalaBufferConverter
+}
 import java.io.{File, IOException}
+import java.util
 
 /**
- * Simple [[LoadOrderProvider LoadOrderProvider]] implementation.
- * Paths are given higher priority based on their alphabetic position (case-insensitive).
+ * Simple [[java_api.LoadOrderProvider LoadOrderProvider]] implementation.
+ *
+ * Paths are given higher priority based on their alphabetic position
+ * (case-insensitive).
  *
  * You can use this as an example while writing your own LoadOrderProviders.
  *
@@ -16,22 +22,25 @@ import java.io.{File, IOException}
  * Created by hawk on 8/13/14.
  */
 class AlphabeticLoadPolicy extends LoadOrderProvider {
+  private[this] val missingPhysMsg: String
+    = "FATAL: FileHandle did not have a physical path"
+
+  private[this] def lastPathElem(handle: FileHandle): String
+    = handle.physicalPath
+            .getOrElse(throw new IOException(missingPhysMsg))
+            .split(File.separatorChar)
+            .last
+            .toLowerCase
   /**
-   * Takes an unordered set of top-level paths and returns a list of those paths, ordered by load priority.
-   * @param paths a set of Strings representing top-level paths in the physical filesystem.
+   * Takes an unordered set of top-level paths and returns a list of those
+   * paths, ordered by load priority.
+   *
+   * @param paths a list of [[java_api.FileHandle FileHandles]]
+   *              representing top-level paths in the physical filesystem.
    * @return a List of those paths ordered by their load priority
    */
-  // TODO: rewrite this as Scala API compliant
-  def orderPaths(paths: java.util.List[FileHandle]): java.util.List[FileHandle] = paths.asScala.sortWith(
-    _.physicalPath
-      .getOrElse(throw new IOException("FATAL: FileHandle did not have a physical path"))
-      .split(File.separatorChar)
-      .last
-      .toLowerCase
-      <
-      _.physicalPath
-        .getOrElse(throw new IOException("FATAL: FileHandle did not have a physical path"))
-        .split(File.separatorChar)
-        .last
-  ).asJava
+  def orderPaths(paths: util.List[FileHandle]): util.List[FileHandle]
+    = paths.asScala  // TODO: rewrite this as Scala API compliant
+           .sortWith( lastPathElem(_) < lastPathElem(_) )
+           .asJava
 }
