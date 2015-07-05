@@ -1,8 +1,7 @@
 package com.meteorcode.pathway
 
 /**
- * Pathway I/O
- * ===========
+ * ==Pathway I/O==
  *
  * This packaga contains the Pathway I/O subsystem, including various
  * [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]] implementations, the [[ResourceManager]],

@@ -15,8 +15,7 @@ import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 /**
- * Pathway ResourceManager
- * -----------------------
+ * ==Pathway ResourceManager==
  *
  * A ResourceManager "fuses" a directory or directories into a virtual filesystem, abstracting Zip and Jar archives
  * as though they were directories.

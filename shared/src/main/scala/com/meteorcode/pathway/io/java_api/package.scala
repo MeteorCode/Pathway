@@ -5,8 +5,7 @@ import java.util.Optional
 import scala.language.implicitConversions
 
 /**
- * Pathway IO Java API
- * -------------------
+ * ==Pathway IO Java API==
  *
  * This is a version of the Pathway input/output API to be used by Java
  * clients.
