@@ -71,5 +71,6 @@ protected[io] class RedirectFileHandle (protected val wrapped: FileHandle,
   /**
    * Returns the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] def physicalPath: Option[String] = wrapped.physicalPath
+  override protected[io] def physicalPath: Option[String]
+    = wrapped.physicalPath
 }

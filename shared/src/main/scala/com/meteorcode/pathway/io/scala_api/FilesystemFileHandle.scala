@@ -15,6 +15,7 @@ import com.meteorcode.pathway.io.scala_api.ResourceManager
 import scala.collection.JavaConversions._
 
 import scala.util.{Try, Success, Failure}
+import scala.util.control.NonFatal
 
 /**
  * A FileHandle into a regular file.
@@ -47,12 +48,8 @@ class FilesystemFileHandle (
 
   require(realPath != "", "Physical path cannot be empty.")
 
-  def this(virtualPath: String,
-           realPath: String,
-           manager: ResourceManager//,
-           //token:IOAccessToken
-            ) = this (virtualPath, realPath, new File(realPath), manager//, token
-  )
+  def this(virtualPath: String, realPath: String, manager: ResourceManager)
+    = this (virtualPath, realPath, new File(realPath), manager)
   //def this(physicalPath: String, manager: ResourceManager) = this(null, physicalPath, manager)
 
   /**
@@ -80,36 +77,46 @@ class FilesystemFileHandle (
     * */
   override lazy val isDirectory: Boolean = back.isDirectory
 
-  override def length = if (isDirectory) 0 else back.length
+  override def length: Long = if (isDirectory) 0 else back.length
 
   /**
-   * @return a list containing FileHandles to the contents of FileHandle, or an empty list if this file is not a
-   *         directory or does not have contents.
+   * @return a list containing FileHandles to the contents of FileHandle,
+   *          or an empty list if this file is not a directory or does
+   *          not have contents.
    */
-  override def list: Try[Seq[FileHandle]] = Try(if (isDirectory) {
-    val physPath = physicalPath.getOrElse(throw new IOException(s"FATAL: FileHandle $this had no physical path"))
-    for (item <- back.list) yield item match {
-      case isArchiveRE(_,".jar") =>
-        new JarFileHandle("/", new File(s"$physPath/$item"), this.manager)
-      case isArchiveRE(_,".zip") => new ZipFileHandle("/", new File(s"$physPath/$item"), this.manager)
-      case _ => new FilesystemFileHandle(s"$path/$item", s"$physPath/$item", manager)
-    }
-  } else Nil)
+  override def list: Try[Seq[FileHandle]] = Try(
+    if (isDirectory) {
+      for (item <- back.list) yield item match {
+        case isArchiveRE(_, archType) =>
+          val file = new File(s"$assumePhysPath/$item")
+          archType match {
+            case ".jar" => new JarFileHandle("/", file, this.manager)
+            case ".zip" => new ZipFileHandle("/", file, this.manager)
+          }
+        case _ =>
+          new FilesystemFileHandle(
+            s"$path/$item", s"$assumePhysPath/$item", manager)
+      }
+    } else Nil)
 
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override lazy val physicalPath: Some[String] = Some(realPath.replace('/', File.separatorChar))
+  override lazy val physicalPath: Some[String]
+    = Some(realPath.replace('/', File.separatorChar))
 
-  override def delete: Boolean = if(writable && exists) back.delete else false
+  override def delete: Boolean
+    = if(writable && exists) back.delete else false
 
   /**
-   * @param append If false, this file will be overwritten if it exists, otherwise it will be appended.
-   * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
+   * @param append If false, this file will be overwritten if it exists,
+   *               otherwise it will be appended.
+   * @return a [[scala.Option Option]] containing a  [[java.io.OutputStream]]
+   *         for writing to this file, or [[scala.None None]] if this file is
+   *          not writable.
    */
-  override def write(append: Boolean): Option[OutputStream] = if (writable) {
-    Some(new FileOutputStream(back, append))
-  } else None
+  override def write(append: Boolean): Option[OutputStream]
+    = if (writable) { Some(new FileOutputStream(back, append)) } else None
 
   /**
    * @throws java.io.IOException if something went wrong while determining if this FileHandle is writable.
@@ -125,7 +132,8 @@ class FilesystemFileHandle (
         back.createNewFile()
         } catch {
           case up: IOException => if (up.getMessage == "Permission denied") false else throw up
-          case e: NonFatal => throw new IOException(s"Could not create FileHandle $this, an exception occured.", e)
+          case NonFatal(e)     =>
+            throw new IOException(s"Could not create FileHandle $this, an exception occured.", e)
         }
     } else false
   }

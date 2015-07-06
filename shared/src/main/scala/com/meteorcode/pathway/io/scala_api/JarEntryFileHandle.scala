@@ -54,10 +54,8 @@ class JarEntryFileHandle protected[io] (virtualPath: String,
   ) {
 
   protected[io] def this(virtualPath: String,
-           entry: JarEntry,
-           parent: JarFileHandle//,
-           //token: IOAccessToken
-            ) = this(virtualPath, entry, parent,
+    entry: JarEntry, parent: JarFileHandle)
+    = this(virtualPath, entry, parent,
             parent
               .file
               .getOrElse(throw new IOException(s"Could not create JarEntryFileHandle from nonexistant file $parent")),
@@ -66,18 +64,19 @@ class JarEntryFileHandle protected[io] (virtualPath: String,
   /**
    * @return the physical path to the actual filesystem object represented by this FileHandle.
    */
-  override protected[io] lazy val physicalPath: Option[String] = parentJarfile.physicalPath map { (s:String) =>
-    if (s.endsWith(".jar")) {
-      s"$s/${entry.getName}"
-    } else {
-      s"$s${entry.getName}"
+  override protected[io] lazy val physicalPath: Option[String]
+    = parentJarfile.physicalPath map { s:String =>
+      if (s.endsWith(".jar")) {
+        s"$s/${entry.getName}"
+      } else {
+        s"$s${entry.getName}"
+      }
     }
-  }
 
   /**
    * @return true if this file is a directory, false otherwise
    */
-  override lazy val isDirectory = entry.isDirectory
+  override lazy val isDirectory: Boolean = entry.isDirectory
 
   /** Returns a stream for reading this file as bytes, or null if it is not readable (does not exist or is a directory).
     * @return a [[java.io.InputStream]] for reading the contents of this file, or null if it is not readable.
@@ -97,18 +96,34 @@ class JarEntryFileHandle protected[io] (virtualPath: String,
   /**
    * Returns a list containing this [[FileHandle]]'s children.
    *
-   * Since Zip and Jar file handles are not writable and therefore can be guaranteed to not change during
-   * Pathway execution, we can memoize their contents, meaning that we only ever have to perform this operation
-   * a single time.
+   * Since Zip and Jar file handles are not writable and therefore can be
+   * guaranteed to not change during Pathway execution, we can memoize their
+   * contents, meaning that we only ever have to perform this operation a
+   * single time.
    *
-   * @return a list containing [[FileHandle]]s to the contents of this [[FileHandle]], or an empty list if this
-   *         file is not a directory or does not have contents.
+   * @return a list containing [[FileHandle]]s to the contents of this
+   *         [[FileHandle]], or an empty list if this file is not a
+   *         directory or does not have contents.
    */
-  override lazy val list: Try[Seq[FileHandle]] = if (isDirectory) {
-    Try(
-      Collections.list(new JarFile(back).entries).asScala
-        withFilter ( _.getName.split("/").dropRight(1).lastOption contains entry.getName.dropRight(1) )
-        map ( (e) => new JarEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentJarfile) )
-    )
-  } else Success(Seq[FileHandle]())
+  override lazy val list: Try[Seq[FileHandle]]
+    = if (isDirectory) {
+        Try(Collections
+          .list(new JarFile(back).entries)
+          .asScala
+          .withFilter { je: JarEntry =>
+            je.getName
+              .split("/")
+              .dropRight(1)
+              .lastOption
+              .contains(entry.getName
+                             .dropRight(1)) }
+         .map { je: JarEntry =>
+           new JarEntryFileHandle(
+             s"${this.path}/${je.getName.split("/").last}",
+             je,
+             parentJarfile)
+          })
+      } else {
+        Success(Seq[FileHandle]())
+      }
 }

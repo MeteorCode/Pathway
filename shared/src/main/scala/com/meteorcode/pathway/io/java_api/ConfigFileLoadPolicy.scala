@@ -63,7 +63,7 @@ extends LoadOrderProvider {
         paths.find  { f: FileHandle => path == f.assumePhysPath }
       } ++ fallback
         .orderPaths( paths
-          .filterNot( f: FileHandle => order.contains(f.assumePhysPath) )
+          .filterNot{ f: FileHandle => order contains f.assumePhysPath }
           .asJava)
         .asScala
 

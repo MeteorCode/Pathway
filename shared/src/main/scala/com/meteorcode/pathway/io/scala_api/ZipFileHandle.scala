@@ -106,18 +106,29 @@ class ZipFileHandle protected[io] (virtualPath: String,
   /**
    * Returns a list containing this [[FileHandle]]'s children.
    *
-   * Since Zip and Jar file handles are not writable and therefore can be guaranteed to not change during
-   * Pathway execution, we can memoize their contents, meaning that we only ever have to perform this operation
+   * Since Zip and Jar file handles are not writable and therefore can be
+   * guaranteed to not change during Pathway execution, we can memoize
+   * their contents, meaning that we only ever have to perform this operation
    * a single time.
    *
-   * @return a list containing [[FileHandle]]s to the contents of this [[FileHandle]], or an empty list if this
-   *         file is not a directory or does not have contents.
+   * @return a list containing [[FileHandle]]s to the contents of this
+   *         [[FileHandle]], or an empty list if this file is not a
+   *         directory or does not have contents.
    */
-  override lazy val list: Try[Seq[FileHandle]] = Try(
-    Collections.list(new ZipFile(back).entries).asScala
-      withFilter ( subdirRE findFirstIn _.getName isDefined )
-      map ( (e) => new ZipEntryFileHandle(s"${this.path}${trailingSlash(e.getName)}", e, this) )
-  )
+  override lazy val list: Try[Seq[FileHandle]]
+    = Try(Collections.list(new ZipFile(back).entries)) map {
+         _.asScala
+          .withFilter { entry =>
+            subdirRE findFirstIn entry.getName isDefined
+          }
+          .map { entry =>
+            new ZipEntryFileHandle(
+              s"${this.path}${trailingSlash(entry.getName)}",
+              entry,
+              this
+            )
+          }
+      }
 
   /** Returns an [[java.io.OutputStream]] for writing to this file.
     * @return an [[java.io.OutputStream]] for writing to this file, or null if this file is not writable.
@@ -131,5 +142,6 @@ class ZipFileHandle protected[io] (virtualPath: String,
     * @return a [[java.io.InputStream]] for reading the contents of this file, or null if it is not readable.
     * @throws IOException if something went wrong while opening the file.
     */
-  override def read: Try[InputStream] = Failure(new IOException (s"Could not read from $path, file is a directory"))
+  override def read: Try[InputStream]
+    = Failure(new IOException (s"Could not read from $path, file is a directory"))
 }

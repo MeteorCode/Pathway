@@ -85,18 +85,34 @@ class ZipEntryFileHandle protected[io] (virtualPath: String,
   /**
    * Returns a list containing this [[FileHandle]]'s children.
    *
-   * Since Zip and Jar file handles are not writable and therefore can be guaranteed to not change during
-   * Pathway execution, we can memoize their contents, meaning that we only ever have to perform this operation
-   * a single time.
+   * Since Zip and Jar file handles are not writable and therefore can be
+   * guaranteed to not change during Pathway execution, we can memoize their
+   * contents, meaning that we only ever have to perform this operation a
+   * single time.
    *
-   * @return a list containing [[FileHandle]]s to the contents of this [[FileHandle]], or an empty list if this
-   *         file is not a directory or does not have contents.
+   * @return a list containing [[FileHandle]]s to the contents of this
+   *         [[FileHandle]], or an empty list if this file is not a
+   *         directory or does not have contents.
    */
-  override lazy val list: Try[Seq[FileHandle]] = if (isDirectory) {
-    Try(
-      Collections.list(new ZipFile(back).entries).asScala
-        withFilter ( _.getName.split("/").dropRight(1).lastOption contains entry.getName.dropRight(1) )
-        map ( (e) => new ZipEntryFileHandle(s"${this.path}/${e.getName.split("/").last}", e, parentZipfile) )
-    )
-  } else Success(Seq[FileHandle]())
+   override lazy val list: Try[Seq[FileHandle]]
+     = if (isDirectory) {
+         Try(Collections
+           .list(new ZipFile(back).entries)
+           .asScala
+           .withFilter { ze: ZipEntry =>
+             ze.getName
+               .split("/")
+               .dropRight(1)
+               .lastOption
+               .contains(entry.getName
+                              .dropRight(1)) }
+          .map { ze: ZipEntry =>
+            new ZipEntryFileHandle(
+              s"${this.path}/${ze.getName.split("/").last}",
+              ze,
+              parentZipfile)
+           })
+       } else {
+         Success(Seq[FileHandle]())
+       }
 }

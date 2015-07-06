@@ -10,6 +10,8 @@ import com.meteorcode.pathway.io._
 import com.meteorcode.pathway.io.java_api.{AlphabeticLoadPolicy, LoadOrderProvider}
 import com.meteorcode.pathway.logging.Logging
 
+import me.hawkweisman.util.TryWithFold
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
@@ -103,7 +105,8 @@ class ResourceManager (
    * @param virtualPath a path in the virtual filesystem
    * @return true if that path can be written to, false if it cannot
    */
-  def isPathWritable(virtualPath: String): Boolean = if (writeDir.isDefined) virtualPath.contains("write/") else false
+  def isPathWritable(virtualPath: String): Boolean
+    = if (writeDir.isDefined) virtualPath.contains("write/") else false
 
   /**
    * Request that the ResourceManager handle the file at a given path.
@@ -118,9 +121,13 @@ class ResourceManager (
    *         in the virutal filesystem, or a [[scala.util.Failure Failure]] containing an [[IOException]] if something went
    *         wrong while handling the path.
    */
-  def handle(path: String): Try[FileHandle] = if (cachedHandles.keySet contains path)
-      Try(cachedHandles.getOrElseUpdate(path, makeHandle(path).get))
-    else makeHandle(path) map { (f) => cachedHandles += (path -> f); f }
+  def handle(path: String): Try[FileHandle]
+    = Try(cachedHandles.getOrElseUpdate(
+        path,
+        makeHandle(path).fold(
+          up => throw up,
+          it => it)
+        ))
 
   private[this] def makeHandle(virtualPath: String): Try[FileHandle] = {
     logger.log(this.toString, s"making a FileHandle for $virtualPath")
@@ -173,11 +180,11 @@ class ResourceManager (
   }
 
   override def toString: String
-    = "ResourceManager" + directories map {
-      _.assumePhysPath
-       .split(File.separatorChar)
-       .lastOption
-       .getOrElse("")
+    = "ResourceManager" + directories.map{ dir: FileHandle =>
+      dir.assumePhysPath
+         .split(File.separatorChar)
+         .lastOption
+         .getOrElse("")
     }.mkString
 
 }
