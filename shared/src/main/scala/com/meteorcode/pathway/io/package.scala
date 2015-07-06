@@ -4,14 +4,18 @@ package com.meteorcode.pathway
  * ==Pathway I/O==
  *
  * This packaga contains the Pathway I/O subsystem, including various
- * [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]] implementations, the [[ResourceManager]],
- * and classes for loading mods and determining load order.
+ * [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]]
+ * implementations, the [[ResourceManager]],  and classes for loading mods
+ * and determining load order.
  *
- * The root [[com.meteorcode.pathway.io]] package contains a public Java API suitable for use from any Java-compatible
- * language. Scala callers may prefer to use [[com.meteorcode.pathway.io.scala_api]], which contains a more idiomatic
- * Scala API that is used internally by Pathway. The Scala API uses Scala collections rather than Java collections,
- * provides support for functional programming with [[scala.Option]] and [[scala.util.Try]], and may provide some
- * performance benefits for Scala users.
+ * The root [[com.meteorcode.pathway.io.java_api]] package contains a public
+ * Java API suitable for use from any Java-compatible language. Scala callers
+ * may prefer to use [[com.meteorcode.pathway.io.scala_api]], which
+ * contains a more idiomatic Scala API that is used internally by Pathway.
+ * The Scala API uses Scala collections rather than Java collections, provides
+ * support for functional programming with [[scala.Option]] and
+ * [[scala.util.Try]], and may provide some significant performance benefits
+ * for Scala users.
  *
  * @author Hawk Weisman
  * @since v2.0.0
@@ -21,7 +25,8 @@ package com.meteorcode.pathway
 package object io {
 
   // Regex for determining if a path is inside an archive
-  protected[io] val inArchiveRE = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)*""".r
+  protected[io] val inArchiveRE
+    = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)*""".r
   // Regex for determining if a path is fo an archive file
   protected[io] val isArchiveRE = """([^\/\.]+)(.zip|.jar)""".r
   // Regex for extracting subdirectories
@@ -32,5 +37,6 @@ package object io {
    * @param  name a String represnting a path
    * @return the pathw ith any trailing slashes removed.
    */
-  protected[io] def trailingSlash(name: String) = if (name endsWith "/") name dropRight 1 else name
+  protected[io] def trailingSlash(name: String)
+    = if (name endsWith "/") name dropRight 1 else name
 }

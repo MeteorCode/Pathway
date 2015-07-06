@@ -7,7 +7,10 @@ import java.util.zip.ZipFile
 
 import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.io._
-import com.meteorcode.pathway.io.java_api.{AlphabeticLoadPolicy, LoadOrderProvider}
+import com.meteorcode.pathway.io.java_api.{
+  AlphabeticLoadPolicy,
+  LoadOrderProvider
+}
 import com.meteorcode.pathway.logging.Logging
 
 import me.hawkweisman.util.TryWithFold
@@ -57,15 +60,18 @@ class ResourceManager (
    * @param writePath a String representing the path into the write directory
    * @return a new [[ResourceManager]] managing the specified directory.
    */
-  def this(path: String,                    // it's okay for the Manager to be null because if it has a path,
-           writePath: String,               // it will never need to get the path from the ResourceManager
-           policy: LoadOrderPolicy) = this(Seq[FileHandle](new FilesystemFileHandle("", path, null)),
-                                             writeDir = Some(new FilesystemFileHandle(writePath.replace(path, ""), writePath, null)),
-                                             order = policy)
+  def this(path: String, writePath: String, policy: LoadOrderPolicy)
+    = this(Seq[FileHandle](new FilesystemFileHandle("", path, null)),
+      writeDir = Some(new FilesystemFileHandle(
+        writePath.replace(path, ""),
+        writePath, null)  // it's okay for the Manager to be null, because if it
+      ),  // has a path, it will never need to get the path from the Manager
+      order = policy)
 
-  private[this] val paths = order(directories).foldRight(new PathTable){
-    (fh, tab) => walk(fh, tab)
-  }
+  private[this] val paths
+    = order(directories).foldRight(new PathTable){ (fh, tab) =>
+      walk(fh, tab)
+    }
   paths.freeze()
 
   private[this] val writePaths = writeDir match {
@@ -74,13 +80,19 @@ class ResourceManager (
   }
   writePaths.freeze()
 
-  private[this] val cachedHandles = mutable.Map[String, FileHandle]()
+  private[this] val cachedHandles
+    = mutable.Map[String, FileHandle]()
 
-  writeDir.foreach{ directory =>
+  writeDir foreach { directory =>
+    // TODO: this is disgusting and ought to be refactored
       if (!directory.exists) {
-        if (!(directory.file exists (_.mkdirs()) ) ) throw new IOException("Specified write directory could not be created!")
-        else logger.log(this.toString, s"write directory ${directory.physicalPath} created")
-      } else logger.log(this.toString, s"write directory ${directory.physicalPath} already exists")
+        if (!(directory.file exists (_.mkdirs()) ) ) {
+          throw new IOException(
+            s"Specified write directory $directory could not be created!")
+        } else logger log (this.toString,
+          s"write directory ${directory.physicalPath} created")
+      } else logger log (this.toString,
+        s"write directory ${directory.physicalPath} already exists")
       if (directory.manager == null) directory.manager = this
   }
   /**
