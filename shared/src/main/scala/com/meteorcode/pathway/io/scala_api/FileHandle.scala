@@ -286,10 +286,25 @@ abstract class FileHandle(protected val virtualPath: String,
     case _                     => false
   }
 
+  /**
+   * Assume that this FileHandle has a physical path and access it, throwing
+   * a [[java.io.IOException]] otherwise. This is for INTERNAL USE ONLY.
+   */
   protected[io] lazy val assumePhysPath: String
     = this.physicalPath
           .getOrElse(throw new IOException(
             s"FATAL: FileHandle $this had no physical path."))
+  /**
+   * Assume that this FileHandle has a physical path and access it, throwing
+   * a [[java.io.IOException]] otherwise. This is for INTERNAL USE ONLY.
+   */
+  protected[io] def assumeBack: Try[File]
+    = this.file match {
+      case Some(file) => Success(file)
+      case None       => Failure(new IOException(
+        s"FATAL: FileHandle $this had no backing file."
+      ))
+    }
 }
 
 /**

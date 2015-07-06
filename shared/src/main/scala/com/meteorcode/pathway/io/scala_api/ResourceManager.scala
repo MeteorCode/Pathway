@@ -110,17 +110,13 @@ class ResourceManager (
    * @param fs the current filesystem state
    */
   private[this] def walk(current: FileHandle,  fs: PathTable): PathTable
-    = current match {
-    case FileHandle(virtualPath,physicalPath) if current.isDirectory =>
-        val newfs = fs.fork()
-        newfs put (virtualPath, physicalPath)
-        order(current.list.get).foldRight(newfs)((fh, tab) => walk(fh, tab))
-    case FileHandle(virtualPath, physicalPath) =>
-      fs put (virtualPath, physicalPath); fs
-    case _ => throw new IOException(
-      s"FATAL: FileHandle $current did not have a physical path")
-  }
-
+    = if (current.isDirectory) {
+      val newfs = fs.fork()
+      newfs put (current.path, current.assumePhysPath)
+      order(current.list.get).foldRight(newfs)((fh, tab) => walk(fh, tab))
+    } else {
+      fs put (current.path, current.assumePhysPath); fs
+    }
 
   /**
    * Returns true if a given virtual path is writable, false if it is not.
@@ -177,12 +173,12 @@ class ResourceManager (
           case Some(_) =>
           // if the write directory won't destructure, it's missing a physical
           // path. if this is the case, somebody (me) seriously fucked up.
-            Failure(new IOException("""|FATAL: Cannot handle write attempt:
+            Failure(new IOException("""|Cannot handle write attempt:
               |write directory missing physical path.""".stripMargin))
           case None =>
             // if there's no write directory, we cannot support write attempts.
             // This should never happen – isPathWritable() should prevent this.
-            Failure(new IOException("""|FATAL: Cannot handle write attempt:
+            Failure(new IOException("""|Cannot handle write attempt:
               "|no write directory exists, but a path claimed to be writable."""
               .stripMargin))
         }
@@ -190,7 +186,7 @@ class ResourceManager (
         Failure(new IOException(
           s"A filehandle to an empty path ($virtualPath) was requested," +
         " and the requested path was not writable"))
-    }) flatMap { (physicalPath: String) =>
+    }) flatMap { physicalPath: String =>
       physicalPath
         .split('.')
         .drop(1)
@@ -202,26 +198,24 @@ class ResourceManager (
         case _ => inArchiveRE findFirstIn physicalPath match {
           case Some(inArchiveRE(path, ".zip", name)) =>
             val parent = new ZipFileHandle("/", new File(s"$path.zip"), this)
-            parent.file match {
-              case Some(file) => Success(new ZipEntryFileHandle(
-                  virtualPath,
-                  new ZipFile(file).getEntry(name),
-                  parent))
-              case None => Failure(new IOException(
-                s"FATAL: ZipFileHandle $parent was not backed by a File object"))
+            parent.assumeBack map { file =>
+              new ZipEntryFileHandle(
+                virtualPath,
+                new ZipFile(file).getEntry(name),
+                parent
+              )
             }
           case Some(inArchiveRE(path, ".jar", name)) =>
             val parent = new JarFileHandle("/", new File(s"$path.jar"), this)
-            parent.file match {
-              case Some(file) =>
-                Success(new JarEntryFileHandle(
-                  virtualPath,
-                  new JarFile(file).getJarEntry(name),
-                  parent))
-              case None => Failure(new IOException(
-                s"FATAL: JarFileHandle $parent was not backed by a File object"))
+            parent.assumeBack map { file =>
+              new JarEntryFileHandle(
+                virtualPath,
+                new JarFile(file).getJarEntry(name),
+                parent
+              )
             }
-          case _ => Success(new FilesystemFileHandle(virtualPath, physicalPath, this))
+          case _ =>
+            Success(new FilesystemFileHandle(virtualPath, physicalPath, this))
         }
       }
     }
