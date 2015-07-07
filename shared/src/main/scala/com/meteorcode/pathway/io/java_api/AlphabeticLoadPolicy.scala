@@ -25,7 +25,8 @@ class AlphabeticLoadPolicy extends LoadOrderProvider {
   private[this] def lastPathElem(handle: FileHandle): String
     = handle.assumePhysPath
             .split(File.separatorChar)
-            .last
+            .lastOption
+            .getOrElse("")
             .toLowerCase
   /**
    * Takes an unordered set of top-level paths and returns a list of those

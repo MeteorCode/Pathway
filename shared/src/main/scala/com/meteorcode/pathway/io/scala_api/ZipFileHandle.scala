@@ -12,17 +12,23 @@ import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.language.postfixOps
 
 /**
- * A FileHandle into the top level of a Zip archive (treated as a directory).
+ * A [[FileHandle]] into an entry in a Zip archive file.
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
- * [[ResourceManager.handle ResourceManager.handle()]]. The FileHandle system is supposed to
- * allow you to treat files in zip/jar archives as though they were on the filesystem as regular files, but this only
- * works if you treat all files you have to access as instances of [[com.meteorcode.pathway.io.scala_api.FileHandle FileHandle]].
- * If you  ever refer to files as [[com.meteorcode.pathway.io.DesktopFileHandle DesktopFileHandle]],
- * [[com.meteorcode.pathway.io.scala_api.ZipFileHandle, ZipFileHandle]], or
- * [[JarFileHandle JarFileHandle]] explicitly in your code, you are doing the Wrong Thing and
- * negating a whole lot of time and effort I  put into this system. To reiterate: DO NOT CALL THE CONSTRUCTOR FOR THIS.
  *
+ * [[scala_api.ResourceManager.handle ResourceManager.handle()]].
+ * The FileHandle system is intended to allow you to treat exotic resources,
+ * such as files in zip/jar  archives or resources accessed over the netweork,
+ * as though they were on the filesystem as regular files, but this only works
+ * if you treat all files you  have to access as instances of
+ * [[scala_api.FileHandle FileHandle]]. If you  ever refer to files as
+ * [[scala_api.FilesystemFileHandle FilesystemFileHandle]],
+ * [[scala_api.ZipFileHandle ZipFileHandle]], or
+ * [[scala_api.JarFileHandle JarFileHandle]] explicitly in your code, you are
+ * doing the Wrong Thing and  negating a whole lot of time and effort I put into
+ * this system. So don't do that.
+ *
+ * To reiterate, do NOT call the constructor for this
  * @param virtualPath The virtual path to the object this FileHandle represents
  * @param back A [[java.io.File]] representing the Zip archive to handle.
  * @param manager the ResourceManager managing this FileHandle
@@ -54,11 +60,12 @@ class ZipFileHandle protected[io] (virtualPath: String,
   they were directories - but we also can't handle files within those Zip files
   using FileHandles OR ZipFileHandles.
 
-  To add insult to injury, I'm pretty sure this idiocy isn't the Zip ile format's
-  fault - Python's 'zipfile' module basically allows you to treat files within a Zip
-  archive transparently as though they were regular files in the filesystem, because
-  (unlike java.util.zip), it wasn't designed by a committee of people dead-set on
-  making my day miserable. Also, documentation for Python's module is much better.
+  To add insult to injury, I'm pretty sure this idiocy isn't the Zip file
+  format's fault - Python's 'zipfile' module basically allows you to treat
+  files within a Zip archive transparently as though they were regular files in
+  the filesystem, because (unlike java.util.zip), it wasn't designed by a
+  committee of people dead-set on making my day miserable. Also, documentation
+  for Python's module is much better.
 
   In short, I hate java.util.zip.
   */
