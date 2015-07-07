@@ -8,8 +8,7 @@ import java.util.Optional
 import com.meteorcode.pathway.io.scala_api
 import me.hawkweisman.util.TryWithFold
 
-import scala.language.implicitConversions
-import scala.language.postfixOps
+import scala.language.{implicitConversions, postfixOps}
 import scala.collection.JavaConverters.seqAsJavaListConverter
 import scala.util.{Try,Success,Failure}
 
