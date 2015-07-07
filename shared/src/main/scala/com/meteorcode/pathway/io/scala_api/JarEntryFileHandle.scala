@@ -103,7 +103,7 @@ class JarEntryFileHandle protected[io](
                              .dropRight(1)) }
          .map { je: JarEntry =>
            new JarEntryFileHandle(
-             s"${this.path}/${je.getName.name}",
+             s"${this.path}/${je.getName.split("/").last}",
              je,
              parentJarfile)
           })
