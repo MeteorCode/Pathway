@@ -390,7 +390,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         val fakeFile = mock[File]
         when(fakeFile.createNewFile).thenThrow(new IOException("Permission denied"))
         when(fakeFile.isDirectory).thenReturn(false)
-        when(fakeFile.canWrite).thenReturn(true)
+        when(fakeFile.canWrite).thenReturn(false)
 
         new FilesystemFileHandle("/write/fakepath", "/write/fakepath", fakeFile, manager).writable shouldBe false
 
