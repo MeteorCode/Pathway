@@ -40,16 +40,13 @@ import scala.util.control.NonFatal
  * @see [[scala_api.FileHandle FileHandle]]
  * @see [[java.util.jar.JarEntry]]
  */
-class JarEntryFileHandle protected[io] (virtualPath: String,
-                          private[this] val entry: JarEntry,
-                          private[this] val parentJarfile: JarFileHandle,
-                          private[this] val back: File,
-                          manager: ResourceManager//,
-                          //token: IOAccessToken
-                          )
-  extends JarFileHandle(virtualPath, back, manager
-    //, token
-  ) {
+class JarEntryFileHandle protected[io](
+  virtualPath: String,
+  private[this] val entry: JarEntry,
+  private[this] val parentJarfile: JarFileHandle,
+  private[this] val back: File,
+  manager: ResourceManager
+) extends JarFileHandle(virtualPath, back, manager) {
 
   protected[io] def this(virtualPath: String,
     entry: JarEntry, parent: JarFileHandle)
@@ -57,8 +54,7 @@ class JarEntryFileHandle protected[io] (virtualPath: String,
       virtualPath,
       entry,
       parent,
-      parent
-        .file
+      parent.file
         .getOrElse(throw new IOException(
           s"Could not create JarEntryFileHandle from nonexistant file $parent"
         )),
@@ -107,7 +103,7 @@ class JarEntryFileHandle protected[io] (virtualPath: String,
                              .dropRight(1)) }
          .map { je: JarEntry =>
            new JarEntryFileHandle(
-             s"${this.path}/${je.getName.split("/").last}",
+             s"${this.path}/${je.getName.name}",
              je,
              parentJarfile)
           })

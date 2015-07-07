@@ -187,10 +187,7 @@ class ResourceManager (
           s"A filehandle to an empty path ($virtualPath) was requested," +
         " and the requested path was not writable"))
     }) flatMap { physicalPath: String =>
-      physicalPath
-        .split('.')
-        .drop(1)
-        .lastOption match {
+      physicalPath.extension match {
         case Some("jar") => // extension is a Jar
           Success(new JarFileHandle(virtualPath, new File(physicalPath), this))
         case Some("zip") => // extension is a Zip
@@ -223,10 +220,7 @@ class ResourceManager (
 
   override lazy val toString: String
     = "ResourceManager" + directories.map{ dir: FileHandle =>
-      dir.assumePhysPath
-         .split(File.separatorChar)
-         .lastOption
-         .getOrElse("")
+      dir.assumePhysPath.name
     }.mkString
 
 }

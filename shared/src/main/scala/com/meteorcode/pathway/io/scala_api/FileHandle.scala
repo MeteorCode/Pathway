@@ -74,17 +74,15 @@ abstract class FileHandle(protected val virtualPath: String,
    *         or an empty string if there is no extension.
    */
   def extension: String
-    = path.split('.').drop(1).lastOption
-          .getOrElse("")
+    = path.extension
+          .getOrElse[String]("")
 
   /**
    * @return the name of this object, without the filename extension and path.
    */
   def name: String
-    = path.split('/').lastOption
-          .flatMap( _.split('.').headOption )
-          .getOrElse("")
-
+    = path.name
+          .getOrElse[String]("")
   /**
    * Returns the [[java.io.File]] backing this file handle.
    * @return an [[scala.Option Option]] containing the [[java.io.File]] that
@@ -298,13 +296,12 @@ abstract class FileHandle(protected val virtualPath: String,
    * Assume that this FileHandle has a physical path and access it, throwing
    * a [[java.io.IOException]] otherwise. This is for INTERNAL USE ONLY.
    */
-  protected[io] def assumeBack: Try[File]
-    = this.file match {
-      case Some(file) => Success(file)
-      case None       => Failure(new IOException(
-        s"FATAL: FileHandle $this had no backing file."
-      ))
-    }
+  protected[io] lazy val assumeBack: Try[File]
+    = this.file
+          .map(Success(_))
+          .getOrElse( Failure(new IOException(
+            s"FATAL: FileHandle $this had no backing file."))
+          )
 }
 
 /**

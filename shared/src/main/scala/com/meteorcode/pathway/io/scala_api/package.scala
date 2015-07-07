@@ -18,4 +18,15 @@ package object scala_api {
    */
   type LoadOrderPolicy = (Seq[FileHandle]) => Seq[FileHandle]
 
+  protected[io] implicit class Path(val path: String) {
+
+    def extension: Option[String]
+      = path.split('.').drop(1)
+            .lastOption
+
+    def name: Option[String]
+      = path.split('/').lastOption
+            .flatMap( _.split('.').headOption )
+  }
+
 }
