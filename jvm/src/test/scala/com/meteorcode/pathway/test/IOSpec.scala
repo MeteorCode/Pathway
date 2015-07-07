@@ -378,8 +378,10 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
           .failure.exception should have message "FileHandle /testJarDir is not writable."
       }
       "allow access into child files" taggedAs FilesystemTest in {
-        manager.handle("/testJarDir").success.value
-          .child("test7.md").success.value
+        val child = manager.handle("/testJarDir").success.value
+          .child("test7.md")
+        info(child.toString)
+        child.success.value
           .readString.success.value shouldEqual "Hi continues."
       }
     }
@@ -388,12 +390,12 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         val fakeFile = mock[File]
         when(fakeFile.createNewFile).thenThrow(new IOException("Permission denied"))
         when(fakeFile.isDirectory).thenReturn(false)
-        when(fakeFile.exists).thenReturn(false)
+        when(fakeFile.canWrite).thenReturn(true)
 
         new FilesystemFileHandle("/write/fakepath", "/write/fakepath", fakeFile, manager).writable shouldBe false
 
         verify(fakeFile, times(1)).isDirectory
-        verify(fakeFile, times(1)).exists
+        verify(fakeFile, times(1)).canWrite
         verify(fakeFile, times(1)).createNewFile
 
       }
@@ -405,12 +407,15 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         when(fakeFile.isDirectory).thenReturn(false)
         when(fakeFile.exists).thenReturn(false)
 
-        the [IOException] thrownBy {
+        val exception = the [IOException] thrownBy {
           new FilesystemFileHandle("/write/fakepath", "/write/fakepath", fakeFile, manager).writable
-        } should have message "SOMETHING BAD TOOK PLACE I GUESS"
+        }
+        exception should have message
+          "Could not create FileHandle FilesystemFileHandle: /write/fakepath, an exception occured."
+        exception.getCause should have message "SOMETHING BAD TOOK PLACE I GUESS"
 
         verify(fakeFile, times(1)).isDirectory
-        verify(fakeFile, times(1)).exists
+        verify(fakeFile, times(1)).canWrite
         verify(fakeFile, times(1)).createNewFile
       }
     }
