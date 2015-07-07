@@ -15,7 +15,7 @@ import scala.util.Try
  * This file was created by Hawk on 8/27/14.
  */
 protected[io] class RedirectFileHandle (
-  protected val wrapped: FileHandle,
+  private[this] val wrapped: FileHandle,
   virtualPath: String)
 extends FileHandle(virtualPath, wrapped.manager) {
 

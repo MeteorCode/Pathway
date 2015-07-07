@@ -32,7 +32,7 @@ import scala.language.postfixOps
  * @since v2.0.0
  */
 class ZipFileHandle protected[io] (virtualPath: String,
-                     private val back: File,
+                     private[this] val back: File,
                      manager: ResourceManager//,
                      //token: IOAccessToken
                       ) extends FileHandle(virtualPath, manager//, token
