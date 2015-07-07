@@ -37,7 +37,7 @@ import scala.util.{Failure, Success, Try}
  * Created by Hawk on 6/10/15.
  */
 class ResourceManager protected[io](
-  private[this] val underlying: scala_api.ResourceManager
+  private val underlying: scala_api.ResourceManager
 ) {
   /**
    * Constructor for a ResourceManager with multiple root directories
