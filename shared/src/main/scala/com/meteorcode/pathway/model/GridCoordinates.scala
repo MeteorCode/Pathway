@@ -10,13 +10,9 @@ import scala.language.implicitConversions
  */
 case class GridCoordinates(x: Int, y: Int) {
 
-  def getX: Int = x
+  def x_=(newX: Int): GridCoordinates = this.copy(x = newX)
 
-  def getY: Int = y
-
-  def setX(newX: Int): GridCoordinates = this.copy(x = newX)
-
-  def setY(newY: Int): GridCoordinates = this.copy(y = newY)
+  def y_=(newY: Int): GridCoordinates = this.copy(y = newY)
 
   def + (other: GridCoordinates) = this.copy(
     x = x + other.x,

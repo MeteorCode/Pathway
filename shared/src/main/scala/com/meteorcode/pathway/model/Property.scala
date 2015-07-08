@@ -5,8 +5,8 @@ import model.DrawID
 
 abstract class Property (initDrawID: Option[DrawID]  = None,
                          var parent: Option[Context] = None)
- extends Logging
- with Drawable {
+extends Logging
+  with Drawable {
 
   override protected var _drawID
     = initDrawID.getOrElse(???) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs

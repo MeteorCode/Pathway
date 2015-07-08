@@ -2,16 +2,10 @@ package com.meteorcode.pathway.model
 import scala.collection.mutable
 import scala.collection.JavaConverters._
 
-class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
+class Payload(initialMap: scala.collection.Map[String, Object]) {
   val map = mutable.Map() ++ initialMap
   val stamps = mutable.Set.empty[Property]
   val location = tile
-
-  def this() = this(scala.collection.immutable.Map.empty[String, Object], null)
-  def this(tile: Tile) = this(scala.collection.immutable.Map.empty[String, Object], tile)
-  def this(initialMap: scala.collection.immutable.Map[String, Object]) = this(initialMap, null)
-  def this(initialMap: java.util.Map[String, Object]) = this(initialMap.asScala, null)
-  def this(initialMap: java.util.Map[String, Object], tile: Tile) = this(initialMap.asScala, tile: Tile)
 
   /**
    *
@@ -48,10 +42,6 @@ class Payload(initialMap: scala.collection.Map[String, Object], tile: Tile) {
    * @return true if that Property's stamp is present.
    */
   def stampExists(stampedBy: Property): Boolean = stamps.contains(stampedBy)
-
-  def where: Tile = location
-  def x: Integer = { if (location == null) { null } else location.getPosition.getX }
-  def y: Integer = { if (location == null) { null } else location.getPosition.getY }
 
   def +(kv: (String, Object)): Unit = map += kv
   def ++(addition: scala.collection.immutable.Map[String, Object]): Unit = map ++= addition
