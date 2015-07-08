@@ -19,27 +19,37 @@ import scala.language.postfixOps
  * @author Hawk Weisman <hawk.weisman@gmail.com>
  *
  */
-class Context(protected var name: String) extends Logging {
+class Context(contextName: Option[String] = None) extends Logging {
 
-  def this() = this(null)
-  if (name == null) name = this.getClass.getSimpleName
+  def this(contextName: String) = this(Some(contextName))
+  def this() = this(None)
+
+  val name: String
+    = contextName.getOrElse(this.getClass.getSimpleName)
 
   protected val eventStack = mutable.Stack[Event]()
   protected val gameObjects = mutable.Set[GameObject]()
   protected val properties = mutable.Set[Property]()
-  private[this] val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstance
+  private[this] val beanshell: ScriptContainer
+    = (new ScriptContainerFactory).getNewInstance
   // TODO: This should really be requested from a global ScriptContainerFactory instance,
   // but since that's not available, I'm doing it like this so that the class will run and be testable.
 
-  def injectObject(name: String, toInject: Object): Unit = beanshell.injectObject(name, toInject)
-  def removeObject(name: String): Unit = beanshell.removeObject(name)
+  def injectObject(name: String, toInject: Object): Unit
+    = beanshell.injectObject(name, toInject)
+  def removeObject(name: String): Unit
+    = beanshell.removeObject(name)
+
+  private[this] def log(msg: String): Unit
+    = logger.log(s"$name Context", msg)
 
   /**
    * @return A list of top-level GameObjects in this Context
    */
   def getGameObjects: util.List[GameObject] = {
+    // TODO: shallow copy wouldn't be necessary if we used Scala immutable collections
     val result: util.List[GameObject] = new util.ArrayList[GameObject]
-    result.addAll(gameObjects) // TODO: shallow copy wouldn't be necessary if we just used Scala immutable collections
+    result.addAll(gameObjects)
     result
   }
   def removeGameObject(g: GameObject): Unit = gameObjects -= g
@@ -54,7 +64,7 @@ class Context(protected var name: String) extends Logging {
    */
   @throws(classOf[ScriptException])
   def eval(script: String): AnyRef = {
-    logger.log(this.name + "Context", "evaluating script:\n" + script)
+    log(s"evaluating script:\n $script")
     beanshell.eval(script)
   }
 
@@ -64,7 +74,7 @@ class Context(protected var name: String) extends Logging {
    */
   @throws(classOf[ScriptException])
   def eval(file: FileHandle): AnyRef = {
-    logger.log(this.name + "Context", "evaluating script from file: " + file)
+    log(s"evaluating script from file: $file")
     beanshell.eval(file)
   }
 
@@ -85,7 +95,7 @@ class Context(protected var name: String) extends Logging {
    */
   def fireEvent(e: Event): Unit = {
     e.setTarget(this)
-    logger.log(this.name + " Context", "fired event " + e)
+    log(s"fired event $e")
     eventStack.push(e)
   }
 
@@ -110,22 +120,23 @@ class Context(protected var name: String) extends Logging {
         .takeWhile(_ => e.isValid)
         .foldRight(true){ (p, continue) =>
           if (continue) {
-            logger.log(s"${this.name} Context", s"publishing $e to $p")
+            log(s"publishing $e to $p")
             p.onEvent(e, this)
           } else false
         }
       // if no Property invalidated the top event, then we can evaluate it.
       if (e == eventStack.top && eval) {
         if (eventStack.top.isValid) {
-          logger.log(this.name + " Context", eventStack.top + " is valid, evaluating")
+          log(s"${eventStack.top} is valid, evaluating")
           eventStack.pop().evalEvent()
         } else {
-          logger.log(this.name + " Context", eventStack.top + " is invalid, ignoring")
+          log(s"${eventStack.top} is invalid, ignoring")
           eventStack.pop()
         }
       }
     }
   }
 
-  override def toString: String = "[" + name + " Context" + "]" + viewEventStack()
+  override def toString: String
+    = s"[$name Context]$viewEventStack"
 }
