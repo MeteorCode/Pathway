@@ -9,7 +9,6 @@ import scala.language.implicitConversions
  * @param y the y-value
  */
 case class GridCoordinates(x: Int, y: Int) {
-  def this(xy: (Int, Int)) = this(xy._1, xy._2)
 
   // Why does this have getters and setters? What the fuck. Is this just
   // some kind of Java-placating cruft or am I just that stupid?
@@ -26,6 +25,8 @@ case class GridCoordinates(x: Int, y: Int) {
 }
 
 object GridCoordinatesImplicits {
-  implicit def GridCoordinates2Tuple(gc: GridCoordinates): (Int, Int) = (gc.x, gc.y)
-  implicit def Tuple2GridCoordinates(xy: (Int, Int)): GridCoordinates = GridCoordinates(xy._1, xy._2)
+  implicit def GridCoordinates2Tuple(gc: GridCoordinates): (Int, Int)
+    = (gc.x, gc.y)
+  implicit def Tuple2GridCoordinates(xy: (Int, Int)): GridCoordinates
+    = xy match { case ((x: Int, y: Int)) => GridCoordinates(x,y) }
 }
