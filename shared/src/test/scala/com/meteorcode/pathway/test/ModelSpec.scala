@@ -25,7 +25,11 @@ import scala.util.Random
 import scala.collection.JavaConversions._
 
 
-class ModelSpec extends FreeSpec with Matchers with PropertyChecks with MockitoSugar with IdentGenerators {
+class ModelSpec extends FreeSpec
+  with Matchers
+  with PropertyChecks
+  with MockitoSugar
+  with IdentGenerators {
   // quash the obnoxious and unnecessary log messages during testing
   LoggerFactory setLogger new NullLogger
 

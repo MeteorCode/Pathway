@@ -38,14 +38,16 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
     "creating a new ScriptContainer with a specified environment" should {
       "link the new instance with the environment" in {
         val environment = mock[ScriptEnvironment]
-        val container = new ScriptContainerFactory().getNewInstanceWithEnvironment(environment)
+        val container = new ScriptContainerFactory()
+          .getNewInstanceWithEnvironment(environment)
         verify(environment, times(1)).link(container)
       }
     }
     "creating a new ScriptContainer with a different Interpreter" should {
       "use the specified Interpreter rather than the default" in {
         val fakeInterpreter = mock[Interpreter]
-        val container = new ScriptContainerFactory(fakeInterpreter).getNewInstance
+        val container = new ScriptContainerFactory(fakeInterpreter)
+          .getNewInstance
 
         container.eval("")
 

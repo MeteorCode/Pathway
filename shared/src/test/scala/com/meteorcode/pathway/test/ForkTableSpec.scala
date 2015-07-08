@@ -11,7 +11,9 @@ import scala.language.postfixOps
  * Created by hawk on 5/22/15.
  */
 
-class ForkTableSpec extends WordSpec with Matchers with PropertyChecks {
+class ForkTableSpec extends WordSpec
+  with Matchers
+  with PropertyChecks {
 
   "A ForkTable" when {
     "empty" should {
