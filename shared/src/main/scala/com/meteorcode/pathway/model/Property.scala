@@ -1,13 +1,15 @@
 package com.meteorcode.pathway.model
 
 import com.meteorcode.pathway.logging.Logging
+import model.DrawID
 
-abstract class Property (initDrawID: Option[Integer] = None,
+abstract class Property (initDrawID: Option[DrawID]  = None,
                          var parent: Option[Context] = None)
  extends Logging
  with Drawable {
-  var drawID = initDrawID
-    .getOrElse(???) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
+
+  override protected var _drawID
+    = initDrawID.getOrElse(???) //TODO: eventually, this will get a DrawID from the Grand Source of All DrawIDs
 
   parent foreach (_ subscribe this)
 
@@ -16,7 +18,8 @@ abstract class Property (initDrawID: Option[Integer] = None,
   // and I am sorry
   // ~ hawk
 
-  def eval(script: String): AnyRef = parent map (_ eval script ) orNull // todo: ugh
+  def eval(script: String): AnyRef
+    = parent map (_ eval script ) orNull // todo: ugh
 
  /**
   * Move the Property from the currently-occupied [[com.meteorcode.pathway.model.Context]] to a new Context.

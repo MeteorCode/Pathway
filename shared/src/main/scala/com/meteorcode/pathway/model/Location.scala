@@ -14,6 +14,4 @@ trait Location {
   def y: Int = coords.y
 
   def locationString: String = s"at $coords on ${grid.getName}"
-
-
 }

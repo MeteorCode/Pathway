@@ -19,21 +19,23 @@ import scala.language.postfixOps
  * @author Hawk Weisman <hawk.weisman@gmail.com>
  *
  */
-class Context(contextName: Option[String] = None) extends Logging {
+class Context(_name: Option[String] = None) extends Logging {
 
-  def this(contextName: String) = this(Some(contextName))
+  def this(_name: String) = this(Some(_name))
   def this() = this(None)
 
   val name: String
-    = contextName.getOrElse(this.getClass.getSimpleName)
+    = _name.getOrElse(this.getClass.getSimpleName)
 
-  protected val eventStack = mutable.Stack[Event]()
-  protected val gameObjects = mutable.Set[GameObject]()
-  protected val properties = mutable.Set[Property]()
+  private[this] var eventStack = List[Event]()
+  private[this] var _gameObjects = Set[GameObject]()
+  private[this] var _properties = Set[Property]()
+
+  // TODO: This should really be requested from a global ScriptContainerFactory
+  // instance, but since that's not available, I'm doing it like this so that
+  // the class will run and be testable.
   private[this] val beanshell: ScriptContainer
     = (new ScriptContainerFactory).getNewInstance
-  // TODO: This should really be requested from a global ScriptContainerFactory instance,
-  // but since that's not available, I'm doing it like this so that the class will run and be testable.
 
   def injectObject(name: String, toInject: Object): Unit
     = beanshell.injectObject(name, toInject)
@@ -43,20 +45,17 @@ class Context(contextName: Option[String] = None) extends Logging {
   private[this] def log(msg: String): Unit
     = logger.log(s"$name Context", msg)
 
-  /**
-   * @return A list of top-level GameObjects in this Context
-   */
-  def getGameObjects: util.List[GameObject] = {
-    // TODO: shallow copy wouldn't be necessary if we used Scala immutable collections
-    val result: util.List[GameObject] = new util.ArrayList[GameObject]
-    result.addAll(gameObjects)
-    result
-  }
-  def removeGameObject(g: GameObject): Unit = gameObjects -= g
-  def addGameObject(g: GameObject): Unit = gameObjects += g
-  def subscribe(p: Property): Unit = properties += p
-  def unsubscribe(p: Property): Unit = properties -= p
-  def getName: String = this.name
+  def gameObjects: Set[GameObject] = _gameObjects
+  def properties: Set[Property]    = _properties
+
+  def removeGameObject(g: GameObject): Unit
+    = _gameObjects = _gameObjects - g
+  def addGameObject(g: GameObject): Unit
+    = _gameObjects = _gameObjects + g
+  def subscribe(p: Property): Unit
+    = _properties = _properties + p
+  def unsubscribe(p: Property): Unit
+    = _properties = _properties - p
 
   /**
    * Evals a BeanShell expression against this Context's ScriptContainer
@@ -81,12 +80,7 @@ class Context(contextName: Option[String] = None) extends Logging {
   /**
    * @return A shallow copy of the current EventStack.
    */
-  def viewEventStack(): util.Deque[Event] = {
-    val result: util.Deque[Event] = new util.ArrayDeque[Event]
-    for (e <- eventStack)
-      result.push(e)
-    result
-  }
+  def viewEventStack(): List[Event] = eventStack
 
   /**
    * Fires an Event onto the EventStack corresponding to this Context.
@@ -96,7 +90,7 @@ class Context(contextName: Option[String] = None) extends Logging {
   def fireEvent(e: Event): Unit = {
     e.setTarget(this)
     log(s"fired event $e")
-    eventStack.push(e)
+    eventStack = e :: eventStack
   }
 
   /**
@@ -112,7 +106,30 @@ class Context(contextName: Option[String] = None) extends Logging {
    *                         encounters an error when evaluating the Event.
    */
   @throws(classOf[ScriptException])
-  def pump(): Unit = {
+  def pump(): Unit
+    = eventStack.headOption.foreach { e =>
+      // publish top event to all subscribed Properties
+      val eval = properties
+        .takeWhile(_ => e.isValid)
+        .foldRight(true){ (p, continue) =>
+          if (continue) {
+            log(s"publishing $e to $p")
+            p.onEvent(e, this)
+          } else false
+        }
+        // if no Property invalidated the top event, then we can evaluate it.
+        val e2 = eventStack.head
+        if (e == e2 && eval) {
+          if (e2 isValid) {
+            log(s"$e2 is valid, evaluating")
+            e.evalEvent()
+          } else {
+            log(s"$e2 is invalid, ignoring")
+          }
+          eventStack = eventStack.drop(1)
+        }
+      }
+  /*
     if (eventStack nonEmpty) {
       val e = eventStack.top
       // publish top event to all subscribed Properties
@@ -135,7 +152,7 @@ class Context(contextName: Option[String] = None) extends Logging {
         }
       }
     }
-  }
+  }*/
 
   override def toString: String
     = s"[$name Context]$viewEventStack"

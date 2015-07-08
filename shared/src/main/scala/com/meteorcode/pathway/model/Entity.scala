@@ -1,34 +1,40 @@
 package com.meteorcode.pathway.model
-
+import model.GameID
+import model.DrawID
 import GridCoordinatesImplicits._
 
-class Entity(protected var gameID: Option[Long] = None,
-             entityName: Option[String]         = None)
+class Entity( protected var gameID: Option[GameID] = None,
+              entityName: Option[String]           = None)
   extends GameObject(gameID) {
 
-  val name: String = entityName.getOrElse(this.getClass.getSimpleName)
+  val name: String
+    = entityName.getOrElse(this.getClass.getSimpleName)
 
-  def this(gameID: Long, name: String) = this(Some(gameID), Some(name))
+  def this(gameID: GameID, name: String) = this(Some(gameID), Some(name))
 
-  if (name.isEmpty) name = Some(this.getClass.getSimpleName)
   override def toString: String = s"Entity $name"
-
 }
 
-class TileEntity(
-                  protected var grid: Grid,
+class TileEntity( protected var grid: Grid,
                   protected var coords: GridCoordinates,
-                  gameID: Option[Long] = None,
+                  gameID: Option[GameID] = None,
+                  drawID: Option[DrawID] = None,
                   name: Option[String] = None)
- extends Entity(gameID, name)
- with Location {
+extends Entity(gameID, name)
+  with Drawable
+  with Location {
+
+  override protected var _drawID: DrawID
+    = drawID.getOrElse(???) // todo: get from the source of drawIDs
 
   def this( grid: Grid,
             tile: Tile,
-            gameID: Option[Long],
-            name: Option[String]) =
-      this( grid,
+            drawID: Option[DrawID],
+            gameID: Option[GameID],
+            name: Option[String])
+    = this( grid,
             tile.getPosition,
+            drawID,
             gameID,
             name)
 

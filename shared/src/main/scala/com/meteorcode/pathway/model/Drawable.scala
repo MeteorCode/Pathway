@@ -1,4 +1,6 @@
 package com.meteorcode.pathway.model
+import model.DrawID
+
 
 /**
  * Trait for a model with a corresponding view.
@@ -9,17 +11,14 @@ package com.meteorcode.pathway.model
  */
 trait Drawable {
 
-  type DrawID = Integer //TODO: I thought these were going to be longs?
-
-  var drawID: DrawID
+  protected var _drawID: DrawID
   // TODO: I'm not sure if we actually want DrawIDs to be mutable. If the
   //       purpose of a DrawID is to uniquely identify a given model to the
   //       view, wouldn't that mean that the proper way to handle a change in
   //       the way we want to draw a model be to leave the draw ID the same and
   //       let the view figure it out?
   //             – Hawk, 6/28/15
-
-  def getDrawID: DrawID = drawID
-  def setDrawID(newID: DrawID) = drawID = newID
+  def drawID: DrawID = _drawID
+  def drawID_=(newID: DrawID) = _drawID = newID
 
 }
