@@ -40,6 +40,7 @@ hs_err_pid*
 # sbt specific              #
 .cache
 .history
+.classpath
 .lib/
 dist/*
 **/target/
