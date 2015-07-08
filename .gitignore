@@ -40,11 +40,12 @@ hs_err_pid*
 # sbt specific              #
 .cache
 .history
+.classpath
 .lib/
 dist/*
-target/
-lib_managed/
-src_managed/
+**/target/
+**/lib_managed/
+**/src_managed/
 project/boot/
 project/plugins/project/
 
