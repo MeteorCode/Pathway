@@ -3,19 +3,26 @@ package com.meteorcode.pathway.model
 class Tile(x: Int, y: Int, protected[model] var grid: Grid)
   extends Location {
 
-  protected var props: Set[TileProperty]
+  private[this] var props: Set[TileProperty]
     = Set()
-  protected var engProps: Set[TileProperty]
+  private[this] var engProps: Set[TileProperty]
     = Set()
-  protected var occupier: Option[TileEntity]
+  private[this] var _entity: Option[TileEntity]
     = None
-
   protected var coords: GridCoordinates
     = new GridCoordinates(x,y)
 
-  def occupied: Boolean = occupier.isDefined
+  def occupied: Boolean = _entity isDefined
+
+  def entity: Option[TileEntity] = _entity
+
+  def entity_=(e: TileEntity): Unit
+    = _entity = Some(e)
+
+  def entity_=(o: Option[TileEntity]): Unit
+    = _entity = o
 
   def addProperty(p: TileProperty): Unit
-    = props = props + p; grid.addProperty(p)
+    = { props = props + p; grid.addProperty(p) }
 
 }

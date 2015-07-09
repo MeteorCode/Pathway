@@ -5,7 +5,6 @@ import scala.collection.JavaConverters._
 class Payload(initialMap: scala.collection.Map[String, Object]) {
   val map = mutable.Map() ++ initialMap
   val stamps = mutable.Set.empty[Property]
-  val location = tile
 
   /**
    *

@@ -40,34 +40,33 @@ import scala.collection.JavaConversions._
  *
  * @author Hawk Weisman
  */
-class Move(
-            to: Tile,
+class Move( to: Tile,
             from: Tile,
-            who: Entity,
-            where: Grid
-            )
-  extends Event(
-    s"$who moves from $from to $to",
+            who: TileEntity,
+            where: Grid )
+  extends Event( s"$who moves from $from to $to",
     Map("from" -> from, "to" -> to, "Entity" -> who),
-    where.getContext,
-    from
-  ) {
+    where.context,
+    from   ) {
 
-  def this(to: GridCoordinates,
-           from: GridCoordinates,
-           who: Entity,
-           where: Grid) = this(where.getTileAt(to), where.getTileAt(from), who, where)
+  def this( to: GridCoordinates,
+            from: GridCoordinates,
+            who: TileEntity,
+            where: Grid)
+    = this( where.tileAt(to),
+            where.tileAt(from),
+            who, where)
 
   def evalEvent(): Unit = {
     // assign all values from the payload to variables of the correct type
     val to: Tile = this.getPayload.get("to").asInstanceOf[Tile]
     val from: Tile = this.getPayload.get("from").asInstanceOf[Tile]
-    val who: Entity = this.getPayload.get("who").asInstanceOf[Entity]
+    val who: TileEntity = this.getPayload.get("who").asInstanceOf[TileEntity]
     if (to.occupied) {
       this.invalidate() // if the location we are moving to is occupied, this move is invalid
     } else { // if the target is free, then we can move
-      from.setEntity(null) // set the Entity occupying the previous tile to null
-      to.setEntity(who) // set the Entity occupying the targeted tile to this
+      from.entity = None // set the Entity occupying the previous tile to None
+      to.entity = who // set the Entity occupying the targeted tile to this
     }
   }
 }

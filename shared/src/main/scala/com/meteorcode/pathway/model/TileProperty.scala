@@ -22,11 +22,8 @@ abstract class TileProperty(protected var coords: GridCoordinates,
             grid: Grid,
             initDrawID: Option[DrawID],
             context: Option[Context])
-    = this( tile.getPosition,
+    = this( tile.coordinates,
             grid,
             initDrawID,
             context)
-
-	val payload: Payload = new Payload(tile)
-
 }

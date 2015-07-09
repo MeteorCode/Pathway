@@ -33,7 +33,7 @@ extends Entity(gameID, name)
             gameID: Option[GameID],
             name: Option[String])
     = this( grid,
-            tile.getPosition,
+            tile.coordinates,
             drawID,
             gameID,
             name)

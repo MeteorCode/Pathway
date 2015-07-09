@@ -7,7 +7,7 @@ class Grid( val size: Int,
   val name: String
     = initName.getOrElse(this.getClass.getSimpleName())
 
-  private val context: Context
+  private val _context: Context
     = initContext.getOrElse(new Context(name))
 
   val grid: Array[Array[Tile]]
@@ -25,13 +25,15 @@ class Grid( val size: Int,
   def tileAt(xy: GridCoordinates): Tile
     = grid(xy.x)(xy.y)
 
-  def setTileAt(x: Int,y: Int, Tile): Unit
-    = grid(x)(y) = tile; tile.grid = Some(this)
+  def setTileAt(x: Int, y: Int, tile: Tile): Unit
+    = { grid(x)(y) = tile; tile.grid = this }
 
   def addProperty(p: Property): Unit
-    = context addProperty p
+    = _context subscribe p
 
   def removeProperty(p: Property): Unit
-    = context removeProperty p
+    = _context unsubscribe p
+
+  def context: Context = _context
 
 }
