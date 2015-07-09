@@ -16,10 +16,11 @@ trait Location {
   def tile: Tile = grid.getTileAt(getCoordinates)
   def x: Int = coords.x
   def y: Int = coords.y
+
   def x_=(x2: Int): Unit
-    = coords.x = x2
+    = coords = coords.copy(x = x2)
   def y_=(y2: Int): Unit
-    = coords.y = y2
+    = coords = coords.copy(y = y2)
 
   def locationString: String = s"at $coords on ${grid.getName}"
 }
