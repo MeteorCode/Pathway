@@ -1,4 +1,5 @@
-enablePlugins(ScalaJSPlugin)
+import scala.util.matching.Regex
+import scala.util.matching.Regex.Match
 
 scalaVersion  := "2.11.7"
 autoAPIMappings := true // link Scala standard lib in docs
@@ -11,16 +12,6 @@ gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD")
   .getOrElse("")
 
 lazy val root = project.in(file("."))
-  .aggregate(pathwayJS, pathwayJVM)
-  .settings(
-    scalaVersion  := "2.11.7",
-    version := s"$projectVersion-${gitHeadCommitSha.value}",
-    publish := {},
-    publishLocal := {},
-    autoAPIMappings := true // link Scala standard lib in docs
-  )
-
-lazy val pathway = crossProject.in(file("."))
   .settings(
     name            := "pathway",
     organization    := "com.meteorcode",
@@ -41,19 +32,6 @@ lazy val pathway = crossProject.in(file("."))
     )
   )
   .settings(documentationSettings: _*)
-  .jvmSettings(
-    assemblyJarName in assembly := s"pathway-fat-$projectVersion-${gitHeadCommitSha.value}.jar",
-    test in assembly := {} // skip tests, they should have already been run
-  )
-  .jsSettings(
-  )
-
-  lazy val pathwayJVM = pathway.jvm
-  lazy val pathwayJS  = pathway.js
-
-
-import scala.util.matching.Regex
-import scala.util.matching.Regex.Match
 
 val externalJavadocMap = Map()
 
