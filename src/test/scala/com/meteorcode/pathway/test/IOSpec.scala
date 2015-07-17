@@ -30,10 +30,10 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
 
   override def beforeEach() {
     manager = new ResourceManager(
-      "./jvm/target/scala-2.11/test-classes/",
-      "./jvm/target/scala-2.11/test-classes/write",
+      "./target/scala-2.11/test-classes/",
+      "./target/scala-2.11/test-classes/write",
       new AlphabeticLoadPolicy)
-    new File("./jvm/target/scala-2.11/test-classes/emptyTestDir").mkdir
+    new File("./target/scala-2.11/test-classes/emptyTestDir").mkdir
     super.beforeEach()
   }
 
@@ -425,9 +425,9 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
     "ordering paths alphabetically" should {
       "apply the directories in alphabetical order" taggedAs FilesystemTest in {
         val directories = Seq[FileHandle](
-          new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/a", null),
-          new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/b", null),
-          new FilesystemFileHandle("", "./jvm/target/scala-2.11/test-classes/loadOrder/c", null)
+          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/a", null),
+          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/b", null),
+          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/c", null)
         )
 
         val target = new ResourceManager(directories, order = new AlphabeticLoadPolicy())
