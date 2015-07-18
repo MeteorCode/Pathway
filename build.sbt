@@ -4,6 +4,7 @@ import scala.util.matching.Regex.Match
 scalaVersion  := "2.11.7"
 autoAPIMappings := true // link Scala standard lib in docs
 
+val lwjglVersion = "3.0.0a"
 val projectVersion = "2.0.0" // current release version
 val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
 gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD")
@@ -19,12 +20,17 @@ lazy val root = project.in(file("."))
     scalaVersion    := "2.11.7",
     resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven",
     libraryDependencies ++= Seq(
-      "org.beanshell"   %  "bsh"         % "2+",
+      "org.beanshell"   %  "bsh"            % "2+",
+      // --- lawajiggle (and natives) -----------------------
+      "org.lwjgl"       % "lwjgl-platform"  % lwjglVersion
+        classifier "natives-windows"
+        classifier "natives-linux"
+        classifier "natives-osx",
       // --- test dependencies ------------------------------
-      "org.scalacheck"  %% "scalacheck"  % "1.12.2+"            % "test",
-      "org.scalatest"   %% "scalatest"   % "2.2.4+"             % "test",
-      "org.mockito"     %  "mockito-all" % "1.10.19+"           % "test",
-      "me.hawkweisman"  %% "util"        % "0.0.3"
+      "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
+      "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
+      "org.mockito"     %  "mockito-all"    % "1.10.19+"           % "test",
+      "me.hawkweisman"  %% "util"           % "0.0.3"
     ),
     wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
       Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
