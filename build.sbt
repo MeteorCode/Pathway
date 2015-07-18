@@ -21,6 +21,7 @@ lazy val root = project.in(file("."))
     resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven",
     libraryDependencies ++= Seq(
       "org.beanshell"   %  "bsh"            % "2+",
+      "me.hawkweisman"  %% "util"           % "0.0.3",
       // --- lawajiggle (and natives) -----------------------
       "org.lwjgl"       % "lwjgl-platform"  % lwjglVersion
         classifier "natives-windows"
@@ -29,8 +30,7 @@ lazy val root = project.in(file("."))
       // --- test dependencies ------------------------------
       "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
       "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
-      "org.mockito"     %  "mockito-all"    % "1.10.19+"           % "test",
-      "me.hawkweisman"  %% "util"           % "0.0.3"
+      "org.mockito"     %  "mockito-all"    % "1.10.19+"           % "test"
     ),
     wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
       Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
