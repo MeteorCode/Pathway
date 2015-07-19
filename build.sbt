@@ -1,7 +1,10 @@
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 
-scalaVersion  := "2.11.7"
+name            := "pathway"
+organization    := "com.meteorcode"
+version         := s"$projectVersion-${gitHeadCommitSha.value}"
+scalaVersion    := "2.11.7"
 autoAPIMappings := true // link Scala standard lib in docs
 
 val lwjglVersion = "3.0.0a"
@@ -12,32 +15,28 @@ gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD")
   .headOption
   .getOrElse("")
 
-lazy val root = project.in(file("."))
-  .settings(
-    name            := "pathway",
-    organization    := "com.meteorcode",
-    version         := s"$projectVersion-${gitHeadCommitSha.value}",
-    scalaVersion    := "2.11.7",
-    resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven",
-    libraryDependencies ++= Seq(
-      "org.beanshell"   %  "bsh"            % "2+",
-      "me.hawkweisman"  %% "util"           % "0.0.3",
-      // --- lawajiggle (and natives) -----------------------
-      "org.lwjgl"       % "lwjgl-platform"  % lwjglVersion
-        classifier "natives-windows"
-        classifier "natives-linux"
-        classifier "natives-osx",
-      // --- test dependencies ------------------------------
-      "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
-      "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
-      "org.mockito"     %  "mockito-all"    % "1.10.19+"           % "test"
-    ),
-    wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
-      Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
-      Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.Var
-    )
-  )
-  .settings(documentationSettings: _*)
+resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
+
+libraryDependencies ++= Seq(
+  "org.beanshell"   %  "bsh"            % "2+",
+  "me.hawkweisman"  %% "util"           % "0.0.3",
+  // --- lawajiggle (and natives) -----------------------
+  "org.lwjgl"       % "lwjgl-platform"  % lwjglVersion
+    classifier "natives-windows"
+    classifier "natives-linux"
+    classifier "natives-osx",
+  // --- test dependencies ------------------------------
+  "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
+  "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
+  "org.mockito"     %  "mockito-all"    % "1.10.19+"           % "test"
+)
+
+wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
+  Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
+  Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.Var
+)
+
+seq(documentationSettings: _*)
 
 val externalJavadocMap = Map()
 
