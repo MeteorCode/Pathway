@@ -21,10 +21,10 @@ libraryDependencies ++= Seq(
   "org.beanshell"   %  "bsh"            % "2+",
   "me.hawkweisman"  %% "util"           % "0.0.3",
   // --- lawajiggle (and natives) -----------------------
-  "org.lwjgl"       % "lwjgl-platform"  % lwjglVersion
-    classifier "natives-windows"
-    classifier "natives-linux"
-    classifier "natives-osx",
+  // "org.lwjgl"       % "lwjgl-platform"  % lwjglVersion
+  //   classifier "natives-windows"
+  //   classifier "natives-linux"
+  //   classifier "natives-osx",
   // --- test dependencies ------------------------------
   "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
   "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
@@ -37,6 +37,8 @@ wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
 )
 
 seq(documentationSettings: _*)
+
+seq(lwjglSettings: _*)
 
 val externalJavadocMap = Map()
 
