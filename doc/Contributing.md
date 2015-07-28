@@ -25,7 +25,7 @@ All Scala code contributed to Pathway should conform to the [Effective Scala](ht
 
 We ask that the coding style, naming, and formatting conventions described in Effective Scala and the [Scala Style Guide](http://docs.scala-lang.org/style/) be followed whenever possible. In order to assist Pathway contributors in following these conventions, we have provided an [Editor Config](http://editorconfig.org/) file in the Pathway repository. Compatible text editors and IDEs will automatically use this file to set your editor defaults to the Pathway style guide while working on Pathway files.
 
-Ideally, all pull requests should add complete unit tests for all code added. We use [Coveralls](https://coveralls.io/r/MeteorCode/Pathway) to track test coverage for all branches and pull requests. We prefer to not merge any pull requests that decreases the overall coverage score for the project, although exceptions may be made in some situations. We use [codecov.io](https://codecov.io/github/MeteorCode/Pathway) to track test test coverage for all commits and pull requests. For a pull request to be merged, we require that the _patch coverage_ (the number of added lines covered by tests) of that pull request to be greater than 90%.
+Ideally, all pull requests should add complete unit tests for all code added. We use [codecov.io](https://codecov.io/github/MeteorCode/Pathway) to track test test coverage for all commits and pull requests. For a pull request to be merged, we require that the _patch coverage_ (the number of added lines covered by tests) of that pull request to be greater than 90%.
 
 
 ## Communicating with Pathway's Maintainers
