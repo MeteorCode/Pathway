@@ -25,7 +25,7 @@ object Unpacker {
     val targetDir = Paths.get(destLocation)
     
     //Add destLocation/native to the classloader via an ugly hack
-    me.arcticlight.tempo.reswizard.UnpackerJavaCallouts.mangleClassloader(destLocation.resolve("native").toString)
+    me.arcticlight.tempo.reswizard.UnpackerJavaCallouts.mangleClassloader(Paths.get(destLocation).resolve("native").toString)
     
     //We cannot unpack if the target location is read only.
     if(targetDir.getFileSystem.isReadOnly) return false;
