@@ -4,6 +4,7 @@ import java.io.{File, IOException}
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.net.URL
+import collection.JavaConverters._
 
 /**
  * Unpacker is a utility class capable of unpacking
