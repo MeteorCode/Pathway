@@ -5,6 +5,7 @@ import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.net.{URL,URI}
 import collection.JavaConverters._
+import scala.util.control.NonFatal
 
 /**
  * Unpacker is a utility class capable of unpacking
@@ -35,7 +36,7 @@ object Unpacker {
       FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava)
     } catch {
       case x: FileSystemAlreadyExistsException =>
-      case x: Throwable => System.err.println(s"Warning: ${x.getMessage}")
+      case x: NonFatal => System.err.println(s"Warning: ${x.getMessage}")
     }
 
     val top = Paths.get(zURI)
@@ -48,7 +49,7 @@ object Unpacker {
             Files.createDirectory(targetDir.resolve(top.relativize(dir).toString))
           } catch {
             case x: FileAlreadyExistsException =>
-            case x: Throwable => System.err.println(s"Warning: ${x.getMessage}")
+            case x: NonFatal => System.err.println(s"Warning: ${x.getMessage}")
           }
         }
 
@@ -63,7 +64,7 @@ object Unpacker {
           Files.copy(Files.newInputStream(file), targetDir.resolve(top.relativize(file).toString))
         } catch {
           case x: FileAlreadyExistsException =>
-          case x: Throwable => System.err.println(s"Warning: ${x.getMessage}")
+          case x: NonFatal => System.err.println(s"Warning: ${x.getMessage}")
         }
         CONTINUE
       }
