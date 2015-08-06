@@ -36,7 +36,7 @@ object Unpacker {
       FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava)
     } catch {
       case x: FileSystemAlreadyExistsException =>
-      case x: NonFatal => System.err.println(s"Warning: ${x.getMessage}")
+      case x if NonFatal(x) => System.err.println(s"Warning: ${x.getMessage}")
     }
 
     val top = Paths.get(zURI)
@@ -49,7 +49,7 @@ object Unpacker {
             Files.createDirectory(targetDir.resolve(top.relativize(dir).toString))
           } catch {
             case x: FileAlreadyExistsException =>
-            case x: NonFatal => System.err.println(s"Warning: ${x.getMessage}")
+            case x if NonFatal(x) => System.err.println(s"Warning: ${x.getMessage}")
           }
         }
 
@@ -64,7 +64,7 @@ object Unpacker {
           Files.copy(Files.newInputStream(file), targetDir.resolve(top.relativize(file).toString))
         } catch {
           case x: FileAlreadyExistsException =>
-          case x: NonFatal => System.err.println(s"Warning: ${x.getMessage}")
+          case x if NonFatal(x) => System.err.println(s"Warning: ${x.getMessage}")
         }
         CONTINUE
       }
