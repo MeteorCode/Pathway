@@ -7,7 +7,10 @@ import java.util.zip.ZipFile
 import com.meteorcode.common.ForkTable
 import com.meteorcode.pathway.io._
 import com.meteorcode.pathway.io.java_api.{AlphabeticLoadPolicy, LoadOrderProvider}
+
 import me.hawkweisman.util.TryWithFold
+
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
@@ -47,12 +50,10 @@ class ResourceManager (
   val directories: Seq[FileHandle],
   val writeDir: Option[FileHandle] = None,
   val order: LoadOrderPolicy = new AlphabeticLoadPolicy
-) extends Logging {
+) extends LazyLogging {
 
   /** type alias for the path table */
   type PathTable = ForkTable[String,String]
-
-  private[this] def log(s: String) = logger.log(this.toString, s)
 
   /**
    * Constructor for a ResourceManager with a single managed directory and a
@@ -93,8 +94,8 @@ class ResourceManager (
         if (!(directory.file exists (_.mkdirs()) ) ) {
           throw new IOException(
             s"Specified write directory $directory could not be created!")
-        } else log(s"write directory ${directory.physicalPath} created")
-      } else log(s"write directory ${directory.physicalPath} already exists")
+        } else logger.debug(s"write directory ${directory.physicalPath} created")
+      } else logger.debug(s"write directory ${directory.physicalPath} already exists")
       if (directory.manager == null) directory.manager = this
   }
   /**
@@ -147,12 +148,12 @@ class ResourceManager (
         ))
 
   private[this] def makeHandle(virtualPath: String): Try[FileHandle] = {
-    log(s"making a FileHandle for $virtualPath")
+    logger.info(s"making a FileHandle for $virtualPath")
     (writePaths.get(trailingSlash(virtualPath)) match {
       case Some(s: String) => Success(s)
       // If the path is not in the tree, handle write attempts.
       case None if isPathWritable(virtualPath) =>
-        log(s"handling write attempt to empty path $virtualPath")
+        logger.debug(s"handling write attempt to empty path $virtualPath")
         assume(writeDir.isDefined, "Cannot handle write attempt: No write dir")
         writeDir match {
           case Some(FileHandle(writeVirt, writePhys)) =>
@@ -161,7 +162,7 @@ class ResourceManager (
             val phys = writePhys + virtualPath.replace(writeVirt, "")
              // Since we've created a new FS object, add it to the known paths.
             writePaths put (virtualPath, phys)
-            log(s"successfully handled write attempt to $virtualPath")
+            logger.debug(s"successfully handled write attempt to $virtualPath")
             Success(phys)
           case Some(_) =>
           // if the write directory won't destructure, it's missing a physical
