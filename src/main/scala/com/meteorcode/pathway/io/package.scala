@@ -24,6 +24,26 @@ package com.meteorcode.pathway
  */
 package object io {
 
+  /**
+   * Scala API definition for a load-order policy.
+   *
+   * TODO: Make ResourceManager support this
+   * TODO: Provide Java API for a Policy wrapper class and
+   * 			 implicit conversion to this.
+   */
+  type LoadOrderPolicy = (Seq[FileHandle]) => Seq[FileHandle]
+
+  protected[io] implicit class Path(val path: String) {
+
+    def extension: Option[String]
+      = path.split('.').drop(1)
+            .lastOption
+
+    def name: Option[String]
+      = path.split('/').lastOption
+            .flatMap( _.split('.').headOption )
+  }
+
   // Regex for determining if a path is inside an archive
   protected[io] val inArchiveRE
     = """([\s\S]*[^\/]*)(.zip|.jar)\/([^\/]+.*[^\/]*)*""".r
