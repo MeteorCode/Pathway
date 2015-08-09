@@ -1,21 +1,14 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
 import java.io.{File, IOException}
-import java.util
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
 import com.meteorcode.common.ForkTable
-import com.meteorcode.pathway.io._
-import com.meteorcode.pathway.io.java_api.{
-  AlphabeticLoadPolicy,
-  LoadOrderProvider
-}
-import com.meteorcode.pathway.logging.Logging
-
+import com.meteorcode.pathway.io.java_api.{AlphabeticLoadPolicy, LoadOrderProvider}
+import com.meteorcode.pathway.io.scala_api._
 import me.hawkweisman.util.TryWithFold
 
-import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 

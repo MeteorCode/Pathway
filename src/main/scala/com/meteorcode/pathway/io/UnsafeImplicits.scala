@@ -1,9 +1,9 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
 import java.io.IOException
 
-import scala.language.implicitConversions
 import scala.io.Source
+import scala.language.implicitConversions
 
 /**
  * Created by hawk on 6/10/15.

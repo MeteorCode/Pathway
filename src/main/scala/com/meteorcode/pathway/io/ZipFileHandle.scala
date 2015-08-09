@@ -1,15 +1,12 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
-import java.io.{OutputStream, File, IOException, InputStream}
-import java.util.zip.ZipFile
+import java.io.{File, IOException, InputStream, OutputStream}
 import java.util.Collections
+import java.util.zip.ZipFile
 
-import com.meteorcode.pathway.io.scala_api.ResourceManager
-import com.meteorcode.pathway.io.{subdirRE,trailingSlash}
-
-import scala.util.{Try,Failure}
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.language.postfixOps
+import scala.util.{Failure, Try}
 
 /**
  * A [[FileHandle]] into an entry in a Zip archive file.

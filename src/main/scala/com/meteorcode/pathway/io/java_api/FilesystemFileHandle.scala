@@ -1,7 +1,6 @@
 package com.meteorcode.pathway.io.java_api
 
-import com.meteorcode.pathway.io.scala_api
-import com.meteorcode.pathway.io.scala_api.ResourceManager
+import com.meteorcode.pathway.io.{ResourceManager, scala_api}
 
 /**
  * Wrapper to give Java callers a constructor for creating initial seed [[FileHandle]]s.

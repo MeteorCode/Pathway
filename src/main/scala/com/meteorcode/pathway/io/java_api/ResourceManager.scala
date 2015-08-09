@@ -3,7 +3,8 @@ package com.meteorcode.pathway.io.java_api
 import java.io.IOException
 import java.util
 
-import com.meteorcode.pathway.io.scala_api
+import com.meteorcode.pathway.io
+import com.meteorcode.pathway.io.{ResourceManager, scala_api}
 import com.meteorcode.pathway.io.scala_api._
 
 import scala.language.implicitConversions
@@ -37,7 +38,7 @@ import scala.util.{Failure, Success, Try}
  * Created by Hawk on 6/10/15.
  */
 class ResourceManager protected[io](
-  private val underlying: scala_api.ResourceManager
+  private val underlying: io.ResourceManager
 ) {
   /**
    * Constructor for a ResourceManager with multiple root directories
@@ -56,7 +57,7 @@ class ResourceManager protected[io](
     writeDir: FileHandle, loadPolicy:
     LoadOrderProvider)
   = this(
-    new scala_api.ResourceManager(
+    new io.ResourceManager(
       dirs.asScala.map(_.underlying),
       writeDir = Some(writeDir.underlying),
       order    = loadPolicy))
@@ -69,7 +70,7 @@ class ResourceManager protected[io](
    * @return A new ResourceManager
    */
   def this(rootDir: String, writeDir: String, loadPolicy: LoadOrderProvider) =
-    this(new scala_api.ResourceManager(rootDir,writeDir,loadPolicy))
+    this(new ResourceManager(rootDir,writeDir,loadPolicy))
 
   /**
    * Request that the ResourceManager handle the file at a given path
@@ -89,8 +90,8 @@ class ResourceManager protected[io](
 }
 
 object ResourceManager {
-  implicit def asScala(mangler: ResourceManager): scala_api.ResourceManager
+  implicit def asScala(mangler: ResourceManager): io.ResourceManager
     = mangler.underlying
-  implicit def asJava(mangler: scala_api.ResourceManager): ResourceManager
+  implicit def asJava(mangler: io.ResourceManager): ResourceManager
     = new ResourceManager(mangler)
 }

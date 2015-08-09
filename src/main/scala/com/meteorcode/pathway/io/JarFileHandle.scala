@@ -1,7 +1,6 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
-import com.meteorcode.pathway.io.scala_api.ResourceManager
-import com.meteorcode.pathway.io.{subdirRE,trailingSlash}
+import com.meteorcode.pathway.io.{ZipFileHandle, ResourceManager, subdirRE, trailingSlash}
 
 import java.io.{OutputStream, File, IOException, InputStream}
 import java.util.jar.JarFile
@@ -16,14 +15,14 @@ import scala.language.postfixOps
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
  *
- * [[scala_api.ResourceManager.handle ResourceManager.handle()]].
+ * [[ResourceManager.handle ResourceManager.handle()]].
  * The FileHandle system is intended to allow you to treat exotic resources,
  * such as files in zip/jar  archives or resources accessed over the netweork,
  * as though they were on the filesystem as regular files, but this only works
  * if you treat all files you  have to access as instances of
  * [[scala_api.FileHandle FileHandle]]. If you  ever refer to files as
  * [[scala_api.FilesystemFileHandle FilesystemFileHandle]],
- * [[scala_api.ZipFileHandle ZipFileHandle]], or
+ * [[ZipFileHandle ZipFileHandle]], or
  * [[scala_api.JarFileHandle JarFileHandle]] explicitly in your code, you are
  * doing the Wrong Thing and  negating a whole lot of time and effort I put into
  * this system. So don't do that.
@@ -32,11 +31,11 @@ import scala.language.postfixOps
  *
  * @param virtualPath the virtual path to the file in the fake filesystem
  * @param back a [[java.io.File]] representing the file in the filesystem
- * @param manager An [[scala_api.ResourceManager ResourceManager]] managing
+ * @param manager An [[ResourceManager ResourceManager]] managing
  *                this FileHandle
  * @author Hawk Weisman
  * @since v2.0.0
- * @see [[scala_api.ResourceManager ResourceManager]]
+ * @see [[ResourceManager ResourceManager]]
  * @see [[scala_api.FileHandle FileHandle]]
  * @see [[java.util.jar.JarEntry]]
  */
