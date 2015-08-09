@@ -10,10 +10,8 @@ autoAPIMappings := true // link Scala standard lib in docs
 val lwjglVersion = "3.0.0a"
 val projectVersion = "2.0.0" // current release version
 val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
-gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD")
-  .lines
-  .headOption
-  .getOrElse("")
+
+gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD").lines.headOption.getOrElse("")
 
 resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 
