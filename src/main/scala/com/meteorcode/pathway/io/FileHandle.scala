@@ -10,7 +10,6 @@ import java.io.{
   }
 import java.nio.charset.Charset
 
-import com.meteorcode.pathway.io.ResourceManager
 
 import scala.io.Source
 import scala.util.{Try, Success, Failure}

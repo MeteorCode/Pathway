@@ -20,18 +20,16 @@ import scala.util.control.NonFatal
  * A [[FileHandle]] into a regular file.
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
- *
  * [[ResourceManager.handle ResourceManager.handle()]].
+ *
  * The FileHandle system is intended to allow you to treat exotic resources,
  * such as files in zip/jar  archives or resources accessed over the netweork,
  * as though they were on the filesystem as regular files, but this only works
- * if you treat all files you  have to access as instances of
- * [[scala_api.FileHandle FileHandle]]. If you  ever refer to files as
- * [[scala_api.FilesystemFileHandle FilesystemFileHandle]],
- * [[ZipFileHandle ZipFileHandle]], or
- * [[scala_api.JarFileHandle JarFileHandle]] explicitly in your code, you are
- * doing the Wrong Thing and  negating a whole lot of time and effort I put into
- * this system. So don't do that.
+ * if you treat all files you  have to access as instances of [[FileHandle]]].
+ * If you  ever refer to files as [[FilesystemFileHandle]],  [[ZipFileHandle]],
+ * or [[JarFileHandle]] explicitly in your code, you are doing the Wrong Thing
+ * and  negating a whole lot of time and effort I put into this system.
+ * So don't do that.
  *
  * To reiterate, do NOT call the constructor for this
  *
@@ -41,7 +39,7 @@ import scala.util.control.NonFatal
  *                this FileHandle
  * @author Hawk Weisman
  * @see [[ResourceManager ResourceManager]]
- * @see [[scala_api.FileHandle FileHandle]]
+ * @see [[FileHandle]]
  * @since v2.0.0
  */
 class FilesystemFileHandle (

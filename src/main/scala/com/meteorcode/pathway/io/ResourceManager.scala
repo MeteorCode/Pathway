@@ -5,8 +5,6 @@ import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
 import com.meteorcode.common.ForkTable
-import com.meteorcode.pathway.io._
-import com.meteorcode.pathway.io.java_api.{AlphabeticLoadPolicy, LoadOrderProvider}
 
 import me.hawkweisman.util.TryWithFold
 
@@ -44,7 +42,7 @@ import scala.util.{Failure, Success, Try}
  *
  * @author Hawk Weisman
  * @since v2.0.0
- * @see [[scala_api.FileHandle]]
+ * @see [[FileHandle]]
  */
 class ResourceManager (
   val directories: Seq[FileHandle],
@@ -61,7 +59,7 @@ class ResourceManager (
    * be automatically determined.
    *
    * @param path a String representing the path to the directory to manage.
-   * @param policy a [[LoadOrderProvider]] for resolving load collisions
+   * @param policy a [[LoadOrderPolicy]] for resolving load collisions
    * @param writePath a String representing the path into the write directory
    * @return a new [[ResourceManager]] managing the specified directory.
    */
@@ -133,7 +131,7 @@ class ResourceManager (
    *
    * @param path The virtual path to the requested object
    * @return A [[scala.util.Success Success]] containing a
-   *         [[scala_api.FileHandle FileHandle]] into the object that exists at
+   *         [[FileHandle FileHandle]] into the object that exists at
    *         the requested path in the virutal filesystem, or a
    *         [[scala.util.Failure Failure]] containing an
    *         [[java.io.IOException IOException]] if something went wrong while
