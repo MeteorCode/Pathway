@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 
 import bsh.{InterpreterError, EvalError, Interpreter}
 
-import com.meteorcode.pathway.io.scala_api.FileHandle
+import com.meteorcode.pathway.io.FileHandle
 import com.meteorcode.pathway.script.{ScriptContainer, ScriptException, ScriptContainerFactory, ScriptEnvironment}
 
 import me.hawkweisman.util._
