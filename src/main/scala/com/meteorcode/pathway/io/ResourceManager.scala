@@ -49,7 +49,7 @@ import scala.util.{Failure, Success, Try}
 class ResourceManager (
   val directories: Seq[FileHandle],
   val writeDir: Option[FileHandle] = None,
-  val order: LoadOrderPolicy = new AlphabeticLoadPolicy
+  val order: LoadOrderPolicy = LoadPolicies.alphabetic
 ) extends LazyLogging {
 
   /** type alias for the path table */

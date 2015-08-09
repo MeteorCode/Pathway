@@ -4,7 +4,7 @@ import java.io._
 import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
 
-import com.meteorcode.pathway.io.ResourceManager
+import com.meteorcode.pathway.io.{LoadPolicies, ResourceManager}
 import com.meteorcode.pathway.io.java_api.AlphabeticLoadPolicy
 import com.meteorcode.pathway.io.scala_api.{FilesystemFileHandle, FileHandle}
 import com.meteorcode.pathway.test.tags.FilesystemTest
@@ -33,7 +33,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
     manager = new ResourceManager(
       "./target/scala-2.11/test-classes/",
       "./target/scala-2.11/test-classes/write",
-      new AlphabeticLoadPolicy)
+      LoadPolicies.alphabetic)
     new File("./target/scala-2.11/test-classes/emptyTestDir").mkdir
     super.beforeEach()
   }
