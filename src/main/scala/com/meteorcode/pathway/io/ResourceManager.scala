@@ -5,8 +5,8 @@ import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
 import com.meteorcode.common.ForkTable
+import com.meteorcode.pathway.io._
 import com.meteorcode.pathway.io.java_api.{AlphabeticLoadPolicy, LoadOrderProvider}
-import com.meteorcode.pathway.io.scala_api._
 import me.hawkweisman.util.TryWithFold
 
 import scala.collection.mutable
