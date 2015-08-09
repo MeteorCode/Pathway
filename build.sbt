@@ -23,8 +23,9 @@ gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD").lines.hea
 resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 
 libraryDependencies ++= Seq(
-  "org.beanshell"   %  "bsh"            % "2+",
-  "me.hawkweisman"  %% "util"           % "0.0.3",
+  "org.beanshell"               %  "bsh"            % "2+",
+  "me.hawkweisman"              %% "util"           % "0.0.3",
+  "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
   // --- test dependencies ------------------------------
   "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
   "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
