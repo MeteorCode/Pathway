@@ -2,12 +2,12 @@ package com.meteorcode.pathway
 package script
 
 import java.io.{BufferedReader, InputStreamReader}
-import javax.script.{Compilable, ScriptEngine}
+import javax.script.{CompiledScript, Compilable, ScriptEngine}
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory
 
 import io.FileHandle
 
-import scala.util.Try
+import scala.util.{Success, Try}
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
 /**
@@ -36,10 +36,13 @@ class ScriptContainer(
    *         if the script could not be evaluated.
    */
   def eval(script: String): Try[AnyRef]
-    = engine match {
-        case e: Compilable => Try( e compile script eval _bindings )
-        case _             => Try( engine eval (script, _bindings) )
+    = compile(script) match {
+        case Some(cs) => eval(cs)
+        case None     => Try(engine eval script, _bindings)
       }
+
+  @inline def eval(script: CompiledScript): Try[AnyRef]
+    = Try(script eval _bindings)
 
   /**
    * Evaluate a script from a [[FileHandle]].
@@ -51,11 +54,11 @@ class ScriptContainer(
    *         could not be evaluated.
    */
   def eval(file: FileHandle): Try[AnyRef]
-    = file.read flatMap { stream =>
-        val script = new BufferedReader(new InputStreamReader(stream))
-        engine match {
-          case e: Compilable => Try( e compile script eval _bindings )
-          case _             => Try( engine eval (script, _bindings) )
+    = compile(file) match {
+        case Some(thing) => thing flatMap eval _
+        case None        => file.read flatMap { stream =>
+          val script = new BufferedReader(new InputStreamReader(stream))
+          Try(engine.eval(script, _bindings))
         }
       }
 
@@ -100,6 +103,19 @@ class ScriptContainer(
   def remove(name: String): Try[Value]
     = Try(Option(_bindings remove name))
 
+  def compile(script: String): Option[CompiledScript]
+    = engine match {
+      case e: Compilable => Some(e compile script)
+      case _             => None
+    }
+
+  def compile(file: FileHandle): Option[Try[CompiledScript]]
+    = engine match {
+      case e: Compilable => Some(file.read map { stream =>
+          e compile new BufferedReader(new InputStreamReader(stream))
+        })
+      case _             => None
+    }
 
 }
 object ScriptContainer {
