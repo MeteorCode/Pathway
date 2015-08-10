@@ -1,4 +1,4 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
 import java.io.{
   BufferedInputStream,
@@ -10,9 +10,9 @@ import java.io.{
   }
 import java.nio.charset.Charset
 
-import com.meteorcode.pathway.io.scala_api.ResourceManager
 
 import scala.io.Source
+import scala.language.postfixOps
 import scala.util.{Try, Success, Failure}
 
 protected object IOAccessToken

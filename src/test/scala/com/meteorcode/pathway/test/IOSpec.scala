@@ -4,8 +4,7 @@ import java.io._
 import java.nio.charset.Charset
 import java.nio.file.{FileSystems, Files}
 
-import com.meteorcode.pathway.io.java_api.AlphabeticLoadPolicy
-import com.meteorcode.pathway.io.scala_api.{ResourceManager, FilesystemFileHandle, FileHandle}
+import com.meteorcode.pathway.io.{LoadPolicies, ResourceManager, FilesystemFileHandle, FileHandle}
 import com.meteorcode.pathway.test.tags.FilesystemTest
 
 import org.mockito.Mockito._
@@ -32,7 +31,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
     manager = new ResourceManager(
       "./target/scala-2.11/test-classes/",
       "./target/scala-2.11/test-classes/write",
-      new AlphabeticLoadPolicy)
+      LoadPolicies.alphabetic)
     new File("./target/scala-2.11/test-classes/emptyTestDir").mkdir
     super.beforeEach()
   }
@@ -430,7 +429,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
           new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/c", null)
         )
 
-        val target = new ResourceManager(directories, order = new AlphabeticLoadPolicy())
+        val target = new ResourceManager(directories, order = LoadPolicies.alphabetic)
         target.handle("/testLoadOrder.txt").success.value
           .readString.success.value shouldEqual "I AM CORRECT"
       }
