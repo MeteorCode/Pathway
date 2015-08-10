@@ -2,7 +2,7 @@ package com.meteorcode.pathway
 package script
 
 import java.io.{BufferedReader, InputStreamReader}
-import javax.script.ScriptEngine
+import javax.script.{Compilable, ScriptEngine}
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory
 
 import io.FileHandle
@@ -36,7 +36,10 @@ class ScriptContainer(
    *         if the script could not be evaluated.
    */
   def eval(script: String): Try[AnyRef]
-    = Try(engine eval (script, _bindings))
+    = engine match {
+        case e: Compilable => Try( e compile script eval _bindings )
+        case _             => Try( engine eval (script, _bindings) )
+      }
 
   /**
    * Evaluate a script from a [[FileHandle]].
@@ -50,7 +53,10 @@ class ScriptContainer(
   def eval(file: FileHandle): Try[AnyRef]
     = file.read flatMap { stream =>
         val script = new BufferedReader(new InputStreamReader(stream))
-        Try(engine eval (script, _bindings))
+        engine match {
+          case e: Compilable => Try( e compile script eval _bindings )
+          case _             => Try( engine eval (script, _bindings) )
+        }
       }
 
   /**
