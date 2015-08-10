@@ -1,9 +1,11 @@
 package com.meteorcode.pathway.io
 
 import java.io.{IOException, File}
-import java.util
 
 /**
+ * Premade [[LoadOrderPolicy LoadOrderPolicies]] for the
+ * Pathway [[ResourceManager]].
+ *
  * Created by hawk on 8/9/15.
  */
 object LoadPolicies {

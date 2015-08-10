@@ -8,6 +8,8 @@ import org.scalatest.{WordSpec, Matchers}
 import scala.language.postfixOps
 
 /**
+ * Spec for the [[ForkTable]] data structure
+ *
  * Created by hawk on 5/22/15.
  */
 
@@ -70,8 +72,8 @@ class ForkTableSpec extends WordSpec
           (key1: Int, val1: Int, key2: Int, val2: Int) =>
             whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
-              val aFork = target fork
-              val anotherFork = target fork
+              val aFork = target.fork()
+              val anotherFork = target.fork()
 
               // this is so ScalaTest doesn't think the two forks are the same object
               aFork.put(key1, val1)

@@ -12,6 +12,7 @@ import java.nio.charset.Charset
 
 
 import scala.io.Source
+import scala.language.postfixOps
 import scala.util.{Try, Success, Failure}
 
 protected object IOAccessToken

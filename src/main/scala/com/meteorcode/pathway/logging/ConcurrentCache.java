@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ConcurrentCache<T> {
 	T[] buffer;
-	private Object lock;
+	private final Object lock;
 	private int cursor;
 	private int fill;
 
@@ -62,7 +62,7 @@ public class ConcurrentCache<T> {
 	 * @return a new List containing the state of the cache's contents
 	 */
 	public List<T> unwind() {
-		List<T> result = new ArrayList<T>();
+		List<T> result = new ArrayList<>();
 		//freeze reads
 		synchronized(lock) {
 			if(fill >= buffer.length) {

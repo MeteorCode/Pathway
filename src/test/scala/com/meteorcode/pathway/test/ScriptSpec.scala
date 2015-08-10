@@ -29,6 +29,8 @@ import org.mockito.Mockito._
 import scala.util.{Failure, Success}
 
 /**
+ * Spec for the Pathway script system.
+ *
  * Created by hawk on 5/25/15.
  */
 
@@ -289,12 +291,12 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
     "initialized with a non-empty map" should {
       "not be empty" in {
         forAll { (map: Map[String, List[AnyVal]]) =>
-          whenever (map nonEmpty) { new ScriptEnvironment(map).getBindings should not be 'empty }
+          whenever (map.nonEmpty) { new ScriptEnvironment(map).getBindings should not be 'empty }
         }
       }
       "return that map on calls to getBindings()" in {
         forAll { (map: Map[String, List[AnyVal]]) =>
-          whenever (map nonEmpty) { new ScriptEnvironment(map).getBindings.asScala should equal(map) }
+          whenever (map.nonEmpty) { new ScriptEnvironment(map).getBindings.asScala should equal(map) }
         }
       }
     }
@@ -453,7 +455,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
       }
       "not remove the bindings of another environment linked to that container" in {
         forAll { (map1: Map[String,List[AnyVal]], map2: Map[String,List[AnyVal]]) =>
-          whenever ((map1.keySet & map2.keySet) isEmpty) {
+          whenever ((map1.keySet & map2.keySet).isEmpty) {
             val target = new ScriptEnvironment(map1)
             val other = new ScriptEnvironment(map2)
             val container = mock[ScriptContainer]

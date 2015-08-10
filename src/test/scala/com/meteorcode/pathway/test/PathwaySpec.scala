@@ -1,7 +1,5 @@
 package com.meteorcode.pathway.test
 
-import com.meteorcode.pathway.logging.{NullLogger, LoggerFactory}
-
 import me.hawkweisman.util.random._
 
 import org.scalacheck.Gen
@@ -10,6 +8,8 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{Matchers, WordSpec, BeforeAndAfterEach}
 
 /**
+ * General-purpose base class for a Pathway ScalaTest spec
+ *
  * Created by hawk on 5/30/15.
  */
 abstract class PathwaySpec
@@ -18,8 +18,6 @@ extends WordSpec
   with MockitoSugar
   with PropertyChecks
   with BeforeAndAfterEach{
-  // quash the obnoxious and unnecessary log messages during testing
-  LoggerFactory setLogger new NullLogger
 
   override def beforeEach() {
     super.beforeEach()
