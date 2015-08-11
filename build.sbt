@@ -50,7 +50,7 @@ wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
 assembledMappings in assembly ~= { mapSets => mapSets.map {
   _ match {
     case MappingSet(Some(packageName), mings)
-      if packageName.getName.startsWith("lwjgl") =>
+      if packageName.getName.startsWith("lwjgl-platform") =>
         MappingSet(Some(packageName), mings.map {
           case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
         })
