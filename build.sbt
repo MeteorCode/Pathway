@@ -1,3 +1,5 @@
+import sbtassembly.MappingSet
+
 import scala.util.matching.Regex
 
 import scala.util.matching.Regex.Match
@@ -14,6 +16,8 @@ autoAPIMappings := true // link Scala standard lib in docs
 
 val lwjglVersion = "3.0.0a"
 
+val nativesDir = "lwjgl-natives" // the directory within the jar file for natives
+
 val projectVersion = "2.0.0" // current release version
 
 val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
@@ -26,6 +30,11 @@ libraryDependencies ++= Seq(
   "org.beanshell"               %  "bsh"            % "2+",
   "me.hawkweisman"              %% "util"           % "0.0.3",
   "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
+  // --- lawajiggle (and natives) -----------------------
+  "org.lwjgl"       % "lwjgl-platform"  % lwjglVersion
+    classifier "natives-windows"
+    classifier "natives-linux"
+    classifier "natives-osx",
   // --- test dependencies ------------------------------
   "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
   "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
@@ -37,9 +46,19 @@ wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
   Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.Var
 )
 
-seq(documentationSettings: _*)
+assembledMappings in assembly ~= { mapSets => mapSets.map {
+  _ match {
+    case MappingSet(Some(packageName), mings)
+      if packageName.getName.startsWith("lwjgl") =>
+        MappingSet(Some(packageName), mings.map {
+          case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
+        })
+    case m: MappingSet => m
+  }
+}
+}
 
-seq(lwjglSettings: _*)
+seq(documentationSettings: _*)
 
 val externalJavadocMap = Map()
 
