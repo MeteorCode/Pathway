@@ -30,8 +30,9 @@ libraryDependencies ++= Seq(
   "org.beanshell"               %  "bsh"            % "2+",
   "me.hawkweisman"              %% "util"           % "0.0.3",
   "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
-  // --- lawajiggle (and natives) -----------------------
-  "org.lwjgl"       % "lwjgl-platform"  % lwjglVersion
+  // --- LWJGL -----------------------------------------
+  "org.lwjgl" % "lwjgl"           % lwjglVersion, // main lajiggle library
+  "org.lwjgl" % "lwjgl-platform"  % lwjglVersion  // lajiggle natives
     classifier "natives-windows"
     classifier "natives-linux"
     classifier "natives-osx",
