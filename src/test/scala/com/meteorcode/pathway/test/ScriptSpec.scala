@@ -13,7 +13,7 @@ import scala.collection.JavaConverters._
 import bsh.{InterpreterError, EvalError, Interpreter}
 
 import com.meteorcode.pathway.io.FileHandle
-import com.meteorcode.pathway.script.{ScriptContainer, ScriptException, ScriptContainerFactory, ScriptEnvironment}
+import com.meteorcode.pathway.script.{ScriptMonad$, ScriptException, ScriptContainerFactory, ScriptEnvironment}
 
 import me.hawkweisman.util._
 
@@ -317,7 +317,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
       }
       "bind the new variable binding in any ScriptContainers it is linked to" in {
         forAll { (k: String, v: AnyVal) =>
-          val container = mock[ScriptContainer]
+          val container = mock[ScriptMonad]
           val target = new ScriptEnvironment()
 
           target.link(container)
@@ -329,7 +329,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
       "not bind the new binding in any ScriptContainers it has been unlinked from" in {
         forAll { (key1: String, value1: AnyVal, key2: String, value2: AnyVal) =>
           whenever (key1 != key2) { // no hash collisions pls kthnx
-            val container = mock[ScriptContainer]
+            val container = mock[ScriptMonad]
             val target = new ScriptEnvironment()
 
             target.link(container)
@@ -367,7 +367,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
       }
       "bind the new variable bindings in any ScriptContainer it is linked to" in {
         forAll { (newBindings: Map[String, List[AnyVal]]) =>
-          val container = mock[ScriptContainer]
+          val container = mock[ScriptMonad]
           val target = new ScriptEnvironment()
 
           target.link(container)
@@ -376,7 +376,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
           newBindings foreach { case ((k, v)) => verify(container, times(1)).injectObject(k, v) }
         }
         forAll { (newBindings: Map[String, String]) => // may as well try a couple more types
-          val container = mock[ScriptContainer]
+          val container = mock[ScriptMonad]
           val target = new ScriptEnvironment()
 
           target.link(container)
@@ -385,7 +385,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
           newBindings foreach { case ((k, v)) => verify(container, times(1)).injectObject(k, v) }
         }
         forAll { (newBindings: Map[String, Map[String,Int]]) =>
-          val container = mock[ScriptContainer]
+          val container = mock[ScriptMonad]
           val target = new ScriptEnvironment()
 
           target.link(container)
@@ -396,7 +396,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
       }
       "not bind the new bindings in any ScriptContainers it has been unlinked from" in {
         forAll { (newBindings1: Map[String, List[AnyVal]], newBindings2: Map[String, List[AnyVal]]) =>
-          val container = mock[ScriptContainer]
+          val container = mock[ScriptMonad]
           val target = new ScriptEnvironment()
 
           target.link(container)
@@ -415,7 +415,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
       "add all its existing bindings" in {
         forAll { (map: Map[String,List[AnyVal]]) =>
           val target = new ScriptEnvironment(map)
-          val container = mock[ScriptContainer]
+          val container = mock[ScriptMonad]
 
           target link container
           target.getBindings foreach {
@@ -427,7 +427,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
         forAll {
           (script: String, map: Map[String,List[AnyVal]]) =>
           val target = new ScriptEnvironment(map,script)
-          val container = mock[ScriptContainer]
+          val container = mock[ScriptMonad]
 
           target link container
           verify(container, times(1)).eval(script);
@@ -443,7 +443,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
       "remove all of its bindings from that ScriptContainer" in {
         forAll { (map: Map[String,List[AnyVal]]) =>
           val target = new ScriptEnvironment(map)
-          val container = mock[ScriptContainer]
+          val container = mock[ScriptMonad]
 
           target link container
           target unlink container
@@ -458,7 +458,7 @@ class ScriptSpec extends PathwaySpec with IdentGenerators {
           whenever ((map1.keySet & map2.keySet).isEmpty) {
             val target = new ScriptEnvironment(map1)
             val other = new ScriptEnvironment(map2)
-            val container = mock[ScriptContainer]
+            val container = mock[ScriptMonad]
 
             target link container
             other link container

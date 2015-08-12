@@ -25,7 +25,7 @@ class Event (
 ) {
 
 
-  private[this] lazy var compiled: Option[CompiledScript]
+  private[this] var compiled: Option[CompiledScript]
     = None
 
   private[this] var valid: Boolean
@@ -63,8 +63,8 @@ class Event (
    *                    scripted behaviour
    * @return a new Event that is a child of this event
    */
-  def child(childScript: String): Event
-    = { val c = new Event(childScript)
+  def child(childName: String, childScript: String): Event
+    = { val c = new Event(childName, childScript)
         children += c
         c
       }
