@@ -1,6 +1,6 @@
 package me.arcticlight.tempo.reswizard
 
-import java.io.{File, IOException}
+import java.io.IOException
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.net.{URL,URI}
@@ -8,7 +8,6 @@ import java.net.{URL,URI}
 import com.typesafe.scalalogging.LazyLogging
 
 import collection.JavaConverters._
-import scala.util.{Success, Try}
 import scala.util.control.NonFatal
 
 /**
