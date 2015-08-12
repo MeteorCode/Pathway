@@ -25,6 +25,7 @@ resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 libraryDependencies ++= Seq(
   "me.hawkweisman"              %% "util"           % "0.0.3",
   "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
+  "org.json4s"                  %%  "json4s-native" % "3.3.0.RC1",
   // --- test dependencies ------------------------------
   "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
   "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
