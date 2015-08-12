@@ -1,11 +1,14 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
 import java.io.IOException
 
-import scala.language.implicitConversions
 import scala.io.Source
+import scala.language.implicitConversions
 
 /**
+ * Unsafe implicit conversions. Don't use these unless you're sure you know
+ * what you're doing.
+ *
  * Created by hawk on 6/10/15.
  */
 object UnsafeImplicits {

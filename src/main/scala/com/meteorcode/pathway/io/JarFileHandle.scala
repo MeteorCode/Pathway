@@ -1,7 +1,6 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
-import com.meteorcode.pathway.io.scala_api.ResourceManager
-import com.meteorcode.pathway.io.{subdirRE,trailingSlash}
+import com.meteorcode.pathway.io.{ZipFileHandle, ResourceManager, subdirRE, trailingSlash}
 
 import java.io.{OutputStream, File, IOException, InputStream}
 import java.util.jar.JarFile
@@ -15,29 +14,26 @@ import scala.language.postfixOps
  * A FileHandle into the top level of a Jar archive (treated as a directory).
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
+ * [[ResourceManager.handle ResourceManager.handle()]].
  *
- * [[scala_api.ResourceManager.handle ResourceManager.handle()]].
  * The FileHandle system is intended to allow you to treat exotic resources,
  * such as files in zip/jar  archives or resources accessed over the netweork,
  * as though they were on the filesystem as regular files, but this only works
- * if you treat all files you  have to access as instances of
- * [[scala_api.FileHandle FileHandle]]. If you  ever refer to files as
- * [[scala_api.FilesystemFileHandle FilesystemFileHandle]],
- * [[scala_api.ZipFileHandle ZipFileHandle]], or
- * [[scala_api.JarFileHandle JarFileHandle]] explicitly in your code, you are
- * doing the Wrong Thing and  negating a whole lot of time and effort I put into
- * this system. So don't do that.
+ * if you treat all files you  have to access as instances of [[FileHandle]]].
+ * If you  ever refer to files as [[FilesystemFileHandle]],  [[ZipFileHandle]],
+ * or [[JarFileHandle]] explicitly in your code, you are doing the Wrong Thing
+ * and  negating a whole lot of time and effort I put into this system.
+ * So don't do that.
  *
  * To reiterate, do NOT call the constructor for this
  *
  * @param virtualPath the virtual path to the file in the fake filesystem
  * @param back a [[java.io.File]] representing the file in the filesystem
- * @param manager An [[scala_api.ResourceManager ResourceManager]] managing
- *                this FileHandle
+ * @param manager An [[ResourceManager]] managing this FileHandle
  * @author Hawk Weisman
  * @since v2.0.0
- * @see [[scala_api.ResourceManager ResourceManager]]
- * @see [[scala_api.FileHandle FileHandle]]
+ * @see [[ResourceManager]]
+ * @see [[FileHandle]]
  * @see [[java.util.jar.JarEntry]]
  */
 class JarFileHandle protected[io] (

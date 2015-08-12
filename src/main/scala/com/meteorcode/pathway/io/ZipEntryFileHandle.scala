@@ -1,31 +1,29 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
 import java.io.{File, IOException, InputStream}
 import java.util.Collections
 import java.util.zip.{ZipEntry, ZipException, ZipFile}
 
-import com.meteorcode.pathway.io.scala_api.ResourceManager
-
 import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 /**
  * A [[FileHandle]] into an entry in a Zip archive file.
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
  *
- * [[scala_api.ResourceManager.handle ResourceManager.handle()]].
+ * DON'T MAKE THESE - if you want to handle a file, please get it from
+ * [[ResourceManager.handle ResourceManager.handle()]].
+ *
  * The FileHandle system is intended to allow you to treat exotic resources,
  * such as files in zip/jar  archives or resources accessed over the netweork,
  * as though they were on the filesystem as regular files, but this only works
- * if you treat all files you  have to access as instances of
- * [[scala_api.FileHandle FileHandle]]. If you  ever refer to files as
- * [[scala_api.FilesystemFileHandle FilesystemFileHandle]],
- * [[scala_api.ZipFileHandle ZipFileHandle]], or
- * [[scala_api.JarFileHandle JarFileHandle]] explicitly in your code, you are
- * doing the Wrong Thing and  negating a whole lot of time and effort I put into
- * this system. So don't do that.
+ * if you treat all files you  have to access as instances of [[FileHandle]]].
+ * If you  ever refer to files as [[FilesystemFileHandle]],  [[ZipFileHandle]],
+ * or [[JarFileHandle]] explicitly in your code, you are doing the Wrong Thing
+ * and  negating a whole lot of time and effort I put into this system.
+ * So don't do that.
  *
  * To reiterate, do NOT call the constructor for this
  * @param entry  the [[java.util.zip.ZipEntry]] representing the file
@@ -34,12 +32,12 @@ import scala.util.control.NonFatal
  *                      we can do things like list the children of a directory
  *                      in a Zip archive.
  * @param back the [[java.io.File]] that backs this FileHandle
- * @param manager the [[scala_api.ResourceManager ResourceManager]]
- *                managing the virtual filesystem containing this FileHandle
+ * @param manager the [[ResourceManager]] managing the virtual filesystem
+ *                containing this FileHandle
  * @author Hawk Weisman
  * @since v2.0.0
- * @see [[scala_api.ResourceManager ResourceManager]]
- * @see [[scala_api.FileHandle FileHandle]]
+ * @see [[ResourceManager]]
+ * @see [[FileHandle]]
  * @see [[java.util.zip.ZipEntry]]
  */
 class ZipEntryFileHandle protected[io] (
