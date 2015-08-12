@@ -2,7 +2,8 @@ package com.meteorcode.pathway
 package script
 
 import java.io.{BufferedReader, InputStreamReader}
-import javax.script.{CompiledScript, Compilable, ScriptEngine}
+import java.util
+import javax.script._
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory
 
 import io.FileHandle
@@ -17,16 +18,21 @@ import scala.collection.JavaConverters.mapAsJavaMapConverter
  *
  * Created by hawk on 8/10/15.
  */
-class ScriptContainer(
+class ScriptMonad(
   private[this] val engine: ScriptEngine,
-  bindings: Map[String,AnyRef] = Map[String,AnyRef]()
+  bindings: Bindings
+    = new util.HashMap[String,AnyRef]()
 ) {
+
+  def this(engine: ScriptEngine, bindings: Map[String,AnyRef] = Map())
+    = this(engine, bindings.asJava)
 
   type Value = Option[AnyRef]
 
-  private[this] val _bindings = engine.createBindings
+  private[this] val ctx: ScriptContext
+    = new SimpleScriptContext
 
-  if (bindings.nonEmpty) _bindings putAll bindings.asJava
+  if (!bindings.isEmpty) ctx.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
 
   /**
    * Evaluate a script from a String.
@@ -35,14 +41,18 @@ class ScriptContainer(
    *         script or a [[javax.script.ScriptException ScriptException]]
    *         if the script could not be evaluated.
    */
-  def eval(script: String): Try[AnyRef]
+  def apply(script: String): Try[ScriptMonad]
     = compile(script) match {
-        case Some(cs) => eval(cs)
-        case None     => Try(engine eval script, _bindings)
+        case Some(cs) => apply(cs)
+        case None     => Try(engine eval script, ctx) map { _ =>
+          new ScriptMonad(engine, ctx getBindings ScriptContext.GLOBAL_SCOPE)
+        }
       }
 
-  @inline def eval(script: CompiledScript): Try[AnyRef]
-    = Try(script eval _bindings)
+  def apply(script: CompiledScript): Try[ScriptMonad]
+    = Try(script eval ctx) map { _ =>
+        new ScriptMonad(engine, ctx getBindings ScriptContext.GLOBAL_SCOPE)
+      }
 
   /**
    * Evaluate a script from a [[FileHandle]].
@@ -53,12 +63,14 @@ class ScriptContainer(
    *         [[javax.script.ScriptException ScriptException]] if the script
    *         could not be evaluated.
    */
-  def eval(file: FileHandle): Try[AnyRef]
+  def apply(file: FileHandle): Try[ScriptMonad]
     = compile(file) match {
-        case Some(thing) => thing flatMap eval _
+        case Some(thing) => thing flatMap apply _
         case None        => file.read flatMap { stream =>
           val script = new BufferedReader(new InputStreamReader(stream))
-          Try(engine.eval(script, _bindings))
+          Try(engine.eval(script, ctx)) map { _ =>
+            new ScriptMonad(engine, ctx getBindings ScriptContext.GLOBAL_SCOPE)
+          }
         }
       }
 
@@ -75,7 +87,10 @@ class ScriptContainer(
    *
    */
   def set(name: String, value: AnyRef): Try[Value]
-    = Try(Option(_bindings put (name, value)))
+    = Try(Option(
+        ctx.getBindings(ScriptContext.GLOBAL_SCOPE)
+           .put(name, value)
+      ))
 
   /**
    * Accesses a variable within this ScriptContainer, returning value bound to
@@ -88,7 +103,10 @@ class ScriptContainer(
    *
    */
   def get(name: String): Try[Value]
-    = Try(Option(_bindings get name))
+    = Try(Option(
+      ctx.getBindings(ScriptContext.GLOBAL_SCOPE)
+         .get(name)
+    ))
 
   /**
    * Unbind a variable within this ScriptContainer, returning the previous
@@ -101,7 +119,10 @@ class ScriptContainer(
    *
    */
   def remove(name: String): Try[Value]
-    = Try(Option(_bindings remove name))
+    = Try(Option(
+      ctx.getBindings(ScriptContext.GLOBAL_SCOPE)
+         .remove(name)
+    ))
 
   def compile(script: String): Option[CompiledScript]
     = engine match {
@@ -118,7 +139,7 @@ class ScriptContainer(
     }
 
 }
-object ScriptContainer {
+object ScriptMonad {
 
   private[this] val factory
     = new NashornScriptEngineFactory
@@ -127,6 +148,6 @@ object ScriptContainer {
    * Construct a new ScriptContainer with the default [[ScriptEngine]].
    * @return a new ScriptContainer with the default [[ScriptEngine]]
    */
-  def apply(): ScriptContainer
-    = new ScriptContainer(factory.getScriptEngine)
+  def apply(bindings: Map[String,AnyRef]): ScriptMonad
+    = new ScriptMonad(factory.getScriptEngine, bindings)
 }

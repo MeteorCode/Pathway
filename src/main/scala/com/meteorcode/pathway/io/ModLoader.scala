@@ -6,7 +6,7 @@ package com.meteorcode.pathway.io
 import com.typesafe.scalalogging.LazyLogging
 
 import java.io.IOException
-import com.meteorcode.pathway.script.{ScriptEnvironment, ScriptContainerFactory, ScriptContainer}
+import com.meteorcode.pathway.script.{ScriptEnvironment, ScriptContainerFactory, ScriptMonad$}
 
 /**
  * @author Hawk Weisman
@@ -14,7 +14,7 @@ import com.meteorcode.pathway.script.{ScriptEnvironment, ScriptContainerFactory,
  */
 object ModLoader extends LazyLogging {
   private[this] val env = new ScriptEnvironment("require(path) { return container.eval(files.handle(path)); }")
-  private[this] val beanshell: ScriptContainer = (new ScriptContainerFactory).getNewInstanceWithEnvironment(env)
+  private[this] val beanshell: ScriptMonad = (new ScriptContainerFactory).getNewInstanceWithEnvironment(env)
   env.addBinding("container", beanshell)
 
 

@@ -4,7 +4,7 @@ package model
 import javax.script.CompiledScript
 
 import com.meteorcode.pathway.io.FileHandle
-import com.meteorcode.pathway.script.ScriptContainer
+import com.meteorcode.pathway.script.ScriptMonad$
 
 import scala.collection.mutable
 import scala.util.{Failure, Try}
@@ -13,9 +13,9 @@ import scala.util.{Failure, Try}
  * Created by hawk on 8/10/15.
  */
 class Event (
-  private[this] val context: ScriptContainer,
-  private[this] val script: CompiledScript,
-  private[this] val _children: mutable.Set[Event] = mutable.Set()
+              private[this] val context: ScriptMonad,
+              private[this] val script: CompiledScript,
+              private[this] val _children: mutable.Set[Event] = mutable.Set()
 ) {
 
   private[this] var valid
@@ -31,7 +31,7 @@ class Event (
     = this.valid = false; _children foreach { _.invalidate() }
 
   /**
-   * Evaluate the event against a [[ScriptContainer]], returning
+   * Evaluate the event against a [[ScriptMonad]], returning
    * the result of evaluating the event's script.
    * @return a [[scala.util.Try Try]] containing the result of evaluating
    *         the event's script, or a [[javax.script.ScriptException]] if
