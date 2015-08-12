@@ -34,6 +34,10 @@ class ScriptMonad(
 
   if (!bindings.isEmpty) ctx.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
 
+  @inline private[this] def cleanUp(): Unit
+    // this should reset all of the context's bindings
+    = ctx setBindings (bindings, ScriptContext.GLOBAL_SCOPE)
+
   /**
    * Evaluate a script from a String.
    * @param script the script to evaluate
@@ -45,13 +49,17 @@ class ScriptMonad(
     = compile(script) match {
         case Some(cs) => apply(cs)
         case None     => Try(engine eval script, ctx) map { _ =>
-          new ScriptMonad(engine, ctx getBindings ScriptContext.GLOBAL_SCOPE)
+          val b_prime = ctx getBindings ScriptContext.GLOBAL_SCOPE
+          cleanUp()
+          new ScriptMonad(engine, b_prime)
         }
       }
 
   def apply(script: CompiledScript): Try[ScriptMonad]
     = Try(script eval ctx) map { _ =>
-        new ScriptMonad(engine, ctx getBindings ScriptContext.GLOBAL_SCOPE)
+        val b_prime = ctx getBindings ScriptContext.GLOBAL_SCOPE
+        cleanUp()
+        new ScriptMonad(engine, b_prime)
       }
 
   /**
@@ -69,7 +77,9 @@ class ScriptMonad(
         case None        => file.read flatMap { stream =>
           val script = new BufferedReader(new InputStreamReader(stream))
           Try(engine.eval(script, ctx)) map { _ =>
-            new ScriptMonad(engine, ctx getBindings ScriptContext.GLOBAL_SCOPE)
+            val b_prime = ctx getBindings ScriptContext.GLOBAL_SCOPE
+            cleanUp()
+            new ScriptMonad(engine, b_prime)
           }
         }
       }
@@ -104,9 +114,9 @@ class ScriptMonad(
    */
   def get(name: String): Try[Value]
     = Try(Option(
-      ctx.getBindings(ScriptContext.GLOBAL_SCOPE)
-         .get(name)
-    ))
+        ctx.getBindings(ScriptContext.GLOBAL_SCOPE)
+           .get(name)
+      ))
 
   /**
    * Unbind a variable within this ScriptContainer, returning the previous
