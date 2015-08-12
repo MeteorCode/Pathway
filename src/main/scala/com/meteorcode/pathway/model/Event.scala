@@ -4,7 +4,7 @@ package model
 import javax.script.CompiledScript
 
 import com.meteorcode.pathway.io.FileHandle
-import com.meteorcode.pathway.script.ScriptMonad$
+import com.meteorcode.pathway.script.ScriptMonad
 
 import scala.collection.mutable
 import scala.util.{Failure, Try}
@@ -13,9 +13,9 @@ import scala.util.{Failure, Try}
  * Created by hawk on 8/10/15.
  */
 class Event (
-              private[this] val context: ScriptMonad,
-              private[this] val script: CompiledScript,
-              private[this] val _children: mutable.Set[Event] = mutable.Set()
+  private[this] val context: ScriptMonad,
+  private[this] val script: CompiledScript,
+  private[this] val _children: mutable.Set[Event] = mutable.Set()
 ) {
 
   private[this] var valid
@@ -38,7 +38,7 @@ class Event (
    *         the script could not be evaluated.
    */
   final def evalEvent(): Try[AnyRef]
-    = context eval script
+    = context(script)
 
   /**
    * Spawns a new Event as a child of this event
