@@ -9,6 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
+import scala.util.{Success, Try}
 import scala.util.control.NonFatal
 
 /**
@@ -38,7 +39,7 @@ extends LazyLogging {
    *         is edited to include the new natives directory. False otherwise.
    */
   def unpackNatives(destLocation: String = defaultLocation,
-                    srcURL: URL = defaultSrcURL): Boolean = {
+                    srcURL: URL = defaultSrcURL): Try[Boolean] = {
 
     val targetDir = Paths.get(destLocation)
 
@@ -53,56 +54,54 @@ extends LazyLogging {
       )
 
       val zURI = URI.create("jar:" + srcURL.toURI.toString + "!/lwjgl-natives")
-      try {
+      Try(try {
         FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava)
       } catch {
         case x: FileSystemAlreadyExistsException =>
-        case x if NonFatal(x) =>
-          logger.warn("An exception occurred while creating FileSystem", x)
-      }
+      }) flatMap { _ =>
+        val top = Paths.get(zURI)
+        Try(Files.walkFileTree(top, new FileVisitor[file.Path] with LazyLogging {
+          import FileVisitResult._
 
-      val top = Paths.get(zURI)
-      Files.walkFileTree(top, new FileVisitor[file.Path] with LazyLogging {
-        import FileVisitResult._
+          override def preVisitDirectory(dir: file.Path,attrs: BasicFileAttributes): FileVisitResult
+            = { if(dir.toString.compareTo(top.toString) != 0) {
+                try {
+                  Files.createDirectory(
+                    targetDir.resolve(top.relativize(dir).toString)
+                  )
+                } catch {
+                  case x: FileAlreadyExistsException =>
+                  case x if NonFatal(x) =>
+                    logger.warn(s"An exception occurred before visiting $dir", x)
+                }
+              }
+                CONTINUE
+              }
 
-        override def preVisitDirectory(dir: file.Path,attrs: BasicFileAttributes): FileVisitResult
-          = { if(dir.toString.compareTo(top.toString) != 0) {
-              try {
-                Files.createDirectory(
-                  targetDir.resolve(top.relativize(dir).toString)
+          override def visitFileFailed(file: file.Path, exc: IOException): FileVisitResult
+            = CONTINUE
+
+          override def postVisitDirectory(dir: file.Path, exc: IOException): FileVisitResult
+            = CONTINUE
+
+          override def visitFile(file: file.Path, attrs: BasicFileAttributes): FileVisitResult
+            = { try {
+                Files.copy(Files.newInputStream(file),
+                  targetDir.resolve(top.relativize(file).toString)
                 )
               } catch {
                 case x: FileAlreadyExistsException =>
                 case x if NonFatal(x) =>
-                  logger.warn(s"An exception occurred before visiting $dir", x)
+                  logger.warn(s"An exception occurred while visiting $file", x)
               }
-            }
-              CONTINUE
-          }
+                CONTINUE
+              }
+        })) map { _ => true }
+      }
 
-        override def visitFileFailed(file: file.Path, exc: IOException): FileVisitResult
-          = CONTINUE
-
-        override def postVisitDirectory(dir: file.Path, exc: IOException): FileVisitResult
-          = CONTINUE
-
-        override def visitFile(file: file.Path, attrs: BasicFileAttributes): FileVisitResult
-          = { try {
-              Files.copy(Files.newInputStream(file),
-                targetDir.resolve(top.relativize(file).toString)
-              )
-            } catch {
-              case x: FileAlreadyExistsException =>
-              case x if NonFatal(x) =>
-                logger.warn(s"An exception occurred while visiting $file", x)
-            }
-            CONTINUE
-          }
-      })
-      true
     } else {
       // the target location was read-only
-      false
+      Success(false)
     }
   }
 }
