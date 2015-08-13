@@ -1,13 +1,14 @@
-package me.arcticlight.tempo.reswizard
+package com.meteorcode.pathway.io
 
 import java.io.IOException
+import java.net.{URI, URL}
+import java.nio.file
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
-import java.net.{URL,URI}
 
 import com.typesafe.scalalogging.LazyLogging
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
 /**
@@ -61,42 +62,42 @@ extends LazyLogging {
       }
 
       val top = Paths.get(zURI)
-      Files.walkFileTree(top, new FileVisitor[Path] with LazyLogging {
+      Files.walkFileTree(top, new FileVisitor[file.Path] with LazyLogging {
         import FileVisitResult._
 
-        override def preVisitDirectory(dir: Path,attrs: BasicFileAttributes): FileVisitResult
-        = { if(dir.toString.compareTo(top.toString) != 0) {
-          try {
-            Files.createDirectory(
-              targetDir.resolve(top.relativize(dir).toString)
-            )
-          } catch {
-            case x: FileAlreadyExistsException =>
-            case x if NonFatal(x) =>
-              logger.warn(s"An exception occurred before visiting $dir", x)
+        override def preVisitDirectory(dir: file.Path,attrs: BasicFileAttributes): FileVisitResult
+          = { if(dir.toString.compareTo(top.toString) != 0) {
+              try {
+                Files.createDirectory(
+                  targetDir.resolve(top.relativize(dir).toString)
+                )
+              } catch {
+                case x: FileAlreadyExistsException =>
+                case x if NonFatal(x) =>
+                  logger.warn(s"An exception occurred before visiting $dir", x)
+              }
+            }
+              CONTINUE
           }
-        }
-          CONTINUE
-        }
 
-        override def visitFileFailed(file: Path, exc: IOException): FileVisitResult
-        = CONTINUE
+        override def visitFileFailed(file: file.Path, exc: IOException): FileVisitResult
+          = CONTINUE
 
-        override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult
-        = CONTINUE
+        override def postVisitDirectory(dir: file.Path, exc: IOException): FileVisitResult
+          = CONTINUE
 
-        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult
-        = { try {
-          Files.copy(Files.newInputStream(file),
-            targetDir.resolve(top.relativize(file).toString)
-          )
-        } catch {
-          case x: FileAlreadyExistsException =>
-          case x if NonFatal(x) =>
-            logger.warn(s"An exception occurred while visiting $file", x)
-        }
-          CONTINUE
-        }
+        override def visitFile(file: file.Path, attrs: BasicFileAttributes): FileVisitResult
+          = { try {
+              Files.copy(Files.newInputStream(file),
+                targetDir.resolve(top.relativize(file).toString)
+              )
+            } catch {
+              case x: FileAlreadyExistsException =>
+              case x if NonFatal(x) =>
+                logger.warn(s"An exception occurred while visiting $file", x)
+            }
+            CONTINUE
+          }
       })
       true
     } else {
