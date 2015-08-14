@@ -2,7 +2,7 @@ package com.meteorcode.pathway.io
 
 import java.io.IOException
 import java.net.{URI, URL}
-import java.nio.file
+import java.nio
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
@@ -60,43 +60,49 @@ extends LazyLogging {
         case x: FileSystemAlreadyExistsException =>
       }) flatMap { _ =>
         val top = Paths.get(zURI)
-        Try(Files.walkFileTree(top, new FileVisitor[file.Path] with LazyLogging {
+        Try(Files.walkFileTree(top,
+          new FileVisitor[nio.file.Path] with LazyLogging {
           import FileVisitResult._
 
-          override def preVisitDirectory(dir: file.Path,attrs: BasicFileAttributes): FileVisitResult
+          override def preVisitDirectory(dir: nio.file.Path,
+                                         attrs: BasicFileAttributes): FileVisitResult
             = { if(dir.toString.compareTo(top.toString) != 0) {
-                try {
-                  Files.createDirectory(
-                    targetDir.resolve(top.relativize(dir).toString)
+                  try {
+                    Files.createDirectory(
+                      targetDir.resolve(top.relativize(dir).toString)
+                    )
+                  } catch {
+                    case x: FileAlreadyExistsException =>
+                    case x if NonFatal(x) =>
+                      logger.warn(s"An exception occurred before visiting $dir", x)
+                  }
+                }
+                  CONTINUE
+              }
+
+          override def visitFileFailed(file: nio.file.Path,
+                                       exc: IOException): FileVisitResult
+            = CONTINUE
+
+          override def postVisitDirectory(dir: nio.file.Path,
+                                          exc: IOException): FileVisitResult
+            = CONTINUE
+
+          override def visitFile(file: nio.file.Path,
+                                 attrs: BasicFileAttributes): FileVisitResult
+            = { try {
+                  Files.copy(Files.newInputStream(file),
+                    targetDir.resolve(top.relativize(file).toString)
                   )
                 } catch {
                   case x: FileAlreadyExistsException =>
                   case x if NonFatal(x) =>
-                    logger.warn(s"An exception occurred before visiting $dir", x)
+                    logger.warn(s"An exception occurred while visiting $file", x)
                 }
+                  CONTINUE
               }
-                CONTINUE
-              }
-
-          override def visitFileFailed(file: file.Path, exc: IOException): FileVisitResult
-            = CONTINUE
-
-          override def postVisitDirectory(dir: file.Path, exc: IOException): FileVisitResult
-            = CONTINUE
-
-          override def visitFile(file: file.Path, attrs: BasicFileAttributes): FileVisitResult
-            = { try {
-                Files.copy(Files.newInputStream(file),
-                  targetDir.resolve(top.relativize(file).toString)
-                )
-              } catch {
-                case x: FileAlreadyExistsException =>
-                case x if NonFatal(x) =>
-                  logger.warn(s"An exception occurred while visiting $file", x)
-              }
-                CONTINUE
-              }
-        })) map { _ => true }
+        })
+        ) map { _ => true }
       }
 
     } else {
