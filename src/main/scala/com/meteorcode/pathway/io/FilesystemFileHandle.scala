@@ -68,14 +68,17 @@ class FilesystemFileHandle (
 
   override def list: Try[Seq[FileHandle]] = Try(
     if (isDirectory) {
-      for (item <- back.list) yield item match {
-        case isArchiveRE(_, archType) =>
-          val file = new File(s"$assumePhysPath/$item")
-          archType match {
+      back.list map {
+        case isArchiveRE(name, ext) =>
+          val file = new File(s"$assumePhysPath/$name$ext")
+          ext match {
             case ".jar" => new JarFileHandle("/", file, this.manager)
             case ".zip" => new ZipFileHandle("/", file, this.manager)
+            case _ => // should be unreachable (barring force majeure)
+              throw new IllegalStateException(
+                s"Unexpected archive extension $ext (this shouldn't happen)")
           }
-        case _ =>
+        case item =>
           new FilesystemFileHandle(
             s"$path/$item", s"$assumePhysPath/$item", manager)
       }
