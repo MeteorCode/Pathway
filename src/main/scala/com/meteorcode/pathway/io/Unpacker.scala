@@ -9,7 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.JavaConverters._
-import scala.util.{Success, Try}
+import scala.util.{Success, Failure, Try}
 import scala.util.control.NonFatal
 
 /**
@@ -110,4 +110,16 @@ extends LazyLogging {
       Success(false)
     }
   }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // REMOVE BEFORE FLIGHT -- DO NOT RUN THIS IN PRODUCTION BUILDS PLEASE
+  // Unpacker test method
+  def main (args: Array[String]): Unit
+    = println(unpackNatives() match {
+        case Success(true)  => s"Natives unpacked to $defaultLocation"
+        case Success(false) => s"Natives not unpacked, target was read-only"
+        case Failure(why)   => s"Something went wrong!\n$why"
+      })
+  // REMOVE BEFORE FLIGHT
+  /////////////////////////////////////////////////////////////////////////////
 }

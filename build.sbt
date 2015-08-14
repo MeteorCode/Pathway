@@ -48,16 +48,23 @@ wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
 )
 
 assembledMappings in assembly ~= { mapSets => mapSets.map {
-  _ match {
-    case MappingSet(Some(packageName), mings)
-      if packageName.getName.startsWith("lwjgl-platform") =>
-        MappingSet(Some(packageName), mings.map {
-          case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
-        })
-    case m: MappingSet => m
+    _ match {
+      case MappingSet(Some(packageName), mings)
+        if packageName.getName.startsWith("lwjgl-platform") =>
+          MappingSet(Some(packageName), mings.map {
+            case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
+          })
+      case m: MappingSet => m
+    }
   }
 }
-}
+
+
+lazy val unpacker = config("unpacker-test") describedAs("build with code to test natives unpacker")
+
+mainClass in unpacker := Some("com.meteorcode.pathway.io.Unpacker")
+
+assemblyJarName in (unpacker, assembly) := "pathway-unpacker-test.jar"
 
 seq(documentationSettings: _*)
 
