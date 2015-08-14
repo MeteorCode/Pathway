@@ -68,6 +68,18 @@ assemblyJarName in assembly in Test := "pathway-assembly-test.jar"
 
 test in assembly in Test := {}
 
+assembledMappings in assembly in Test ~= { mapSets => mapSets.map {
+  _ match {
+    case MappingSet(Some(packageName), mings)
+      if packageName.getName.startsWith("lwjgl-platform") =>
+      MappingSet(Some(packageName), mings.map {
+        case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
+      })
+    case m: MappingSet => m
+  }
+}
+}
+
 seq(documentationSettings: _*)
 
 val externalJavadocMap = Map()
