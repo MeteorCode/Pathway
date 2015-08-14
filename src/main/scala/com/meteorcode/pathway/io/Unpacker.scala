@@ -8,6 +8,8 @@ import java.nio.file.attribute.BasicFileAttributes
 
 import com.typesafe.scalalogging.LazyLogging
 
+import me.hawkweisman.util.TryWithFold
+
 import scala.collection.JavaConverters._
 import scala.util.{Success, Failure, Try}
 import scala.util.control.NonFatal
@@ -97,19 +99,21 @@ extends LazyLogging {
 
           override def visitFile(file: nio.file.Path,
                                  attrs: BasicFileAttributes): FileVisitResult
-            = { try {
-                  Files.copy(Files.newInputStream(file),
-                    targetDir.resolve(top.relativize(file).toString)
-                  )
-                  logger trace s"Copied $file to natives directory"
-                } catch {
-                  case x: FileAlreadyExistsException =>
-                    logger trace s"Natives file $file already exists, skipping"
-                  case x if NonFatal(x) =>
-                    logger warn (s"Exception while visiting $file!", x)
-                }
-                  CONTINUE
-              }
+            = Try {
+                Files.copy(
+                  Files.newInputStream(file),
+                  targetDir.resolve(top.relativize(file).toString)
+                )
+                logger trace s"Copied $file to natives directory"
+              } recover {
+                case x: FileAlreadyExistsException =>
+                  logger trace s"Natives file $file already exists, skipping"
+                case x if NonFatal(x) =>
+                  logger warn (s"Exception while visiting $file!", x)
+              } fold (
+                up => throw up,
+                _  => CONTINUE
+              )
         })
         ) map { _ => true }
       }
