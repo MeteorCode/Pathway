@@ -64,7 +64,9 @@ lazy val unpacker = config("unpacker-test") describedAs("build with code to test
 
 mainClass in unpacker := Some("com.meteorcode.pathway.io.Unpacker")
 
-assemblyJarName in (unpacker, assembly) := "pathway-unpacker-test.jar"
+assemblyJarName in assembly in unpacker := "pathway-unpacker-test.jar"
+
+test in assembly in unpacker := {}
 
 seq(documentationSettings: _*)
 
