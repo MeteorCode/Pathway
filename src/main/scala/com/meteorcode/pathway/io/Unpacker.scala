@@ -40,6 +40,7 @@ extends LazyLogging {
    */
   def unpackNatives(destLocation: String = defaultLocation,
                     srcURL: URL = defaultSrcURL): Try[Boolean] = {
+    logger info s"Unpacking natives from $destLocation to $srcURL"
     val targetDir = Paths.get(destLocation)
 
     //We cannot unpack if the target location is read only.
@@ -54,14 +55,20 @@ extends LazyLogging {
 
       val zURI = URI.create("jar:" + srcURL.toURI.toString + "!/lwjgl-natives")
       Try(try {
-        // create the target directory
-        Files.createDirectory(targetDir)
-        FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava)
-      } catch {
-        // if the target file / filesystem doesn't already exist, do nothing
-        case x: FileSystemAlreadyExistsException =>
-        case x: FileAlreadyExistsException =>
-      }) flatMap { _ =>
+          // create the target directory
+          Files.createDirectory(targetDir)
+          logger info s"Created local natives directory $targetDir"
+        } catch {
+          case x: FileAlreadyExistsException =>
+            logger debug s"Local natives directory $targetDir already exists"
+        }
+      ) flatMap { _ =>
+        Try(try {
+          FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava)
+        } catch {
+          case x: FileSystemAlreadyExistsException =>
+        })
+      } flatMap { _ =>
         val top = Paths.get(zURI)
         Try(Files.walkFileTree(top,
           new FileVisitor[nio.file.Path] with LazyLogging {
@@ -77,7 +84,7 @@ extends LazyLogging {
                   } catch {
                     case x: FileAlreadyExistsException =>
                     case x if NonFatal(x) =>
-                      logger.warn(s"An exception occurred before visiting $dir", x)
+                      logger warn (s"An exception occurred before visiting $dir", x)
                   }
                 }
                   CONTINUE
@@ -97,10 +104,12 @@ extends LazyLogging {
                   Files.copy(Files.newInputStream(file),
                     targetDir.resolve(top.relativize(file).toString)
                   )
+                  logger trace s"Copied $file to natives directory"
                 } catch {
                   case x: FileAlreadyExistsException =>
+                    logger trace s"Natives file $file already exists, skipping"
                   case x if NonFatal(x) =>
-                    logger.warn(s"An exception occurred while visiting $file", x)
+                    logger warn (s"Exception while visiting $file!", x)
                 }
                   CONTINUE
               }
@@ -110,6 +119,7 @@ extends LazyLogging {
 
     } else {
       // the target location was read-only
+      logger warn s"Natives location $targetDir was read-only!"
       Success(false)
     }
   }
