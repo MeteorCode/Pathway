@@ -54,20 +54,17 @@ extends LazyLogging {
       )
 
       val zURI = URI.create("jar:" + srcURL.toURI.toString + "!/lwjgl-natives")
-      Try(try {
-          // create the target directory
-          Files.createDirectory(targetDir)
-          logger info s"Created local natives directory $targetDir"
-        } catch {
+      Try{
+        Files.createDirectory(targetDir)
+        logger info s"Created local natives directory $targetDir"
+      } recover {
           case x: FileAlreadyExistsException =>
             logger debug s"Local natives directory $targetDir already exists"
-        }
-      ) flatMap { _ =>
-        Try(try {
-          FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava)
-        } catch {
-          case x: FileSystemAlreadyExistsException =>
-        })
+      } flatMap { _ =>
+        Try(FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava))
+          .recover {
+            case x: FileSystemAlreadyExistsException =>
+          }
       } flatMap { _ =>
         val top = Paths.get(zURI)
         Try(Files.walkFileTree(top,
