@@ -79,6 +79,18 @@ If there are other JS-facing API objects besides graphics and filesystem ones I 
 
 Alternatively, we don't need to provide the init script with _all_ the Pathway JS API objects that the full game loop gets. if that's the case, we could be creating some of these objects in another thread while the init script is running. Whatever method starts the game loop could then depend on both the completion of the init scripts _and_ whatever other API methods the game loop receives. We could take the monadic state from executing the init script and, inject other APIs, and then pass that new monadic state to the game's main loop.
 
+As Max and I have discussed on chat, this is a fairly complex process and will require rerunning the init script, to compensate for auto-updating. Here's what we have to do once we've created the base APIs:
+
+ 1. Use a predefined procedure (cooperating with resmangler?) to load the first stage of the game, maybe some sort of master init script that we allow to be fairly free-form. Here, we begin ceding control to the game author.
+ 2.  Re-init resmangler in order to build layers 2 and 3. This is important, because the game author could have installed a load order policy or a resmangler extension during master init.
+ 3.  Re-run master init (or maybe a different init script entirely?) on layer 2. We pick layer 2, so that updates that the game has just discovered after properly bringing up Resmangler can be observed, but a malicious script can't overwrite the init in the write dir on layer 3.
+
+As far as applying updates, we determined:
+
+> Ideally, updates to the init script would be able to make use of the magic that is resmangler layer 2, and be included in a zip update just like any other. But because load policy is configurable, we're going to have trouble resolving the correct way to *find* the update....
+
+> What if resmangler init was special somehow? What if it were its own special script file, with a well defined procedure from us on how to update that file specifically? Like, the init script loads resmangler, and then tries to find itself, and if there's a new one, you reinit resmangler.
+
 #### Load and apply mods
 
 We will also want to seek out all non-core modules, such as mods, expansion packs, and Pathway libraries. This will probably look _sort of_ like the current `ModLoader` code, and depends on the `ResourceManager`. However, I'm not sure where exactly in the process this would have to run; I don't know if we want to do this before or after running the game's init script. I'm also not sure how much control the init script will have over the process, and how much will be controlled by Pathway. We need to work out more about how this will work.
