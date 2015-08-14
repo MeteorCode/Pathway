@@ -103,12 +103,12 @@ class ResourceManager (
    */
   private[this] def walk(current: FileHandle,  fs: PathTable): PathTable
     = if (current.isDirectory) {
-      val newfs = fs.fork()
-      newfs put (current.path, current.assumePhysPath)
-      order(current.list.get).foldRight(newfs)((fh, tab) => walk(fh, tab))
-    } else {
-      fs put (current.path, current.assumePhysPath); fs
-    }
+        val newfs = fs.fork()
+        newfs put (current.path, current.assumePhysPath)
+        order(current.list.get).foldRight(newfs)((fh, tab) => walk(fh, tab))
+      } else {
+        fs put (current.path, current.assumePhysPath); fs
+      }
 
   /**
    * Returns true if a given virtual path is writable, false if it is not.
@@ -145,70 +145,73 @@ class ResourceManager (
           it => it)
         ))
 
-  private[this] def makeHandle(virtualPath: String): Try[FileHandle] = {
-    logger.info(s"making a FileHandle for $virtualPath")
-    (writePaths.get(trailingSlash(virtualPath)) match {
-      case Some(s: String) => Success(s)
-      // If the path is not in the tree, handle write attempts.
-      case None if isPathWritable(virtualPath) =>
-        logger.debug(s"handling write attempt to empty path $virtualPath")
-        assume(writeDir.isDefined, "Cannot handle write attempt: No write dir")
-        writeDir match {
-          case Some(FileHandle(writeVirt, writePhys)) =>
-            // The physical path is the write dir's physical path, plus the
-            // virtual path with the write dir's virtual path removed.
-            val phys = writePhys + virtualPath.replace(writeVirt, "")
-             // Since we've created a new FS object, add it to the known paths.
-            writePaths put (virtualPath, phys)
-            logger.debug(s"successfully handled write attempt to $virtualPath")
-            Success(phys)
-          case Some(_) =>
-          // if the write directory won't destructure, it's missing a physical
-          // path. if this is the case, somebody (me) seriously fucked up.
-            Failure(new IOException("""|Cannot handle write attempt:
-              |write directory missing physical path.""".stripMargin))
-          case None =>
-            // if there's no write directory, we cannot support write attempts.
-            // This should never happen – isPathWritable() should prevent this.
-            Failure(new IOException("""|Cannot handle write attempt:
-              "|no write directory exists, but a path claimed to be writable."""
-              .stripMargin))
-        }
-      case None =>
-        Failure(new IOException(
-          s"A filehandle to an empty path ($virtualPath) was requested," +
-        " and the requested path was not writable"))
-    }) flatMap { physicalPath: String =>
-      physicalPath.extension match {
-        case Some("jar") => // extension is a Jar
-          Success(new JarFileHandle(virtualPath, new File(physicalPath), this))
-        case Some("zip") => // extension is a Zip
-          Success(new ZipFileHandle(virtualPath, new File(physicalPath), this))
-        case _ => inArchiveRE findFirstIn physicalPath match {
-          case Some(inArchiveRE(path, ".zip", name)) =>
-            val parent = new ZipFileHandle("/", new File(s"$path.zip"), this)
-            parent.assumeBack map { file =>
-              new ZipEntryFileHandle(
-                virtualPath,
-                new ZipFile(file).getEntry(name),
-                parent
-              )
+  private[this] def getPhysicalPath(virtualPath: String): Try[String]
+    = writePaths.get(trailingSlash(virtualPath)) match {
+        case Some(s: String) => Success(s)
+        // If the path is not in the tree, handle write attempts.
+        case None if isPathWritable(virtualPath) =>
+          logger.debug(s"handling write attempt to empty path $virtualPath")
+          assume(writeDir.isDefined, "Cannot handle write attempt: No write dir")
+          writeDir match {
+            case Some(FileHandle(writeVirt, writePhys)) =>
+              // The physical path is the write dir's physical path, plus the
+              // virtual path with the write dir's virtual path removed.
+              val phys = writePhys + virtualPath.replace(writeVirt, "")
+              // Since we've created a new FS object, add it to the known paths.
+              writePaths put (virtualPath, phys)
+              logger.debug(s"successfully handled write attempt to $virtualPath")
+              Success(phys)
+            case Some(_) =>
+              // if the write directory won't destructure, it's missing a physical
+              // path. if this is the case, somebody (me) seriously fucked up.
+              Failure(new IOException("""|Cannot handle write attempt:
+                                        |write directory missing physical path.""".stripMargin))
+            case None =>
+              // if there's no write directory, we cannot support write attempts.
+              // This should never happen – isPathWritable() should prevent this.
+              Failure(new IOException("""|Cannot handle write attempt:
+                  "|no write directory exists, but a path claimed to be writable."""
+                .stripMargin))
+          }
+        case None =>
+          Failure(new IOException(
+            s"A filehandle to an empty path ($virtualPath) was requested," +
+              " and the requested path was not writable"))
+      }
+
+  private[this] def makeHandle(virtualPath: String): Try[FileHandle]
+    = { logger.info(s"making a FileHandle for $virtualPath")
+        getPhysicalPath(virtualPath) flatMap { physicalPath: String =>
+          physicalPath.extension match {
+            case Some("jar") => // extension is a Jar
+              Success(new JarFileHandle(virtualPath, new File(physicalPath), this))
+            case Some("zip") => // extension is a Zip
+              Success(new ZipFileHandle(virtualPath, new File(physicalPath), this))
+            case _ => inArchiveRE findFirstIn physicalPath match {
+              case Some(inArchiveRE(path, ".zip", name)) =>
+                val parent = new ZipFileHandle("/", new File(s"$path.zip"), this)
+                parent.assumeBack map { file =>
+                  new ZipEntryFileHandle(
+                    virtualPath,
+                    new ZipFile(file).getEntry(name),
+                    parent
+                  )
+                }
+              case Some(inArchiveRE(path, ".jar", name)) =>
+                val parent = new JarFileHandle("/", new File(s"$path.jar"), this)
+                parent.assumeBack map { file =>
+                  new JarEntryFileHandle(
+                    virtualPath,
+                    new JarFile(file).getJarEntry(name),
+                    parent
+                  )
+                }
+              case _ =>
+                Success(new FilesystemFileHandle(virtualPath, physicalPath, this))
             }
-          case Some(inArchiveRE(path, ".jar", name)) =>
-            val parent = new JarFileHandle("/", new File(s"$path.jar"), this)
-            parent.assumeBack map { file =>
-              new JarEntryFileHandle(
-                virtualPath,
-                new JarFile(file).getJarEntry(name),
-                parent
-              )
-            }
-          case _ =>
-            Success(new FilesystemFileHandle(virtualPath, physicalPath, this))
+          }
         }
       }
-    }
-  }
 
   override lazy val toString: String
     = "ResourceManager" + directories.map{ dir: FileHandle =>
