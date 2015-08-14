@@ -59,14 +59,13 @@ assembledMappings in assembly ~= { mapSets => mapSets.map {
   }
 }
 
+Project.inConfig(Test)(baseAssemblySettings)
 
-lazy val unpacker = config("unpacker-test") describedAs("build with code to test natives unpacker")
+mainClass in assembly in Test := Some("com.meteorcode.pathway.test.TempoRedscreenTest")
 
-mainClass in unpacker := Some("com.meteorcode.pathway.io.Unpacker")
+assemblyJarName in assembly in Test := "pathway-assembly-test.jar"
 
-assemblyJarName in assembly in unpacker := "pathway-unpacker-test.jar"
-
-test in assembly in unpacker := {}
+test in assembly in Test := {}
 
 seq(documentationSettings: _*)
 
