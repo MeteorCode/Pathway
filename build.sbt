@@ -28,6 +28,7 @@ resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 
 libraryDependencies ++= Seq(
   "org.beanshell"               %  "bsh"            % "2+",
+  "org.slf4j"                   %  "slf4j-jdk14"    % "1.7+",
   "me.hawkweisman"              %% "util"           % "0.0.3",
   "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
   // --- LWJGL -----------------------------------------
