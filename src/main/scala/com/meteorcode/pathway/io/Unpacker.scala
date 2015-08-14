@@ -40,7 +40,6 @@ extends LazyLogging {
    */
   def unpackNatives(destLocation: String = defaultLocation,
                     srcURL: URL = defaultSrcURL): Try[Boolean] = {
-
     val targetDir = Paths.get(destLocation)
 
     //We cannot unpack if the target location is read only.
@@ -55,9 +54,13 @@ extends LazyLogging {
 
       val zURI = URI.create("jar:" + srcURL.toURI.toString + "!/lwjgl-natives")
       Try(try {
+        // create the target directory
+        Files.createDirectory(targetDir)
         FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava)
       } catch {
+        // if the target file / filesystem doesn't already exist, do nothing
         case x: FileSystemAlreadyExistsException =>
+        case x: FileAlreadyExistsException =>
       }) flatMap { _ =>
         val top = Paths.get(zURI)
         Try(Files.walkFileTree(top,
