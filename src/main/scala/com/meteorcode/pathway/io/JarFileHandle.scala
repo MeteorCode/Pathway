@@ -1,7 +1,5 @@
 package com.meteorcode.pathway.io
 
-import com.meteorcode.pathway.io.{ZipFileHandle, ResourceManager, subdirRE, trailingSlash}
-
 import java.io.{OutputStream, File, IOException, InputStream}
 import java.util.jar.JarFile
 import java.util.Collections

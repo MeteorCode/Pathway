@@ -5,8 +5,6 @@ import java.util.Collections
 import java.util.jar.{JarEntry, JarFile}
 import java.util.zip.ZipException
 
-import com.meteorcode.pathway.io.{ZipFileHandle, ResourceManager}
-
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal

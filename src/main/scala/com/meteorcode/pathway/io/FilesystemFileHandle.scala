@@ -8,10 +8,6 @@ import java.io.{
   FileOutputStream,
   IOException
 }
-import java.util.Collections
-import com.meteorcode.pathway.io.{ZipFileHandle, ResourceManager, isArchiveRE}
-
-import scala.collection.JavaConversions._
 
 import scala.util.{Try, Success, Failure}
 import scala.util.control.NonFatal
