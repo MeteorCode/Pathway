@@ -6,7 +6,7 @@ import bsh.EvalError;
 import bsh.Interpreter;
 import bsh.InterpreterError;
 
-import com.meteorcode.pathway.io.scala_api.FileHandle;
+import com.meteorcode.pathway.io.FileHandle;
 
 /**
  * The means by which one obtains a ScriptContainer.
@@ -112,7 +112,7 @@ public class ScriptContainerFactory {
 		 * </p>
 		 *
 		 * @param file
-		 *            a {@link com.meteorcode.pathway.io.java_api.FileHandle FileHandle}
+		 *            a {@link com.meteorcode.pathway.io.FileHandle FileHandle}
 		 *            containing the script to execute.
 		 * @return The object result of the evaluation, or null if there was no
 		 *         result.

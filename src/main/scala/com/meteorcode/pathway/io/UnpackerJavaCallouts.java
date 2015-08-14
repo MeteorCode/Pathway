@@ -1,4 +1,4 @@
-package me.arcticlight.tempo.reswizard;
+package com.meteorcode.pathway.io;
 
 import java.io.File;
 import java.lang.reflect.Field;

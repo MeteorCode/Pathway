@@ -1,25 +1,41 @@
+import sbtassembly.MappingSet
+
 import scala.util.matching.Regex
+
 import scala.util.matching.Regex.Match
 
 name            := "pathway"
+
 organization    := "com.meteorcode"
+
 version         := s"$projectVersion-${gitHeadCommitSha.value}"
+
 scalaVersion    := "2.11.7"
+
 autoAPIMappings := true // link Scala standard lib in docs
 
 val lwjglVersion = "3.0.0a"
+
+val nativesDir = "lwjgl-natives" // the directory within the jar file for natives
+
 val projectVersion = "2.0.0" // current release version
+
 val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
-gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD")
-  .lines
-  .headOption
-  .getOrElse("")
+
+gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD").lines.headOption.getOrElse("")
 
 resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 
 libraryDependencies ++= Seq(
-  "org.beanshell"   %  "bsh"            % "2+",
-  "me.hawkweisman"  %% "util"           % "0.0.3",
+  "org.beanshell"               %  "bsh"            % "2+",
+  "me.hawkweisman"              %% "util"           % "0.0.3",
+  "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
+  // --- LWJGL -----------------------------------------
+  "org.lwjgl" % "lwjgl"           % lwjglVersion, // main lajiggle library
+  "org.lwjgl" % "lwjgl-platform"  % lwjglVersion  // lajiggle natives
+    classifier "natives-windows"
+    classifier "natives-linux"
+    classifier "natives-osx",
   // --- test dependencies ------------------------------
   "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
   "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
@@ -31,9 +47,28 @@ wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
   Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.Var
 )
 
-seq(documentationSettings: _*)
+assembledMappings in assembly ~= { mapSets => mapSets.map {
+    _ match {
+      case MappingSet(Some(packageName), mings)
+        if packageName.getName.startsWith("lwjgl-platform") =>
+          MappingSet(Some(packageName), mings.map {
+            case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
+          })
+      case m: MappingSet => m
+    }
+  }
+}
 
-seq(lwjglSettings: _*)
+
+lazy val unpacker = config("unpacker-test") describedAs("build with code to test natives unpacker")
+
+mainClass in unpacker := Some("com.meteorcode.pathway.io.Unpacker")
+
+assemblyJarName in assembly in unpacker := "pathway-unpacker-test.jar"
+
+test in assembly in unpacker := {}
+
+seq(documentationSettings: _*)
 
 val externalJavadocMap = Map()
 

@@ -1,21 +1,15 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
 import java.io.{File, IOException}
-import java.util
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
 import com.meteorcode.common.ForkTable
-import com.meteorcode.pathway.io._
-import com.meteorcode.pathway.io.java_api.{
-  AlphabeticLoadPolicy,
-  LoadOrderProvider
-}
-import com.meteorcode.pathway.logging.Logging
 
 import me.hawkweisman.util.TryWithFold
 
-import scala.collection.JavaConversions._
+import com.typesafe.scalalogging.LazyLogging
+
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
@@ -48,18 +42,16 @@ import scala.util.{Failure, Success, Try}
  *
  * @author Hawk Weisman
  * @since v2.0.0
- * @see [[scala_api.FileHandle]]
+ * @see [[FileHandle]]
  */
 class ResourceManager (
   val directories: Seq[FileHandle],
   val writeDir: Option[FileHandle] = None,
-  val order: LoadOrderPolicy = new AlphabeticLoadPolicy
-) extends Logging {
+  val order: LoadOrderPolicy = LoadPolicies.alphabetic
+) extends LazyLogging {
 
   /** type alias for the path table */
   type PathTable = ForkTable[String,String]
-
-  private[this] def log(s: String) = logger.log(this.toString, s)
 
   /**
    * Constructor for a ResourceManager with a single managed directory and a
@@ -67,7 +59,7 @@ class ResourceManager (
    * be automatically determined.
    *
    * @param path a String representing the path to the directory to manage.
-   * @param policy a [[LoadOrderProvider]] for resolving load collisions
+   * @param policy a [[LoadOrderPolicy]] for resolving load collisions
    * @param writePath a String representing the path into the write directory
    * @return a new [[ResourceManager]] managing the specified directory.
    */
@@ -100,8 +92,8 @@ class ResourceManager (
         if (!(directory.file exists (_.mkdirs()) ) ) {
           throw new IOException(
             s"Specified write directory $directory could not be created!")
-        } else log(s"write directory ${directory.physicalPath} created")
-      } else log(s"write directory ${directory.physicalPath} already exists")
+        } else logger.debug(s"write directory ${directory.physicalPath} created")
+      } else logger.debug(s"write directory ${directory.physicalPath} already exists")
       if (directory.manager == null) directory.manager = this
   }
   /**
@@ -139,7 +131,7 @@ class ResourceManager (
    *
    * @param path The virtual path to the requested object
    * @return A [[scala.util.Success Success]] containing a
-   *         [[scala_api.FileHandle FileHandle]] into the object that exists at
+   *         [[FileHandle FileHandle]] into the object that exists at
    *         the requested path in the virutal filesystem, or a
    *         [[scala.util.Failure Failure]] containing an
    *         [[java.io.IOException IOException]] if something went wrong while
@@ -154,12 +146,12 @@ class ResourceManager (
         ))
 
   private[this] def makeHandle(virtualPath: String): Try[FileHandle] = {
-    log(s"making a FileHandle for $virtualPath")
+    logger.info(s"making a FileHandle for $virtualPath")
     (writePaths.get(trailingSlash(virtualPath)) match {
       case Some(s: String) => Success(s)
       // If the path is not in the tree, handle write attempts.
       case None if isPathWritable(virtualPath) =>
-        log(s"handling write attempt to empty path $virtualPath")
+        logger.debug(s"handling write attempt to empty path $virtualPath")
         assume(writeDir.isDefined, "Cannot handle write attempt: No write dir")
         writeDir match {
           case Some(FileHandle(writeVirt, writePhys)) =>
@@ -168,7 +160,7 @@ class ResourceManager (
             val phys = writePhys + virtualPath.replace(writeVirt, "")
              // Since we've created a new FS object, add it to the known paths.
             writePaths put (virtualPath, phys)
-            log(s"successfully handled write attempt to $virtualPath")
+            logger.debug(s"successfully handled write attempt to $virtualPath")
             Success(phys)
           case Some(_) =>
           // if the write directory won't destructure, it's missing a physical

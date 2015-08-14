@@ -1,40 +1,35 @@
-package com.meteorcode.pathway.io.scala_api
+package com.meteorcode.pathway.io
 
-import java.io.{OutputStream, File, IOException, InputStream}
-import java.util.zip.ZipFile
+import java.io.{File, IOException, InputStream, OutputStream}
 import java.util.Collections
+import java.util.zip.ZipFile
 
-import com.meteorcode.pathway.io.scala_api.ResourceManager
-import com.meteorcode.pathway.io.{subdirRE,trailingSlash}
-
-import scala.util.{Try,Failure}
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.language.postfixOps
+import scala.util.{Failure, Try}
 
 /**
  * A [[FileHandle]] into an entry in a Zip archive file.
  *
  * DON'T MAKE THESE - if you want to handle a file, please get it from
+ * [[ResourceManager.handle ResourceManager.handle()]].
  *
- * [[scala_api.ResourceManager.handle ResourceManager.handle()]].
  * The FileHandle system is intended to allow you to treat exotic resources,
  * such as files in zip/jar  archives or resources accessed over the netweork,
  * as though they were on the filesystem as regular files, but this only works
- * if you treat all files you  have to access as instances of
- * [[scala_api.FileHandle FileHandle]]. If you  ever refer to files as
- * [[scala_api.FilesystemFileHandle FilesystemFileHandle]],
- * [[scala_api.ZipFileHandle ZipFileHandle]], or
- * [[scala_api.JarFileHandle JarFileHandle]] explicitly in your code, you are
- * doing the Wrong Thing and  negating a whole lot of time and effort I put into
- * this system. So don't do that.
+ * if you treat all files you  have to access as instances of [[FileHandle]]].
+ * If you  ever refer to files as [[FilesystemFileHandle]],  [[ZipFileHandle]],
+ * or [[JarFileHandle]] explicitly in your code, you are doing the Wrong Thing
+ * and  negating a whole lot of time and effort I put into this system.
+ * So don't do that.
  *
  * To reiterate, do NOT call the constructor for this
  * @param virtualPath The virtual path to the object this FileHandle represents
  * @param back A [[java.io.File]] representing the Zip archive to handle.
  * @param manager the ResourceManager managing this FileHandle
  * @author Hawk Weisman
- * @see [[scala_api.ResourceManager ResourceManager]]
- * @see [[scala_api.FileHandle FileHandle]]
+ * @see [[ResourceManager]]
+ * @see [[FileHandle]]
  * @since v2.0.0
  */
 class ZipFileHandle protected[io] (virtualPath: String,
