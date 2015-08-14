@@ -34,6 +34,23 @@ extends LazyLogging {
           .getCodeSource
           .getLocation
 
+  private[this] val nativeExt: Option[String]
+    = System.getProperty("os.name") match {
+        case os if os contains "Mac" =>
+          logger info s"Operating system is $os, unpacking .dylib libraries"
+          Some(".dylib")
+        case os if os contains "Win" =>
+          logger info s"Operating system is $os, unpacking .dll libraries"
+          Some(".dll")
+        case os if os.contains("nix") || os.contains("nux") =>
+          logger info s"Operating system is $os, unpacking .so libraries"
+          Some(".so")
+        case os =>
+          logger warn s"Unknown operating system $os, will unpack all natives"
+          None
+      }
+
+
   /**
    * Attempts to unpack native JARs into the host filesystem, because JNI
    * requires this.
@@ -100,11 +117,21 @@ extends LazyLogging {
           override def visitFile(file: nio.file.Path,
                                  attrs: BasicFileAttributes): FileVisitResult
             = Try {
-                Files.copy(
-                  Files.newInputStream(file),
-                  targetDir.resolve(top.relativize(file).toString)
-                )
-                logger trace s"Copied $file to natives directory"
+                nativeExt match {
+                  case Some(ext) if file.getFileName.toString.endsWith(ext) =>
+                    Files.copy(
+                      Files.newInputStream(file),
+                      targetDir.resolve(top.relativize(file).toString)
+                    )
+                    logger trace s"Copied $file to natives directory"
+                  case None =>
+                    Files.copy(
+                      Files.newInputStream(file),
+                      targetDir.resolve(top.relativize(file).toString)
+                    )
+                    logger trace s"Copied $file to natives directory"
+                  case _ =>
+                }
               } recover {
                 case x: FileAlreadyExistsException =>
                   logger trace s"Natives file $file already exists, skipping"
