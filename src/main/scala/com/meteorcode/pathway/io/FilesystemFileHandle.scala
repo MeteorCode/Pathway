@@ -8,7 +8,6 @@ import java.io.{
   FileOutputStream,
   IOException
 }
-
 import scala.util.{Try, Success, Failure}
 import scala.util.control.NonFatal
 
@@ -55,8 +54,8 @@ class FilesystemFileHandle (
 
   override def read: Try[InputStream]
     = if (!exists || isDirectory) {
-      Failure(new IOException(s"FileHandle $path is not readable."))
-    } else Try(new FileInputStream(back))
+        Failure(new IOException(s"FileHandle $path is not readable."))
+      } else Try(new FileInputStream(back))
 
   override def exists: Boolean = back.exists
 
@@ -66,29 +65,29 @@ class FilesystemFileHandle (
   override def length: Long
     = if (isDirectory) 0 else back.length
 
-  override def list: Try[Seq[FileHandle]] = Try(
-    if (isDirectory) {
-      back.list map {
-        case isArchiveRE(name, ext) =>
-          val file = new File(s"$assumePhysPath/$name$ext")
-          ext match {
-            case ".jar" => new JarFileHandle("/", file, this.manager)
-            case ".zip" => new ZipFileHandle("/", file, this.manager)
-            case _ => // should be unreachable (barring force majeure)
-              throw new IllegalStateException(
-                s"Unexpected archive extension $ext (this shouldn't happen)")
-          }
-        case item =>
-          new FilesystemFileHandle(
-            s"$path/$item", s"$assumePhysPath/$item", manager)
-      }
-    } else Nil)
+  override def list: Try[Seq[FileHandle]]
+    = Try(if (isDirectory) {
+        back.list map {
+          case isArchiveRE(name, ".jar") => new JarFileHandle(
+            "/",
+            new File(s"$assumePhysPath/$name.jar"),
+            manager)
+          case isArchiveRE(name, ".zip") => new ZipFileHandle(
+            "/",
+            new File(s"$assumePhysPath/$name.zip"),
+            manager)
+          case item => new FilesystemFileHandle(
+            s"$path/$item",
+            s"$assumePhysPath/$item",
+            manager)
+        }
+      } else { Nil })
 
   override lazy val physicalPath: Some[String]
     = Some(realPath.replace('/', File.separatorChar))
 
   override def delete: Boolean
-    = if(writable && exists) back.delete else false
+    = if (writable && exists) back.delete else false
 
   override def write(append: Boolean): Option[OutputStream]
     = if (writable) { Some(new FileOutputStream(back, append)) } else None
