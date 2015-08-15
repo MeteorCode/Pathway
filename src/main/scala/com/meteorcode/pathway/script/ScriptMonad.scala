@@ -21,11 +21,13 @@ import scala.collection.JavaConverters.mapAsJavaMapConverter
 class ScriptMonad(
   private[this] val engine: ScriptEngine,
   private[this] val bindings: util.Map[String,AnyRef]
-    = new util.HashMap()
 ) {
 
   def this(engine: ScriptEngine, bindings: Map[String,AnyRef] = Map())
     = this(engine, bindings.asJava)
+
+  def this(engine: ScriptEngine)
+    = this(engine, new util.HashMap[String,AnyRef]())
 
   type Value = Option[AnyRef]
 
