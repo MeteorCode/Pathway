@@ -158,6 +158,6 @@ object ScriptMonad {
    * Construct a new ScriptContainer with the default [[ScriptEngine]].
    * @return a new ScriptContainer with the default [[ScriptEngine]]
    */
-  def apply(bindings: Map[String,AnyRef]): ScriptMonad
+  def apply(bindings: Map[String,AnyRef] = Map()): ScriptMonad
     = new ScriptMonad(factory.getScriptEngine, bindings)
 }
