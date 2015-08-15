@@ -2,6 +2,8 @@ package com.meteorcode.pathway.test
 
 import com.meteorcode.pathway.io
 
+import scala.util.Failure
+
 /**
  * Created by hawk on 8/14/15.
  */
@@ -9,13 +11,19 @@ object TempoRedscreenTest {
 
   def die(msg: String): Unit = {
     System.err.println(msg)
+
     System.exit(1)
   }
 
   def main(args: Array[String]) {
-    import org.lwjgl.Sys
-    io.Unpacker.unpackNatives()
+    io.Unpacker.unpackNatives() match {
+      case Failure(why) =>
+        why.printStackTrace()
+        die(why.toString)
+      case _ => {}
+    }
 
+    import org.lwjgl.Sys
     println(s"Using LWJGL version ${Sys.getVersion}")
 
     import org.lwjgl.glfw.Callbacks._
