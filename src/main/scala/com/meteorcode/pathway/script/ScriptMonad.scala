@@ -32,17 +32,20 @@ class ScriptMonad(
   type Value = Option[AnyRef]
 
   private[this] val ctx: ScriptContext
-    = new SimpleScriptContext
+    = engine.getContext
 
-  private[this] val _bindings
-    = new SimpleBindings(bindings)
+  private[this] def _bindings: Bindings
+    = { val b: Bindings = engine.createBindings()
+        b.asInstanceOf[util.Map[String, AnyRef]].putAll(bindings)
+        b
+      }
 
   if (!bindings.isEmpty)
-    ctx setBindings (_bindings, ScriptContext.GLOBAL_SCOPE)
+    ctx setBindings (_bindings, ScriptContext.ENGINE_SCOPE)
 
   @inline private[this] def cleanUp(): Unit
     // this should reset all of the context's bindings
-    = ctx setBindings (_bindings, ScriptContext.GLOBAL_SCOPE)
+    = ctx setBindings (_bindings, ScriptContext.ENGINE_SCOPE)
 
   /**
    * Evaluate a script from a String.
@@ -55,7 +58,7 @@ class ScriptMonad(
     = compile(script) match {
         case Some(cs) => apply(cs)
         case None     => Try(engine eval script, ctx) map { _ =>
-          val b_prime = ctx getBindings ScriptContext.GLOBAL_SCOPE
+          val b_prime = ctx getBindings ScriptContext.ENGINE_SCOPE
           cleanUp()
           new ScriptMonad(engine, b_prime)
         }
@@ -63,7 +66,7 @@ class ScriptMonad(
 
   def apply(script: CompiledScript): Try[ScriptMonad]
     = Try(script eval ctx) map { _ =>
-        val b_prime = ctx getBindings ScriptContext.GLOBAL_SCOPE
+        val b_prime = ctx getBindings ScriptContext.ENGINE_SCOPE
         cleanUp()
         new ScriptMonad(engine, b_prime)
       }
@@ -83,7 +86,7 @@ class ScriptMonad(
         case None        => file.read flatMap { stream =>
           val script = new BufferedReader(new InputStreamReader(stream))
           Try(engine.eval(script, ctx)) map { _ =>
-            val b_prime = ctx getBindings ScriptContext.GLOBAL_SCOPE
+            val b_prime = ctx getBindings ScriptContext.ENGINE_SCOPE
             cleanUp()
             new ScriptMonad(engine, b_prime)
           }
@@ -104,7 +107,7 @@ class ScriptMonad(
    */
   def set(name: String, value: AnyRef): Try[Value]
     = Try(Option(
-        ctx.getBindings(ScriptContext.GLOBAL_SCOPE)
+        ctx.getBindings(ScriptContext.ENGINE_SCOPE)
            .put(name, value)
       ))
 
@@ -120,7 +123,7 @@ class ScriptMonad(
    */
   def get(name: String): Try[Value]
     = Try(Option(
-        ctx.getBindings(ScriptContext.GLOBAL_SCOPE)
+        ctx.getBindings(ScriptContext.ENGINE_SCOPE)
            .get(name)
       ))
 
@@ -136,7 +139,7 @@ class ScriptMonad(
    */
   def remove(name: String): Try[Value]
     = Try(Option(
-      ctx.getBindings(ScriptContext.GLOBAL_SCOPE)
+      ctx.getBindings(ScriptContext.ENGINE_SCOPE)
          .remove(name)
     ))
 
