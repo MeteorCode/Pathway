@@ -8,6 +8,7 @@ import com.meteorcode.pathway.script.ScriptMonad
 
 import org.json4s._
 import org.json4s.native.JsonMethods._
+import org.json4s.native.Serialization.write
 import org.json4s.JsonDSL._
 
 import sun.plugin.dom.exception.InvalidStateException
@@ -82,6 +83,6 @@ extends CustomSerializer[Event](implicit format => ({
   case Event(name,script,children) =>
     ("name" -> name) ~
     ("onEvent" -> script) ~
-    ("children" -> children)
+    ("children" -> write(children))
   })
 )
