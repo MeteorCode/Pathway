@@ -32,18 +32,15 @@ class ScriptMonad(
   private[this] val ctx: ScriptContext
     = new SimpleScriptContext
 
-  private[this] val mkBindings: Bindings
-    = { val b = engine.createBindings
-        b putAll bindings
-        b
-      }
+  private[this] val _bindings
+    = new SimpleBindings(bindings)
 
   if (!bindings.isEmpty)
-    ctx setBindings (mkBindings, ScriptContext.GLOBAL_SCOPE)
+    ctx setBindings (_bindings, ScriptContext.GLOBAL_SCOPE)
 
   @inline private[this] def cleanUp(): Unit
     // this should reset all of the context's bindings
-    = ctx setBindings (mkBindings, ScriptContext.GLOBAL_SCOPE)
+    = ctx setBindings (_bindings, ScriptContext.GLOBAL_SCOPE)
 
   /**
    * Evaluate a script from a String.
