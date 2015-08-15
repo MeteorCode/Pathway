@@ -30,7 +30,7 @@ extends PathwaySpec
         forAll (ident, arbitrary[Int]) {
           (name, value) =>
             val a = ScriptMonad()
-            a(s"var a = $value;") shouldBe a 'success
+            a(s"var a = $value;") should be a ('success)
         }
       }
       "obey the monad laws" in {
@@ -44,10 +44,10 @@ extends PathwaySpec
             val b = a(s"var $name = $value;").success.value
 
             Then("the variable should not be bound in the original ScriptMonad")
-            a get name shouldBe None
+            a.get(name).success.value shouldBe None
 
             And("the variable should be bound in the returned ScriptMonad")
-            b.get(name) shouldEqual value
+            b.get(name).success.value shouldEqual value
         }
       }
     }

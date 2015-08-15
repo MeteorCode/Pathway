@@ -9,7 +9,8 @@ import jdk.nashorn.api.scripting.NashornScriptEngineFactory
 import io.FileHandle
 
 import scala.util.{Success, Try}
-import scala.collection.JavaConverters.mapAsJavaMapConverter
+import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
+import scala.collection.immutable
 
 /**
  * A ScriptContainer wraps a script interpreter and a set of variable bindings.
@@ -32,21 +33,26 @@ class ScriptMonad(
   type Value = Option[AnyRef]
 
   private[this] val ctx: ScriptContext
-    = engine.getContext
+    = engine.getContext()
 
   private[this] def _bindings: Bindings
-    = { val b: Bindings = engine.createBindings()
-        b.asInstanceOf[util.Map[String, AnyRef]].putAll(bindings)
-        b
-      }
+    = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
 
-  if (!bindings.isEmpty)
-    ctx setBindings (_bindings, ScriptContext.ENGINE_SCOPE)
+  _bindings.asInstanceOf[util.Map[String, AnyRef]]
+           .putAll(bindings)
 
   @inline private[this] def cleanUp(): Unit
-    // this should reset all of the context's bindings
-    = ctx setBindings (_bindings, ScriptContext.ENGINE_SCOPE)
+    = { _bindings.asScala
+          .keySet
+            // select only bindings that didn't exist previously
+          .withFilter { bindings containsKey _ == false }
+            // remove any new bindings
+          .foreach { key => ctx removeAttribute (key, ScriptContext.ENGINE_SCOPE) }
 
+        // we have to cast this to Map because Java is stupid
+        _bindings.asInstanceOf[util.Map[String, AnyRef]]
+                 .putAll(bindings) // reset all existing bindings
+      }
   /**
    * Evaluate a script from a String.
    * @param script the script to evaluate
@@ -57,16 +63,22 @@ class ScriptMonad(
   def apply(script: String): Try[ScriptMonad]
     = compile(script) match {
         case Some(cs) => apply(cs)
-        case None     => Try(engine eval script, ctx) map { _ =>
-          val b_prime = ctx getBindings ScriptContext.ENGINE_SCOPE
+        case None     => Try(engine eval script) map { _ =>
+          val b_prime = _bindings.asScala
+                                 .foldRight(Map[String,AnyRef]()){
+                                   (kv: (String, AnyRef), map) => map + kv
+                                 }
           cleanUp()
-          new ScriptMonad(engine, b_prime)
+          ScriptMonad(b_prime)
         }
       }
 
   def apply(script: CompiledScript): Try[ScriptMonad]
-    = Try(script eval ctx) map { _ =>
-        val b_prime = ctx getBindings ScriptContext.ENGINE_SCOPE
+    = Try(script eval) map { _ =>
+        val b_prime = _bindings.asScala
+                               .foldRight(Map[String,AnyRef]()){
+                                 (kv: (String, AnyRef), map) => map + kv
+                               }
         cleanUp()
         new ScriptMonad(engine, b_prime)
       }
@@ -85,8 +97,11 @@ class ScriptMonad(
         case Some(thing) => thing flatMap apply _
         case None        => file.read flatMap { stream =>
           val script = new BufferedReader(new InputStreamReader(stream))
-          Try(engine.eval(script, ctx)) map { _ =>
-            val b_prime = ctx getBindings ScriptContext.ENGINE_SCOPE
+          Try { engine eval script } map { _ =>
+            val b_prime = _bindings.asScala
+                                   .foldRight(Map[String,AnyRef]()){
+                                     (kv: (String, AnyRef), map) => map + kv
+                                   }
             cleanUp()
             new ScriptMonad(engine, b_prime)
           }
@@ -106,12 +121,16 @@ class ScriptMonad(
    *
    */
   def set(name: String, value: AnyRef): Try[Value]
-    = Try(Option(
-        ctx.getBindings(ScriptContext.ENGINE_SCOPE)
-           .put(name, value)
-      ))
+    = Try {
+        Option( ctx.getBindings(ScriptContext.ENGINE_SCOPE)
+                   .put(name, value) )
+      } map { result =>
+        // mirror changes in our map
+        bindings put (name, value)
+        result
+      }
 
-  /**
+/**
    * Accesses a variable within this ScriptContainer, returning value bound to
    * that variable.
    * @param name the name of the variable to access
@@ -122,10 +141,7 @@ class ScriptMonad(
    *
    */
   def get(name: String): Try[Value]
-    = Try(Option(
-        ctx.getBindings(ScriptContext.ENGINE_SCOPE)
-           .get(name)
-      ))
+    = Try( Option(ctx getAttribute name) )
 
   /**
    * Unbind a variable within this ScriptContainer, returning the previous
@@ -138,10 +154,13 @@ class ScriptMonad(
    *
    */
   def remove(name: String): Try[Value]
-    = Try(Option(
-      ctx.getBindings(ScriptContext.ENGINE_SCOPE)
-         .remove(name)
-    ))
+    = Try { // try to remove the value from the script context
+        Option( ctx removeAttribute (name, ScriptContext.ENGINE_SCOPE) )
+      } map { result =>
+        // mirror the changes in our map transactionally
+        bindings remove name
+        result
+      }
 
   def compile(script: String): Option[CompiledScript]
     = engine match {
