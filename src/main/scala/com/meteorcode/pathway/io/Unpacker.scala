@@ -23,10 +23,10 @@ import scala.util.control.NonFatal
  */
 object Unpacker
 extends LazyLogging {
-  private[this] val sep = System.getProperty("file.separator")
 
-  private[this] lazy val defaultLocation: String
-    = System.getProperty("user.home") + s"$sep.pathway$sep"
+  private[this] lazy val defaultLocation: nio.file.Path
+    = Paths.get(System.getProperty("user.home"))
+           .resolve(".pathway")
 
   private[this] lazy val defaultSrcURL: URL
     = this.getClass
@@ -38,13 +38,13 @@ extends LazyLogging {
     = System.getProperty("os.name") match {
         case os if os contains "Mac" =>
           logger info s"Operating system is $os, unpacking .dylib libraries"
-          Some(".dylib")
+          Some("dylib")
         case os if os contains "Win" =>
           logger info s"Operating system is $os, unpacking .dll libraries"
-          Some(".dll")
+          Some("dll")
         case os if os.contains("nix") || os.contains("nux") =>
           logger info s"Operating system is $os, unpacking .so libraries"
-          Some(".so")
+          Some("so")
         case os =>
           logger warn s"Unknown operating system $os, will unpack all natives"
           None
@@ -57,100 +57,100 @@ extends LazyLogging {
    * @return True if and only if the unpacking succeeds, and the classpath
    *         is edited to include the new natives directory. False otherwise.
    */
-  def unpackNatives(destLocation: String = defaultLocation,
-                    srcURL: URL = defaultSrcURL): Try[Boolean] = {
-    logger info s"Unpacking natives from $destLocation to $srcURL"
-    val targetDir = Paths.get(destLocation)
+  def unpackNatives(destLocation: nio.file.Path = defaultLocation,
+                    srcURL: URL = defaultSrcURL): Try[Boolean]
+     //We cannot unpack if the target location is read only.
+    = if(!destLocation.getFileSystem.isReadOnly) {
+        logger info s"Unpacking natives from $srcURL to $destLocation"
+        //Add destLocation/native to the classloader via an ugly hack
+        UnpackerJavaCallouts.mangleClassloader(destLocation.resolve("native").toString)
 
-    //We cannot unpack if the target location is read only.
-    if(!targetDir.getFileSystem.isReadOnly) {
+        val zURI = URI.create("jar:" + srcURL.toURI.toString + "!/lwjgl-natives")
+        logger info s"zURI is $zURI"
+        Try{
+          Files.createDirectory(destLocation)
+          Files.createDirectories(destLocation.resolve("native"))
+          logger info s"Created local natives directory $destLocation"
+        } recover {
+            case x: FileAlreadyExistsException =>
+              logger debug s"Local natives directory $destLocation already exists"
+        } flatMap { _ =>
+          Try(FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava))
+            .recover {
+              case x: FileSystemAlreadyExistsException =>
+            }
+        } flatMap { _ =>
+          val top = Paths.get(zURI)
+          Try(Files.walkFileTree(top,
+            new FileVisitor[nio.file.Path] with LazyLogging {
+            import FileVisitResult._
 
-      //Add destLocation/native to the classloader via an ugly hack
-      UnpackerJavaCallouts.mangleClassloader(
-        Paths.get(destLocation)
-          .resolve("native")
-          .toString
-      )
-
-      val zURI = URI.create("jar:" + srcURL.toURI.toString + "!/lwjgl-natives")
-      Try{
-        Files.createDirectory(targetDir)
-        logger info s"Created local natives directory $targetDir"
-      } recover {
-          case x: FileAlreadyExistsException =>
-            logger debug s"Local natives directory $targetDir already exists"
-      } flatMap { _ =>
-        Try(FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava))
-          .recover {
-            case x: FileSystemAlreadyExistsException =>
-          }
-      } flatMap { _ =>
-        val top = Paths.get(zURI)
-        Try(Files.walkFileTree(top,
-          new FileVisitor[nio.file.Path] with LazyLogging {
-          import FileVisitResult._
-
-          override def preVisitDirectory(dir: nio.file.Path,
-                                         attrs: BasicFileAttributes): FileVisitResult
-            = { if(dir.toString.compareTo(top.toString) != 0) {
-                  try {
-                    Files.createDirectory(
-                      targetDir.resolve(top.relativize(dir).toString)
-                    )
-                  } catch {
-                    case x: FileAlreadyExistsException =>
-                    case x if NonFatal(x) =>
-                      logger warn (s"An exception occurred before visiting $dir", x)
+            override def preVisitDirectory(dir: nio.file.Path,
+                                           attrs: BasicFileAttributes): FileVisitResult
+              = { logger info s"Previsit dir $dir"
+                  if(dir.toString.compareTo(top.toString) != 0) {
+                    try {
+                      Files.createDirectory(
+                        destLocation.resolve("native")
+                                    .resolve(top.relativize(dir).toString)
+                      )
+                    } catch {
+                      case x: FileAlreadyExistsException =>
+                      case x if NonFatal(x) =>
+                        logger warn (s"An exception occurred before visiting $dir", x)
+                    }
                   }
+                    CONTINUE
                 }
-                  CONTINUE
-              }
 
-          override def visitFileFailed(file: nio.file.Path,
-                                       exc: IOException): FileVisitResult
-            = CONTINUE
+            override def visitFileFailed(file: nio.file.Path,
+                                         exc: IOException): FileVisitResult
+              = CONTINUE
 
-          override def postVisitDirectory(dir: nio.file.Path,
-                                          exc: IOException): FileVisitResult
-            = CONTINUE
+            override def postVisitDirectory(dir: nio.file.Path,
+                                            exc: IOException): FileVisitResult
+              = CONTINUE
 
-          override def visitFile(file: nio.file.Path,
-                                 attrs: BasicFileAttributes): FileVisitResult
-            = Try {
-                nativeExt match {
-                  case Some(ext) if file.getFileName.toString.endsWith(ext) =>
-                    Files.copy(
-                      Files.newInputStream(file),
-                      targetDir.resolve(top.relativize(file).toString)
-                    )
-                    logger trace s"Copied $file to natives directory"
-                  case None =>
-                    Files.copy(
-                      Files.newInputStream(file),
-                      targetDir.resolve(top.relativize(file).toString)
-                    )
-                    logger trace s"Copied $file to natives directory"
-                  case _ =>
-                }
-              } recover {
-                case x: FileAlreadyExistsException =>
-                  logger trace s"Natives file $file already exists, skipping"
-                case x if NonFatal(x) =>
-                  logger warn (s"Exception while visiting $file!", x)
-              } fold (
-                up => throw up,
-                _  => CONTINUE
-              )
-        })
-        ) map { _ => true }
+            override def visitFile(file: nio.file.Path,
+                                   attrs: BasicFileAttributes): FileVisitResult
+              = Try {
+                  logger trace s"Visiting: $file"
+                  nativeExt match {
+                    case Some(ext) if file.toString.endsWith(ext) =>
+                      Files.copy(
+                        Files.newInputStream(file),
+                        destLocation.resolve("native")
+                                    .resolve(top.relativize(file).toString)
+                      )
+                      logger debug s"Copied $file to natives directory"
+                    case None =>
+                      Files.copy(
+                        Files.newInputStream(file),
+                        destLocation.resolve("native")
+                                    .resolve(top.relativize(file).toString)
+                      )
+                      logger debug s"Copied $file to natives directory"
+                    case _ =>
+                  }
+                } recover {
+                  case x: FileAlreadyExistsException =>
+                    logger trace s"Natives file $file already exists, skipping"
+                  case x if NonFatal(x) =>
+                    logger warn (s"Exception while visiting $file!", x)
+                } fold (
+                  up => throw up,
+                  _  => CONTINUE
+                )
+          })
+          ) map { _ => true }
+        }
+
+      } else {
+        // the target location was read-only
+        logger warn "Could not unpack natives, " +
+          s"destination $destLocation was read-only!"
+        Success(false)
       }
-
-    } else {
-      // the target location was read-only
-      logger warn s"Natives location $targetDir was read-only!"
-      Success(false)
-    }
-  }
 
   ///////////////////////////////////////////////////////////////////////////
   // REMOVE BEFORE FLIGHT -- DO NOT RUN THIS IN PRODUCTION BUILDS PLEASE
