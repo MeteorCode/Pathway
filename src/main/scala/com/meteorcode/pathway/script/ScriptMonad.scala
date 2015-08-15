@@ -20,8 +20,8 @@ import scala.collection.JavaConverters.mapAsJavaMapConverter
  */
 class ScriptMonad(
   private[this] val engine: ScriptEngine,
-  bindings: Bindings
-    = new util.HashMap[String,AnyRef]()
+  private[this] val bindings: util.Map[String,AnyRef]
+    = new util.HashMap()
 ) {
 
   def this(engine: ScriptEngine, bindings: Map[String,AnyRef] = Map())
@@ -32,11 +32,18 @@ class ScriptMonad(
   private[this] val ctx: ScriptContext
     = new SimpleScriptContext
 
-  if (!bindings.isEmpty) ctx.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
+  private[this] val mkBindings: Bindings
+    = { val b = engine.createBindings
+        b putAll bindings
+        b
+      }
+
+  if (!bindings.isEmpty)
+    ctx setBindings (mkBindings, ScriptContext.GLOBAL_SCOPE)
 
   @inline private[this] def cleanUp(): Unit
     // this should reset all of the context's bindings
-    = ctx setBindings (bindings, ScriptContext.GLOBAL_SCOPE)
+    = ctx setBindings (mkBindings, ScriptContext.GLOBAL_SCOPE)
 
   /**
    * Evaluate a script from a String.
