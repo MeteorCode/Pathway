@@ -65,7 +65,7 @@ class Event (
    */
   def child(childName: String, childScript: String): Event
     = { val c = new Event(childName, childScript)
-        children += c
+        _children += c
         c
       }
 }
