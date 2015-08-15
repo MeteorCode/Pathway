@@ -28,6 +28,7 @@ resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 
 libraryDependencies ++= Seq(
   "org.beanshell"               %  "bsh"            % "2+",
+  "org.slf4j"                   %  "slf4j-jdk14"    % "1.7+",
   "me.hawkweisman"              %% "util"           % "0.0.3",
   "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
   // --- LWJGL -----------------------------------------
@@ -48,12 +49,32 @@ wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
 )
 
 assembledMappings in assembly ~= { mapSets => mapSets.map {
+    _ match {
+      case MappingSet(Some(packageName), mings)
+        if packageName.getName.startsWith("lwjgl-platform") =>
+          MappingSet(Some(packageName), mings.map {
+            case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
+          })
+      case m: MappingSet => m
+    }
+  }
+}
+
+Project.inConfig(Test)(baseAssemblySettings)
+
+mainClass in assembly in Test := Some("com.meteorcode.pathway.test.TempoRedscreenTest")
+
+assemblyJarName in assembly in Test := "pathway-assembly-test.jar"
+
+test in assembly in Test := {}
+
+assembledMappings in assembly in Test ~= { mapSets => mapSets.map {
   _ match {
     case MappingSet(Some(packageName), mings)
       if packageName.getName.startsWith("lwjgl-platform") =>
-        MappingSet(Some(packageName), mings.map {
-          case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
-        })
+      MappingSet(Some(packageName), mings.map {
+        case ((f: File, path: String)) => (f, s"$nativesDir/" + path)
+      })
     case m: MappingSet => m
   }
 }
