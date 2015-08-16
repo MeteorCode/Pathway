@@ -33,26 +33,54 @@ class ScriptMonad(
   type Value = Option[AnyRef]
 
   private[this] val ctx: ScriptContext
-    = engine.getContext()
+    = new SimpleScriptContext()
 
-  private[this] def _bindings: Bindings
+  private[this] val _bindings: Bindings
     = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
 
-  _bindings.asInstanceOf[util.Map[String, AnyRef]]
-           .putAll(bindings)
+    _bindings.asInstanceOf[util.Map[String, AnyRef]]
+             .putAll(bindings)
 
+  /**
+   * Perform all clean-up actions after evaluating a script.
+   *
+   * This ensures that the bindings set by the script have been
+   * unset.
+   */
   @inline private[this] def cleanUp(): Unit
     = { _bindings.asScala
           .keySet
             // select only bindings that didn't exist previously
           .withFilter { bindings containsKey _ == false }
             // remove any new bindings
-          .foreach { key => ctx removeAttribute (key, ScriptContext.ENGINE_SCOPE) }
+          .foreach { key =>
+            ctx removeAttribute (key, ScriptContext.ENGINE_SCOPE)
+           }
 
-        // we have to cast this to Map because Java is stupid
-        _bindings.asInstanceOf[util.Map[String, AnyRef]]
-                 .putAll(bindings) // reset all existing bindings
+        // reset to original bindings
+        _bindings.asInstanceOf[util.Map[String,AnyRef]]
+                 .putAll(bindings)
       }
+
+  /**
+   * Perform all post-evaluation actions.
+   *
+   * This caches the current state of bindings in the engine, and then calls
+   * [[cleanUp()]] to ensure that any new state  was removed. It then returns
+   * a new [[ScriptMonad]] containing the new bindings cached prior to cleaning
+   * up the engine (the ''b&prime;'' state).
+   * @return A new [[ScriptMonad]] instance wrapping the ''b&prime;'' bindings
+   *         state of the engine.
+   */
+  @inline private[this] def postEval(): Try[ScriptMonad]
+    = Try {
+        val b_prime = immutable.Map[String,AnyRef]() ++
+          engine.getBindings(ScriptContext.ENGINE_SCOPE)
+                .asScala
+        cleanUp()
+        new ScriptMonad(engine, b_prime)
+      }
+
   /**
    * Evaluate a script from a String.
    * @param script the script to evaluate
@@ -63,25 +91,11 @@ class ScriptMonad(
   def apply(script: String): Try[ScriptMonad]
     = compile(script) match {
         case Some(cs) => apply(cs)
-        case None     => Try(engine eval script) map { _ =>
-          val b_prime = _bindings.asScala
-                                 .foldRight(Map[String,AnyRef]()){
-                                   (kv: (String, AnyRef), map) => map + kv
-                                 }
-          cleanUp()
-          ScriptMonad(b_prime)
-        }
+        case None     => Try(engine eval script) flatMap { _ => postEval() }
       }
 
   def apply(script: CompiledScript): Try[ScriptMonad]
-    = Try(script eval) map { _ =>
-        val b_prime = _bindings.asScala
-                               .foldRight(Map[String,AnyRef]()){
-                                 (kv: (String, AnyRef), map) => map + kv
-                               }
-        cleanUp()
-        new ScriptMonad(engine, b_prime)
-      }
+    = Try(script eval) flatMap { _ => postEval() }
 
   /**
    * Evaluate a script from a [[FileHandle]].
@@ -97,14 +111,7 @@ class ScriptMonad(
         case Some(thing) => thing flatMap apply _
         case None        => file.read flatMap { stream =>
           val script = new BufferedReader(new InputStreamReader(stream))
-          Try { engine eval script } map { _ =>
-            val b_prime = _bindings.asScala
-                                   .foldRight(Map[String,AnyRef]()){
-                                     (kv: (String, AnyRef), map) => map + kv
-                                   }
-            cleanUp()
-            new ScriptMonad(engine, b_prime)
-          }
+          Try { engine eval script } flatMap { _ => postEval() }
         }
       }
 
@@ -122,8 +129,7 @@ class ScriptMonad(
    */
   def set(name: String, value: AnyRef): Try[Value]
     = Try {
-        Option( ctx.getBindings(ScriptContext.ENGINE_SCOPE)
-                   .put(name, value) )
+        Option( _bindings.put(name, value) )
       } map { result =>
         // mirror changes in our map
         bindings put (name, value)
