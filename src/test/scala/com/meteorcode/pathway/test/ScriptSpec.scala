@@ -52,6 +52,18 @@ extends PathwaySpec
     }
 
 
+    "evaluating pathological JavaScript that abuses Bind from a String" should {
+      "obey the monad laws by returning the same number multiple times" in {
+        val evilJS = "var m = (m || (function(){return this.b++;})).bind({b:0}); m();"
+        val monad = ScriptMonad()
+
+        for (_ <- 1 to 10) {
+          monad(evilJS).success.value._2.value shouldEqual 0.0
+        }
+      }
+    }
+
+
   }
 
 //  "A ScriptContainerFactory" when {
