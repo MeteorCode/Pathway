@@ -25,7 +25,7 @@ extends PathwaySpec
   with TryValues {
 
   "A ScriptMonad" when {
-    "evaluating JavaScript from a String that binds global variables" should {
+    "evaluating simple JavaScript from a String that binds global variables" should {
       "evaluate a simple script correctly" in {
         forAll (ident, arbitrary[Int]) {
           (name, value) =>
@@ -37,7 +37,7 @@ extends PathwaySpec
         forAll (ident, arbitrary[Int]) {
           (name, value) =>
             val a = ScriptMonad()
-            a(s"var $name = $value;").success.value
+            a(s"var $name = $value;").success.value._1
             a.get(name).success.value shouldBe None
         }
       }
@@ -45,11 +45,12 @@ extends PathwaySpec
         forAll (ident, arbitrary[Int]) {
           (name, value) =>
             val a = ScriptMonad()
-            val b = a(s"var $name = $value;").success.value
+            val b = a(s"var $name = $value;").success.value._1
             b.get(name).success.value.value shouldEqual value
         }
       }
     }
+
 
   }
 

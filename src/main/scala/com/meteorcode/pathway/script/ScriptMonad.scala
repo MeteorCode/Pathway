@@ -32,6 +32,7 @@ class ScriptMonad(
     = this(engine, new util.HashMap[String,AnyRef]())
 
   type Value = Option[AnyRef]
+  type Result = Try[(ScriptMonad, Value)]
 
   private[this] val ctx: ScriptContext
     = new SimpleScriptContext()
@@ -89,14 +90,18 @@ class ScriptMonad(
    *         script or a [[javax.script.ScriptException ScriptException]]
    *         if the script could not be evaluated.
    */
-  def apply(script: String): Try[ScriptMonad]
+  def apply(script: String): Result
     = compile(script) match {
         case Some(cs) => apply(cs)
-        case None     => Try(engine eval script) flatMap { _ => postEval() }
+        case None     => Try(engine eval script) flatMap { result =>
+          postEval() map { (_, Option(result)) }
+        }
       }
 
-  def apply(script: CompiledScript): Try[ScriptMonad]
-    = Try(script eval) flatMap { _ => postEval() }
+  def apply(script: CompiledScript): Result
+    = Try(script eval) flatMap { result =>
+        postEval() map { (_, Option(result)) }
+      }
 
   /**
    * Evaluate a script from a [[FileHandle]].
@@ -107,12 +112,16 @@ class ScriptMonad(
    *         [[javax.script.ScriptException ScriptException]] if the script
    *         could not be evaluated.
    */
-  def apply(file: FileHandle): Try[ScriptMonad]
+  def apply(file: FileHandle): Result
     = compile(file) match {
         case Some(thing) => thing flatMap apply _
         case None        => file.read flatMap { stream =>
           val script = new BufferedReader(new InputStreamReader(stream))
-          Try { engine eval script } flatMap { _ => postEval() }
+          Try {
+            engine eval script
+          } flatMap { result =>
+            postEval() map { (_, Option(result)) }
+          }
         }
       }
 
