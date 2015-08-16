@@ -3,7 +3,6 @@ package model
 
 import javax.script.CompiledScript
 
-import com.meteorcode.pathway.io.FileHandle
 import com.meteorcode.pathway.script.ScriptMonad
 
 import org.json4s._
@@ -11,10 +10,9 @@ import org.json4s.native.JsonMethods._
 import org.json4s.native.Serialization.write
 import org.json4s.JsonDSL._
 
-import sun.plugin.dom.exception.InvalidStateException
 
 import scala.collection.mutable
-import scala.util.{Success, Failure, Try}
+import scala.util.Try
 
 /**
  * Created by hawk on 8/10/15.

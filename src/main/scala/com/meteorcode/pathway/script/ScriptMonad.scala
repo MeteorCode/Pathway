@@ -39,8 +39,8 @@ class ScriptMonad(
   private[this] val _bindings: Bindings
     = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
 
-    _bindings.asInstanceOf[util.Map[String, AnyRef]]
-             .putAll(bindings)
+  _bindings.asInstanceOf[util.Map[String, AnyRef]]
+           .putAll(bindings)
 
   /**
    * Perform all clean-up actions after evaluating a script.
