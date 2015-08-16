@@ -8,7 +8,7 @@ import me.hawkweisman.util._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 
-import org.scalatest.{GivenWhenThen, TryValues}
+import org.scalatest.{OptionValues, GivenWhenThen, TryValues}
 
 import scala.util.{Failure, Success}
 
@@ -21,6 +21,7 @@ import scala.util.{Failure, Success}
 class ScriptSpec
 extends PathwaySpec
   with IdentGenerators
+  with OptionValues
   with TryValues
   with GivenWhenThen {
 
@@ -47,7 +48,7 @@ extends PathwaySpec
             a.get(name).success.value shouldBe None
 
             And("the variable should be bound in the returned ScriptMonad")
-            b.get(name).success.value shouldEqual value
+            b.get(name).success.value.value shouldEqual value
         }
       }
     }
