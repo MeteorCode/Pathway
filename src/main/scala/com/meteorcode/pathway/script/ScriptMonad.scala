@@ -8,9 +8,10 @@ import jdk.nashorn.api.scripting.NashornScriptEngineFactory
 
 import io.FileHandle
 
-import scala.util.{Success, Try}
+import scala.util.Try
 import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
 import scala.collection.immutable
+import scala.languageFeature.postfixOps
 
 /**
  * A ScriptContainer wraps a script interpreter and a set of variable bindings.
