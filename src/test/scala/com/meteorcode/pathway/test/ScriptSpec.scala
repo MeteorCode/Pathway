@@ -22,11 +22,10 @@ class ScriptSpec
 extends PathwaySpec
   with IdentGenerators
   with OptionValues
-  with TryValues
-  with GivenWhenThen {
+  with TryValues {
 
   "A ScriptMonad" when {
-    "evaluating JavaScript that binds global variables" should {
+    "evaluating JavaScript from a String that binds global variables" should {
       "evaluate a simple script correctly" in {
         forAll (ident, arbitrary[Int]) {
           (name, value) =>
@@ -34,20 +33,19 @@ extends PathwaySpec
             a(s"var a = $value;") should be a ('success)
         }
       }
-      "obey the monad laws" in {
+      "obey the monad laws by not setting the variable in its own bindings" in {
         forAll (ident, arbitrary[Int]) {
           (name, value) =>
-
-            Given("a ScriptMonad")
             val a = ScriptMonad()
-
-            When("executing a script that sets a global variable")
-            val b = a(s"var $name = $value;").success.value
-
-            Then("the variable should not be bound in the original ScriptMonad")
+            a(s"var $name = $value;").success.value
             a.get(name).success.value shouldBe None
-
-            And("the variable should be bound in the returned ScriptMonad")
+        }
+      }
+      "obey the monad laws by returning a new ScriptMonad with the variable bound" in {
+        forAll (ident, arbitrary[Int]) {
+          (name, value) =>
+            val a = ScriptMonad()
+            val b = a(s"var $name = $value;").success.value
             b.get(name).success.value.value shouldEqual value
         }
       }
