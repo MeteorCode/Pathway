@@ -11,7 +11,7 @@ import scala.collection.{AbstractMap, DefaultMap, mutable}
  * fork children off of each level of the map. If a key exists in any
  * of a child's parents, the child will 'pass through' that key. If a
  * new value is bound to a key in a child level, that child will overwrite
- * the previous entry with the new one, but the previous `key` -> `value`
+ * the previous entry with the new one, but the previous `key` → `value`
  * mapping will remain in the level it is defined. This means that the parent
  * level will still provide the previous value for that key.
  *
@@ -113,12 +113,12 @@ class ForkTable[K, V](
    *         key, or [[scala.None None]] if it is undefined.
    */
   @tailrec final override def get(key: K): Option[V] = whiteouts contains key match {
-    case true  => None
-    case false => back get key match {
-      case value: Some[V] => value
-      case None           => parent match {
-        case None         => None
-        case Some(thing)  => thing.get(key)
+    case true  ⇒ None
+    case false ⇒ back get key match {
+      case value: Some[V] ⇒ value
+      case None           ⇒ parent match {
+        case None         ⇒ None
+        case Some(thing)  ⇒ thing.get(key)
       }
     }
   }
@@ -141,13 +141,13 @@ class ForkTable[K, V](
   def remove(key: K): Option[V] = if (back contains key) {
     back remove key
   } else {
-    parent flatMap (_ get key) map {(v) => whiteouts += key; v}
+    parent flatMap (_ get key) map {(v) ⇒ whiteouts += key; v}
   }
 
-  def freeze(): Unit = parent foreach { oldParent =>
+  def freeze(): Unit = parent foreach { oldParent ⇒
       this.parent = None
       this.back ++= oldParent.iterator withFilter {
-        case((key,_)) => !back.contains(key) && !whiteouts.contains(key)
+        case((key,_)) ⇒ !back.contains(key) && !whiteouts.contains(key)
       }
     }
 
@@ -158,9 +158,9 @@ class ForkTable[K, V](
   /** @return an Iterator over all of the (key, value) pairs in the tree.
     */
   override def iterator: Iterator[(K,V)] = parent match {
-    case None         => back.iterator // TODO: make tail-recursive?
-    case Some(parent) => back.iterator ++ parent.iterator.withFilter({
-      case ((key,_))  => !back.contains(key) && !whiteouts.contains(key)
+    case None         ⇒ back.iterator // TODO: make tail-recursive?
+    case Some(parent) ⇒ back.iterator ++ parent.iterator.withFilter({
+      case ((key,_))  ⇒ !back.contains(key) && !whiteouts.contains(key)
     })
   }
 
@@ -180,11 +180,11 @@ class ForkTable[K, V](
     //
     // Trust me on this. I know LISP.
     //  ~ Hawk, 6/9/2015
-    case true                            => true
-    case false if whiteouts contains key => false
-    case false                           => parent match {
-      case None        => false
-      case Some(thing) => thing.chainContains(key)
+    case true                            ⇒ true
+    case false if whiteouts contains key ⇒ false
+    case false                           ⇒ parent match {
+      case None        ⇒ false
+      case Some(thing) ⇒ thing.chainContains(key)
     }
   }
 
@@ -201,7 +201,7 @@ class ForkTable[K, V](
    * @return true if there exists a pair defined at this level for
    *         which the predicate holds, false otherwise.
    */
-  override def exists(p: ((K, V)) => Boolean): Boolean = back exists p
+  override def exists(p: ((K, V)) ⇒ Boolean): Boolean = back exists p
 
   /**
    * Search the whole chain down from this level
@@ -211,11 +211,11 @@ class ForkTable[K, V](
    * @return true if there exists a pair for which the
    *         predicate holds, false otherwise.
    */
-  @tailrec final def chainExists(p: ((K, V)) => Boolean): Boolean = back exists p match {
-    case true  => true // this method could look much simpler were it not for `tailrec`
-    case false => parent match {
-      case None        => false
-      case Some(thing) => thing.chainExists(p)
+  @tailrec final def chainExists(p: ((K, V)) ⇒ Boolean): Boolean = back exists p match {
+    case true  ⇒ true // this method could look much simpler were it not for `tailrec`
+    case false ⇒ parent match {
+      case None        ⇒ false
+      case Some(thing) ⇒ thing.chainExists(p)
     }
   }
 
@@ -253,7 +253,7 @@ class ForkTable[K, V](
    * @return a String representing this table indented at the specified level
    */
   def prettyPrint(indentLevel: Int): String = (" "*indentLevel) + this.keys.foldLeft(""){
-    (acc, key) =>     //TODO: make tail-recursive?
-      acc + "\n" + (" " * indentLevel) + s"$key ==> ${this.get(key).getOrElse("")}"
+    (acc, key) ⇒     //TODO: make tail-recursive?
+      acc + "\n" + (" " * indentLevel) + s"$key =⇒ ${this.get(key).getOrElse("")}"
     }
 }

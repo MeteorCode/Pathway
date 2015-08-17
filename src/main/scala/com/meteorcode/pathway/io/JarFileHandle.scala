@@ -84,10 +84,10 @@ class JarFileHandle protected[io] (
   override lazy val list: Try[Seq[FileHandle]]
     = Try(Collections.list(new JarFile(back).entries)) map {
          _.asScala
-          .withFilter { entry =>
+          .withFilter { entry ⇒
             subdirRE findFirstIn entry.getName isDefined
           }
-          .map { entry =>
+          .map { entry ⇒
             new JarEntryFileHandle(
               s"${this.path}${trailingSlash(entry.getName)}",
               entry,

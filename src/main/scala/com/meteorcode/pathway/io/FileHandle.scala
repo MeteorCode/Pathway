@@ -208,10 +208,10 @@ abstract class FileHandle(protected val virtualPath: String,
     */
   def writeString(string: String, charset: Charset, append: Boolean): Try[Unit]
     = write(append) match {
-      case Some(stream) =>
+      case Some(stream) ⇒
         stream.write(string.getBytes(charset))
         Success(Unit)
-      case None         =>
+      case None         ⇒
         Failure(new IOException(s"FileHandle $path is not writable."))
     }
 
@@ -279,9 +279,9 @@ abstract class FileHandle(protected val virtualPath: String,
    * @return true if other is a FileHandle of the same class and path as this
    */
   override def equals(other: Any): Boolean = other match {
-    case handle: FileHandle   => (handle.path == path) &&
+    case handle: FileHandle   ⇒ (handle.path == path) &&
                                  (handle.getClass == this.getClass)
-    case _                     => false
+    case _                     ⇒ false
   }
 
   /**
@@ -311,5 +311,5 @@ object FileHandle {
   */
 object FileHandle {
   protected[io] def unapply(f: FileHandle): Option[(String, String)]
-    = f.physicalPath map { (physPath) => (f.path, physPath) }
+    = f.physicalPath map { (physPath) ⇒ (f.path, physPath) }
 }

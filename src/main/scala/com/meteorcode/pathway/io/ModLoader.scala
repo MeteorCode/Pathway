@@ -38,6 +38,6 @@ object ModLoader extends LazyLogging {
     // otherwise, get all the jarfiles from the directory and load them
     logger.info("loading mods from " + directory)
     env.addBinding("files",directory.manager)
-    directory.list("init.java").get.foreach { initScript => beanshell.eval(initScript) }
+    directory.list("init.java").get.foreach { initScript ⇒ beanshell.eval(initScript) }
   }
 }

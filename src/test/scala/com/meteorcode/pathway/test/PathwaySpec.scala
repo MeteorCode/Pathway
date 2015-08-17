@@ -31,24 +31,24 @@ trait IdentGenerators {
 
   // generates random Java identifiers
   val ident: Gen[String] = for {
-    len  <- Gen.choose(1,500) // 500 seems reasonable
-    name <- randomJavaIdent(len)(random)
+    len  ← Gen.choose(1,500) // 500 seems reasonable
+    name ← randomJavaIdent(len)(random)
   } yield name
 
   val invalidIdentStart: Gen[String] = for {
-    start <- Gen.oneOf('1','2','3','4','5','6','7','8','9','-','+','*','?','\'','{','}',';',',')
-    len  <- Gen.choose(1,500)
+    start ← Gen.oneOf('1','2','3','4','5','6','7','8','9','-','+','*','?','\'','{','}',';',',')
+    len  ← Gen.choose(1,500)
   } yield s"$start${randomJavaIdent(len)(random)}"
 
   val invalidAt: Gen[(Int,String)] = for {
-    len <- Gen.choose(1,500)
-    pos <- Gen.choose(0,len)
-    invalid <- Gen.oneOf('-','+','*','?','\'','{','}',';',',', '/', '[',']','"','\\','|')
+    len ← Gen.choose(1,500)
+    pos ← Gen.choose(0,len)
+    invalid ← Gen.oneOf('-','+','*','?','\'','{','}',';',',', '/', '[',']','"','\\','|')
   } yield (pos, randomJavaIdent(len)(random).patch(pos, s"$invalid", 1))
 
   val spaceAt: Gen[(Int,String)] = for {
-    len <- Gen.choose(1,500)
-    pos <- Gen.choose(0,len)
+    len ← Gen.choose(1,500)
+    pos ← Gen.choose(0,len)
   } yield (pos, randomJavaIdent(len)(random).patch(pos, " ", 1))
 
   val reservedWords: Gen[String] = Gen.oneOf("abstract", "assert", "boolean",

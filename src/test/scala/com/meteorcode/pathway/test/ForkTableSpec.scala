@@ -27,17 +27,17 @@ class ForkTableSpec extends WordSpec
         target.chainSize shouldBe 0
       }
       "contain no keys" in {
-        forAll { (i: Int) =>
+        forAll { (i: Int) ⇒
           target should not contain i
         }
       }
       "return None when getting a key" in {
-        forAll { (i: Int) =>
+        forAll { (i: Int) ⇒
           target get i shouldBe None
         }
       }
       "return None when removing a key" in {
-        forAll { (i: Int) =>
+        forAll { (i: Int) ⇒
           target remove i shouldBe None
         }
       }
@@ -57,9 +57,9 @@ class ForkTableSpec extends WordSpec
         target shouldNot be a 'leaf
       }
       "allow iteration over all of its mappings" in {
-        forAll{ (contents: Map[Int,Int]) =>
+        forAll{ (contents: Map[Int,Int]) ⇒
           val t = target
-          contents.foreach { case ((k,v)) => t.put(k,v) }
+          contents.foreach { case ((k,v)) ⇒ t.put(k,v) }
           t.foreach{
             contents should contain (_)
           }
@@ -69,7 +69,7 @@ class ForkTableSpec extends WordSpec
     "forked" should {
       "know its children" in {
         forAll {
-          (key1: Int, val1: Int, key2: Int, val2: Int) =>
+          (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
             whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
               val aFork = target.fork()
@@ -86,7 +86,7 @@ class ForkTableSpec extends WordSpec
       }
       "not contain keys defined in its forks" in {
         forAll {
-          (key1: Int, val1: Int, key2: Int, val2: Int) =>
+          (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
             whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
               val aFork = target.fork()
@@ -96,13 +96,13 @@ class ForkTableSpec extends WordSpec
               aFork.put(key1, val1)
               anotherFork.put(key2, val2)
 
-              target should not contain(key1 -> val1, key2 -> val2)
+              target should not contain(key1 → val1, key2 → val2)
             }
         }
       }
       "not chain contain keys defined in its forks" in {
         forAll {
-          (key1: Int, val1: Int, key2: Int, val2: Int) =>
+          (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
             whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
               val aFork = target.fork()
@@ -119,7 +119,7 @@ class ForkTableSpec extends WordSpec
       }
       "not allow access keys defined in its forks" in {
         forAll {
-          (key1: Int, val1: Int, key2: Int, val2: Int) =>
+          (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
             whenever(key1 != key2) { // we are not testing for hash collisions here
               val target = new ForkTable[Int, Int]
               val aFork = target.fork()
@@ -151,7 +151,7 @@ class ForkTableSpec extends WordSpec
       }
       "chain contain all keys in its parent" in {
         forAll {
-          (key: Int, value: Int) =>
+          (key: Int, value: Int) ⇒
             val parent = new ForkTable[Int, Int]
             val fork = parent.fork()
             parent.put(key, value)
@@ -160,7 +160,7 @@ class ForkTableSpec extends WordSpec
       }
       "allow access to keys defined in its parent" in {
         forAll {
-          (key: Int, value: Int) =>
+          (key: Int, value: Int) ⇒
             val parent = new ForkTable[Int, Int]
             val fork = parent.fork()
             parent.put(key, value)
@@ -169,7 +169,7 @@ class ForkTableSpec extends WordSpec
       }
       "not contain keys defined another fork at its level" in {
         forAll {
-          (key1: Int, val1: Int, key2: Int, val2: Int) =>
+          (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
             whenever(key1 != key2) {
               // we are not testing for hash collisions here
               val parent = new ForkTable[Int, Int]
@@ -178,19 +178,19 @@ class ForkTableSpec extends WordSpec
 
               fork.put(key1, val1)
 
-              fork should contain(key1 -> val1)
-              another should not contain (key1 -> val1)
+              fork should contain(key1 → val1)
+              another should not contain (key1 → val1)
 
               another.put(key2, val2)
 
-              another should contain(key2 -> val2)
-              fork should not contain (key2 -> val2)
+              another should contain(key2 → val2)
+              fork should not contain (key2 → val2)
             }
         }
       }
       "not chain contain keys defined another fork at its level" in {
         forAll {
-          (key1: Int, val1: Int, key2: Int, val2: Int) =>
+          (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
             whenever(key1 != key2) {
               // we are not testing for hash collisions here
               val parent = new ForkTable[Int, Int]
@@ -211,7 +211,7 @@ class ForkTableSpec extends WordSpec
       }
       "not allow access to keys defined another fork at its level" in {
         forAll {
-          (key1: Int, val1: Int, key2: Int, val2: Int) =>
+          (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
             whenever(key1 != key2) {
               // we are not testing for hash collisions here
               val parent = new ForkTable[Int, Int]
@@ -232,55 +232,55 @@ class ForkTableSpec extends WordSpec
       }
       "white out rather than remove keys defined in its parent" in {
         forAll {
-          (key: Int, value: Int) =>
+          (key: Int, value: Int) ⇒
             val parent = new ForkTable[Int, Int]
             val fork = parent.fork()
             parent.put(key, value)
 
             fork.remove(key) shouldBe Some(value)
 
-            parent should contain(key -> value)
-            fork should not contain (key -> value)
+            parent should contain(key → value)
+            fork should not contain (key → value)
             fork.chainContains(key) shouldBe false
             fork.get(key) shouldBe None
         }
       }
       "have chain size equal to its size plus the sizes of all parents" in {
         forAll {
-          (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
+          (parentContents: Map[Int, Int], myContents: Map[Int, Int]) ⇒
             val parent = new ForkTable[Int, Int]
             val fork = parent.fork()
 
-            parentContents.foreach { case ((k, v)) => parent.put(k, v) }
-            myContents.foreach { case ((k, v)) => fork.put(k, v) }
+            parentContents.foreach { case ((k, v)) ⇒ parent.put(k, v) }
+            myContents.foreach { case ((k, v)) ⇒ fork.put(k, v) }
 
             fork.chainSize shouldEqual (parentContents.size + myContents.size)
         }
       }
       "have size equal to its size" in {
         forAll {
-          (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
+          (parentContents: Map[Int, Int], myContents: Map[Int, Int]) ⇒
             val parent = new ForkTable[Int, Int]
             val fork = parent.fork()
-            parentContents.foreach { case ((k, v)) => parent.put(k, v) }
-            myContents.foreach { case ((k, v)) => fork.put(k, v) }
+            parentContents.foreach { case ((k, v)) ⇒ parent.put(k, v) }
+            myContents.foreach { case ((k, v)) ⇒ fork.put(k, v) }
 
             fork should have size myContents.size
         }
       }
       "allow iteration over all of the mappings in its chain" in {
         forAll {
-          (parentContents: Map[Int, Int], myContents: Map[Int, Int]) =>
+          (parentContents: Map[Int, Int], myContents: Map[Int, Int]) ⇒
             val parent = new ForkTable[Int, Int]
-            parentContents foreach { case ((k, v)) => parent.put(k, v) }
+            parentContents foreach { case ((k, v)) ⇒ parent.put(k, v) }
             val fork = parent.fork()
-            myContents foreach { case ((k, v)) => fork.put(k, v) }
+            myContents foreach { case ((k, v)) ⇒ fork.put(k, v) }
 
             val allContents = parentContents ++ myContents
 
             // basically, this is ensuring that the iterator iterates over all the mappings in
             // the parent's contents and my contents
-            fork.foldLeft(allContents)( (acc, kv) => acc - kv._1 ) shouldBe empty
+            fork.foldLeft(allContents)( (acc, kv) ⇒ acc - kv._1 ) shouldBe empty
         }
       }
     }
@@ -296,7 +296,7 @@ class ForkTableSpec extends WordSpec
        root.put(4,4)
 
        level2.get(4) shouldBe None
-       level2 should not contain (4 -> 4)
+       level2 should not contain (4 → 4)
      }
    }
  }

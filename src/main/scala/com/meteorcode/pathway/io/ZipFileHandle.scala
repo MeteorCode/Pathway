@@ -109,10 +109,10 @@ class ZipFileHandle protected[io] (virtualPath: String,
   override lazy val list: Try[Seq[FileHandle]]
     = Try(Collections.list(new ZipFile(back).entries)) map {
          _.asScala
-          .withFilter { entry =>
+          .withFilter { entry ⇒
             subdirRE findFirstIn entry.getName isDefined
           }
-          .map { entry =>
+          .map { entry ⇒
             new ZipEntryFileHandle(
               s"${this.path}${trailingSlash(entry.getName)}",
               entry,

@@ -60,7 +60,7 @@ class ZipEntryFileHandle protected[io] (
       parent.manager)
 
   override protected[io] lazy val physicalPath: Option[String]
-    = parentZipfile.physicalPath map { s: String =>
+    = parentZipfile.physicalPath map { s: String ⇒
       if (s.endsWith(".zip")) {
         s"$s/${entry.getName}"
       } else {
@@ -71,18 +71,18 @@ class ZipEntryFileHandle protected[io] (
   override lazy val isDirectory = entry.isDirectory
 
   override def read: Try[InputStream] = this match {
-    case _ if this.isDirectory => Failure(new IOException(
+    case _ if this.isDirectory ⇒ Failure(new IOException(
       s"Could not read from $path, file is a directory"))
-    case _ if !this.exists     => Failure(new IOException(
+    case _ if !this.exists     ⇒ Failure(new IOException(
       s"Could not read from $path, file does not exist"))
-    case _  => Try(new ZipFile(back).getInputStream(entry)) recoverWith {
-      case ze: ZipException => Failure(new IOException(
+    case _  ⇒ Try(new ZipFile(back).getInputStream(entry)) recoverWith {
+      case ze: ZipException ⇒ Failure(new IOException(
         s"Could not read file $path, a ZipException occured", ze))
-      case se: SecurityException => Failure(new IOException(
+      case se: SecurityException ⇒ Failure(new IOException(
         s"Could not read file $path, a Zip entry was improperly signed", se))
-      case ise: IllegalStateException => Failure(new IOException(
+      case ise: IllegalStateException ⇒ Failure(new IOException(
         s"Could not read file $path appears to have been closed", ise))
-      case NonFatal(e) => Failure(new IOException(
+      case NonFatal(e) ⇒ Failure(new IOException(
         s"Could not read file $path, an unexpected error occured.", e))
     }
   }
@@ -92,14 +92,14 @@ class ZipEntryFileHandle protected[io] (
         Try(Collections
           .list(new ZipFile(back).entries)
           .asScala
-          .withFilter { ze: ZipEntry =>
+          .withFilter { ze: ZipEntry ⇒
             ze.getName
               .split("/")
               .dropRight(1)
               .lastOption
             .contains(entry.getName
                            .dropRight(1))
-          }.map { ze: ZipEntry =>
+          }.map { ze: ZipEntry ⇒
             new ZipEntryFileHandle(
               s"${this.path}/${ze.getName.split("/").last}",
               ze,

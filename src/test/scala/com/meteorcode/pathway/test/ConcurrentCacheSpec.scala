@@ -14,10 +14,10 @@ import scala.language.postfixOps
 class ConcurrentCacheSpec
 extends PathwaySpec {
 
-  val reasonableSizes = for (n <- Gen.choose(1, 10000)) yield n
+  val reasonableSizes = for (n ← Gen.choose(1, 10000)) yield n
   val listsAndSizes = for {
-    l <- Arbitrary.arbitrary[Seq[Int]]
-    s <- Gen.choose(0, l.size)
+    l ← Arbitrary.arbitrary[Seq[Int]]
+    s ← Gen.choose(0, l.size)
   } yield (l, s)
 
   "A ConcurrentCache" when {
@@ -26,7 +26,7 @@ extends PathwaySpec {
     }
     "instantiated with the sized constructor" should {
       "throw an exception when size is less < 1" in {
-        forAll { (i: Int) => whenever (i < 1) {
+        forAll { (i: Int) ⇒ whenever (i < 1) {
             the [IllegalArgumentException] thrownBy {
               new ConcurrentCache[String](-1)
             } should have message "Buffer size must be greater than 1."
@@ -34,7 +34,7 @@ extends PathwaySpec {
         }
       }
       "have the requested size when size is >= 1" in {
-        forAll (reasonableSizes) { (i: Int) => whenever (
+        forAll (reasonableSizes) { (i: Int) ⇒ whenever (
           i > 0 && i < 10000 //keep us from hitting JVM array size limit
         ) {
           new ConcurrentCache[String](i).getSize should equal (i)
@@ -44,7 +44,7 @@ extends PathwaySpec {
     }
     "of size n" should {
       "unwind to the last n items inserted" in {
-        forAll (listsAndSizes) { case ((ints: Seq[Int], cacheSize: Int)) =>
+        forAll (listsAndSizes) { case ((ints: Seq[Int], cacheSize: Int)) ⇒
           whenever(ints.length > 1 && cacheSize <= ints.length && cacheSize > 0) {
             val cache = new ConcurrentCache[Int](cacheSize)
             val expected = (ints slice(ints.length - math.min(ints.length, cacheSize), ints.length))

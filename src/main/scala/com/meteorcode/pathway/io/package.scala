@@ -31,7 +31,7 @@ package object io {
    * TODO: Provide Java API for a Policy wrapper class and
    * 			 implicit conversion to this.
    */
-  type LoadOrderPolicy = (Seq[FileHandle]) => Seq[FileHandle]
+  type LoadOrderPolicy = (Seq[FileHandle]) ⇒ Seq[FileHandle]
 
   protected[io] implicit class Path(val path: String) {
 

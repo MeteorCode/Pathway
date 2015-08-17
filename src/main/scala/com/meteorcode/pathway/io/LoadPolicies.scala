@@ -23,7 +23,7 @@ object LoadPolicies {
    * @return a List of those paths ordered by their load priority
    */
   val alphabetic: LoadOrderPolicy
-    = (paths) => paths sortWith { lastPathElem(_) < lastPathElem(_) }
+    = (paths) ⇒ paths sortWith { lastPathElem(_) < lastPathElem(_) }
 
   /**
    * Builds a config file policy for the given config file (a [[FileHandle]])
@@ -42,16 +42,16 @@ object LoadPolicies {
       = config.readString
         .map {
           _.split("\n")
-            .filter(line => !line.startsWith("//"))
+            .filter(line ⇒ !line.startsWith("//"))
         }
         .getOrElse(throw new IOException("Could not read config file."))
 
-    (paths) => (order flatMap { path: String =>
-        paths find { f: FileHandle =>
+    (paths) ⇒ (order flatMap { path: String ⇒
+        paths find { f: FileHandle ⇒
           path == f.assumePhysPath
         }
       }) ++ fallback(
-        paths filterNot {f: FileHandle =>
+        paths filterNot {f: FileHandle ⇒
           order.contains(f.assumePhysPath)
         }
       )

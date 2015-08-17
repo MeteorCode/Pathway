@@ -68,15 +68,15 @@ class FilesystemFileHandle (
   override def list: Try[Seq[FileHandle]]
     = Try(if (isDirectory) {
         back.list map {
-          case isArchiveRE(name, ".jar") => new JarFileHandle(
+          case isArchiveRE(name, ".jar") ⇒ new JarFileHandle(
             "/",
             new File(s"$assumePhysPath/$name.jar"),
             manager)
-          case isArchiveRE(name, ".zip") => new ZipFileHandle(
+          case isArchiveRE(name, ".zip") ⇒ new ZipFileHandle(
             "/",
             new File(s"$assumePhysPath/$name.zip"),
             manager)
-          case item => new FilesystemFileHandle(
+          case item ⇒ new FilesystemFileHandle(
             s"$path/$item",
             s"$assumePhysPath/$item",
             manager)
@@ -99,10 +99,10 @@ class FilesystemFileHandle (
       (back.canWrite || // file exists and is writable, or...
         (Try(back.createNewFile()) match { // try to create the file
           case Failure(i: IOException)  // if not permitted to write, that's OK
-            if i.getMessage == "Permission denied" => false
-          case Failure(NonFatal(e)) => throw new IOException(
+            if i.getMessage == "Permission denied" ⇒ false
+          case Failure(NonFatal(e)) ⇒ throw new IOException(
               s"Could not create FileHandle $this, an exception occured.", e)
-          case Success(result) => result
+          case Success(result) ⇒ result
         })
       )
 }

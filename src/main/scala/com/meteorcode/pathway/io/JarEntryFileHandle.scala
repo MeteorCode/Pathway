@@ -58,7 +58,7 @@ class JarEntryFileHandle protected[io](
     )
 
   override protected[io] lazy val physicalPath: Option[String]
-    = parentJarfile.physicalPath map { s: String =>
+    = parentJarfile.physicalPath map { s: String ⇒
       if (s.endsWith(".jar")) {
         s"$s/${entry.getName}"
       } else {
@@ -69,18 +69,18 @@ class JarEntryFileHandle protected[io](
   override lazy val isDirectory: Boolean = entry.isDirectory
 
   override def read: Try[InputStream] = this match {
-    case _ if this.isDirectory => Failure(new IOException(
+    case _ if this.isDirectory ⇒ Failure(new IOException(
       s"Could not read from $path, file is a directory"))
-    case _ if !this.exists     => Failure(new IOException(
+    case _ if !this.exists     ⇒ Failure(new IOException(
       s"Could not read from $path, file does not exist"))
-    case _ => Try(new JarFile(back).getInputStream(entry)) recoverWith {
-      case ze: ZipException => Failure(new IOException(
+    case _ ⇒ Try(new JarFile(back).getInputStream(entry)) recoverWith {
+      case ze: ZipException ⇒ Failure(new IOException(
         s"Could not read file $path, a ZipException occured", ze))
-      case se: SecurityException => Failure(new IOException(
+      case se: SecurityException ⇒ Failure(new IOException(
         s"Could not read file $path, a Zip entry was improperly signed", se))
-      case ise: IllegalStateException => Failure(new IOException(
+      case ise: IllegalStateException ⇒ Failure(new IOException(
         s"Could not read file $path appears to have been closed", ise))
-      case NonFatal(e) => Failure(new IOException(
+      case NonFatal(e) ⇒ Failure(new IOException(
         s"Could not read file $path, an unexpected error occured.", e))
     }
   }
@@ -90,14 +90,14 @@ class JarEntryFileHandle protected[io](
         Try(Collections
           .list(new JarFile(back).entries)
           .asScala
-          .withFilter { je: JarEntry =>
+          .withFilter { je: JarEntry ⇒
             je.getName
               .split("/")
               .dropRight(1)
               .lastOption
               .contains(entry.getName
                              .dropRight(1)) }
-         .map { je: JarEntry =>
+         .map { je: JarEntry ⇒
            new JarEntryFileHandle(
              s"${this.path}/${je.getName.split("/").last}",
              je,

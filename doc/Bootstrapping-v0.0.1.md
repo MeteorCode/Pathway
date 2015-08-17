@@ -48,7 +48,7 @@ def createGraphicsAPI: Future[GraphicsAPI]
 We can make this depend on natives simply by saying:
 ```scala
 val graphicsAPI: Future[GraphicsAPI]
-  = Unpacker.unpackNatives() flatMap { _ => createGraphicsAPI() }
+  = Unpacker.unpackNatives() flatMap { _ ⇒ createGraphicsAPI() }
   // discarding the Unit return value from unpackNatives()
 ```
 
