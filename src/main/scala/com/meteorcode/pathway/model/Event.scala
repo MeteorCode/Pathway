@@ -47,14 +47,13 @@ class Event (
    *         the script could not be evaluated.
    */
   final def evalEvent(context: ScriptMonad): Try[AnyRef]
-    = if (compiled.isEmpty) {
-        context.compile(script) match {
-          case Some(cs) =>
-            compiled = Some(cs)
-            context(cs)
-          case None => context(script)
-        }
-      } else context(script)
+    = compiled match {
+        case None ⇒
+          val cs = context compile script
+          compiled = Some(cs)
+          context(cs)
+        case Some(cs) ⇒ context(cs)
+      }
 
   /**
    * Spawns a new Event as a child of this event

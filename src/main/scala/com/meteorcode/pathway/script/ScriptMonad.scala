@@ -4,65 +4,56 @@ package script
 import java.io.{BufferedReader, InputStreamReader}
 import java.util
 import javax.script._
-import jdk.nashorn.api.scripting.NashornScriptEngineFactory
+import jdk.nashorn.api.scripting.{ScriptObjectMirror, NashornScriptEngineFactory, NashornScriptEngine}
 
 import io.FileHandle
 
 import scala.util.Try
-import scala.collection.JavaConverters.{mapAsJavaMapConverter, mapAsScalaMapConverter}
-import scala.collection.immutable
+import scala.collection.JavaConverters.{
+  mapAsJavaMapConverter,
+  mapAsScalaMapConverter,
+  asScalaSetConverter
+}
 import scala.languageFeature.postfixOps
 
 /**
  * A ScriptContainer wraps a script interpreter and a set of variable bindings.
+ *
+ * Yeah, I hate the number of casts in this code, too. Blame Java for making
+ * claims of being a "strongly-typed" language, and then having a type system
+ * that isn't expressive enough for you to actually _do things_ in. Java loves
+ * casts, and this code interacts with the (remarkably ugly) Nashorn Java API.
+ *
+ * Good job, Oracle.
  *
  * @author Hawk Weisman
  *
  * Created by hawk on 8/10/15.
  */
 class ScriptMonad(
-  private[this] val engine: ScriptEngine,
+  private[this] val engine: NashornScriptEngine,
   private[this] val bindings: util.Map[String,AnyRef]
 ) {
 
-  def this(engine: ScriptEngine, bindings: Map[String,AnyRef] = Map())
+  def this(engine: NashornScriptEngine, bindings: Map[String,AnyRef] = Map())
     = this(engine, bindings.asJava)
 
-  def this(engine: ScriptEngine)
+  def this(engine: NashornScriptEngine)
     = this(engine, new util.HashMap[String,AnyRef]())
 
   type Value = Option[AnyRef]
   type Result = Try[(ScriptMonad, Value)]
+  type JMap = util.Map[String,AnyRef]
 
   private[this] val ctx: ScriptContext
-    = new SimpleScriptContext()
+    = engine.getContext
 
-  private[this] val _bindings: Bindings
+  private[this] val _bindings: ScriptObjectMirror
     = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
+         .asInstanceOf[ScriptObjectMirror] // I hate that I have to cast this.
 
-  _bindings.asInstanceOf[util.Map[String, AnyRef]]
+  _bindings.asInstanceOf[JMap]
            .putAll(bindings)
-
-  /**
-   * Perform all clean-up actions after evaluating a script.
-   *
-   * This ensures that the bindings set by the script have been
-   * unset.
-   */
-  @inline private[this] def cleanUp(): Unit
-    = { _bindings.asScala
-          .keySet
-            // select only bindings that didn't exist previously
-          .withFilter { bindings containsKey _ == false }
-            // remove any new bindings
-          .foreach { key =>
-            ctx removeAttribute (key, ScriptContext.ENGINE_SCOPE)
-           }
-
-        // reset to original bindings
-        _bindings.asInstanceOf[util.Map[String,AnyRef]]
-                 .putAll(bindings)
-      }
 
   /**
    * Perform all post-evaluation actions.
@@ -75,13 +66,7 @@ class ScriptMonad(
    *         state of the engine.
    */
   @inline private[this] def postEval(): Try[ScriptMonad]
-    = Try {
-        val b_prime = immutable.Map[String,AnyRef]() ++
-          engine.getBindings(ScriptContext.ENGINE_SCOPE)
-                .asScala
-        cleanUp()
-        new ScriptMonad(engine, b_prime)
-      }
+    = ???
 
   /**
    * Evaluate a script from a String.
@@ -91,16 +76,27 @@ class ScriptMonad(
    *         if the script could not be evaluated.
    */
   def apply(script: String): Result
-    = compile(script) match {
-        case Some(cs) => apply(cs)
-        case None     => Try(engine eval script) flatMap { result =>
-          postEval() map { (_, Option(result)) }
-        }
-      }
+    = apply( compile(script) )
 
   def apply(script: CompiledScript): Result
-    = Try(script eval) flatMap { result =>
-        postEval() map { (_, Option(result)) }
+    = Try {
+        script eval
+      } map { result =>
+        val b_prime = Map[String,AnyRef]() ++ _bindings.asScala
+
+        _bindings.asInstanceOf[JMap]
+                 .keySet
+                 .asScala
+                 // select only bindings that didn't exist previously
+                 .filterNot { bindings containsKey _ }
+                 // and delete them
+                 .foreach   { _bindings removeMember _ }
+
+        // reset to original bindings
+        _bindings.asInstanceOf[JMap]
+                 .putAll(bindings)
+
+        (ScriptMonad(b_prime), Option(result))
       }
 
   /**
@@ -113,17 +109,7 @@ class ScriptMonad(
    *         could not be evaluated.
    */
   def apply(file: FileHandle): Result
-    = compile(file) match {
-        case Some(thing) => thing flatMap apply _
-        case None        => file.read flatMap { stream =>
-          val script = new BufferedReader(new InputStreamReader(stream))
-          Try {
-            engine eval script
-          } flatMap { result =>
-            postEval() map { (_, Option(result)) }
-          }
-        }
-      }
+    = compile(file) flatMap apply _
 
   /**
    * Set a variable within this ScriptContainer, returning the previous value
@@ -139,7 +125,7 @@ class ScriptMonad(
    */
   def set(name: String, value: AnyRef): Try[Value]
     = Try {
-        Option( _bindings.put(name, value) )
+        Option( _bindings put (name, value) )
       } map { result =>
         // mirror changes in our map
         bindings put (name, value)
@@ -157,7 +143,7 @@ class ScriptMonad(
    *
    */
   def get(name: String): Try[Value]
-    = Try( Option(ctx getAttribute name) )
+    = Try{ Option( _bindings get name ) }
 
   /**
    * Unbind a variable within this ScriptContainer, returning the previous
@@ -171,26 +157,21 @@ class ScriptMonad(
    */
   def remove(name: String): Try[Value]
     = Try { // try to remove the value from the script context
-        Option( ctx removeAttribute (name, ScriptContext.ENGINE_SCOPE) )
+        Option( _bindings remove name )
       } map { result =>
         // mirror the changes in our map transactionally
         bindings remove name
         result
       }
 
-  def compile(script: String): Option[CompiledScript]
-    = engine match {
-      case e: Compilable => Some(e compile script)
-      case _             => None
-    }
+  def compile(script: String): CompiledScript
+    = engine compile script
 
-  def compile(file: FileHandle): Option[Try[CompiledScript]]
-    = engine match {
-      case e: Compilable => Some(file.read map { stream =>
-          e compile new BufferedReader(new InputStreamReader(stream))
-        })
-      case _             => None
-    }
+  def compile(file: FileHandle): Try[CompiledScript]
+    = file.read map { stream =>
+        val reader = new BufferedReader(new InputStreamReader(stream))
+        engine compile reader
+      }
 
 }
 object ScriptMonad {
@@ -203,5 +184,8 @@ object ScriptMonad {
    * @return a new ScriptContainer with the default [[ScriptEngine]]
    */
   def apply(bindings: Map[String,AnyRef] = Map()): ScriptMonad
-    = new ScriptMonad(factory.getScriptEngine, bindings)
+    = { val engine = factory.getScriptEngine
+                            .asInstanceOf[NashornScriptEngine]
+        new ScriptMonad(engine, bindings)
+      }
 }
