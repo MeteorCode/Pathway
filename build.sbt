@@ -27,15 +27,18 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
   "org.json4s"                  %%  "json4s-native" % "3.3.0.RC1",
   // --- test dependencies ------------------------------
-  "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
-  "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
-  "org.mockito"     %  "mockito-all"    % "1.10.19+"           % "test"
+  "org.scalacheck"    %% "scalacheck"     % "1.12.2+"   % "test",
+  "org.scalatest"     %% "scalatest"      % "2.2.4+"    % "test",
+  "org.mockito"       %  "mockito-all"    % "1.10.19+"  % "test",
+  "com.storm-enroute" %% "scalameter"     % "0.6"       % "test"
 )
 
 wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
   Wart.Any, Wart.Nothing, Wart.Serializable, Wart.NonUnitStatements,
   Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.Var
 )
+
+testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
 
 seq(documentationSettings: _*)
 
