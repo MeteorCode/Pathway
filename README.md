@@ -14,6 +14,8 @@ MeteorCode Pathway
 
 MeteorCode Pathway is an open-source event-driven game engine for JVM platforms. It is intended primarily for turn-based role-playing and strategy games, but is flexible enough for use in any type of game.
 
+Please note that Pathway is currently highly experimental and undergoing active development. Contributions and feedback from the community are very welcome. However, please be aware that Pathway's design is evolving rapidly and we currently make no guarantees of stability or compatibility.
+
 Event-Driven Game Engine?
 -------------------------
 
