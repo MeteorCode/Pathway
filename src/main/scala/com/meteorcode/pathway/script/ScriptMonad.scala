@@ -59,19 +59,6 @@ class ScriptMonad(
            .putAll(bindings)
 
   /**
-   * Perform all post-evaluation actions.
-   *
-   * This caches the current state of bindings in the engine, and then calls
-   * [[cleanUp()]] to ensure that any new state  was removed. It then returns
-   * a new [[ScriptMonad]] containing the new bindings cached prior to cleaning
-   * up the engine (the ''b&prime;'' state).
-   * @return A new [[ScriptMonad]] instance wrapping the ''b&prime;'' bindings
-   *         state of the engine.
-   */
-  @inline private[this] def postEval(): Try[ScriptMonad]
-    = ???
-
-  /**
    * Evaluate a script from a String.
    * @param script the script to evaluate
    * @return a [[scala.util.Try Try]] containing the return value from the

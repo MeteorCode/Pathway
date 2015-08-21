@@ -36,26 +36,23 @@ object LoadPolicies {
    * @return a [[LoadOrderPolicy]] from the given configuration file.
    */
   def mkConfigPolicy(config: FileHandle,
-                     fallback: LoadOrderPolicy = alphabetic): LoadOrderPolicy = {
+                     fallback: LoadOrderPolicy = alphabetic): LoadOrderPolicy
+    = { lazy val order: Seq[String]
+          = config.readString
+            .map {
+              _.split("\n")
+                .filter(line => !line.startsWith("//"))
+            }
+            .getOrElse(throw new IOException("Could not read config file."))
 
-    lazy val order: Seq[String]
-      = config.readString
-        .map {
-          _.split("\n")
-            .filter(line => !line.startsWith("//"))
+        (paths) => (order flatMap { path: String =>
+            paths find { f: FileHandle =>
+              path == f.assumePhysPath
+            }
+          }) ++ fallback(
+            paths filterNot {f: FileHandle =>
+              order.contains(f.assumePhysPath)
+            })
         }
-        .getOrElse(throw new IOException("Could not read config file."))
-
-    (paths) => (order flatMap { path: String =>
-        paths find { f: FileHandle =>
-          path == f.assumePhysPath
-        }
-      }) ++ fallback(
-        paths filterNot {f: FileHandle =>
-          order.contains(f.assumePhysPath)
-        }
-      )
-
-    }
 
 }
