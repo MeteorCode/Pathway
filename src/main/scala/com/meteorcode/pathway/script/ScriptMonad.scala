@@ -31,7 +31,8 @@ import scala.languageFeature.postfixOps
  * Created by hawk on 8/10/15.
  */
 class ScriptMonad(
-  private[this] val engine: NashornScriptEngine,
+  // can be made back into a `val` when Oracle fixes `ScriptObjectMirror`
+  private[this] var engine: NashornScriptEngine,
   private[this] val bindings: util.Map[String,AnyRef]
 ) {
 
@@ -45,10 +46,12 @@ class ScriptMonad(
   type Result = Try[(ScriptMonad, Value)]
   type JMap = util.Map[String,AnyRef]
 
-  private[this] val ctx: ScriptContext
+  // can be a val when `ScriptObjectMirror` is de-broken
+  private[this] var ctx: ScriptContext
     = engine.getContext
 
-  private[this] val _bindings: ScriptObjectMirror
+  // can be a val when `ScriptObjectMirror` is de-broken
+  private[this] var _bindings: ScriptObjectMirror
     = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
          .asInstanceOf[ScriptObjectMirror] // I hate that I have to cast this.
 
@@ -83,18 +86,34 @@ class ScriptMonad(
         script eval
       } map { result =>
         val b_prime = Map[String,AnyRef]() ++ _bindings.asScala
+        // uncomment this after the Rapture happens and Oracle
+        // fixes `ScriptObjectMirror.remove()`
+
+//        _bindings.asInstanceOf[JMap]
+//                 .keySet
+//                 .asScala
+//                 // select only bindings that didn't exist previously
+//                 .filterNot { bindings containsKey _ }
+//                 // and delete them
+//                 .foreach   { _bindings removeMember _ }
+//
+//        // reset to original bindings
+//        _bindings.asInstanceOf[JMap]
+//                 .putAll(bindings)
+
+        // -- remove when `ScriptObjectMirror` is fixed -----------------------
+        engine = ScriptMonad.factory
+                            .getScriptEngine
+                            .asInstanceOf[NashornScriptEngine]
+
+        ctx = engine.getContext
+
+        _bindings = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
+                       .asInstanceOf[ScriptObjectMirror]
+       // ---------------------------------------------------------------------
 
         _bindings.asInstanceOf[JMap]
-                 .keySet
-                 .asScala
-                 // select only bindings that didn't exist previously
-                 .filterNot { bindings containsKey _ }
-                 // and delete them
-                 .foreach   { _bindings removeMember _ }
-
-        // reset to original bindings
-        _bindings.asInstanceOf[JMap]
-                 .putAll(bindings)
+          .putAll(bindings)
 
         (ScriptMonad(b_prime), Option(result))
       }
@@ -176,7 +195,7 @@ class ScriptMonad(
 }
 object ScriptMonad {
 
-  private[this] val factory
+  private val factory
     = new NashornScriptEngineFactory
 
   /**
