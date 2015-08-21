@@ -102,18 +102,22 @@ class ScriptMonad(
 //                 .putAll(bindings)
 
         // -- remove when `ScriptObjectMirror` is fixed -----------------------
-        engine = ScriptMonad.factory
-                            .getScriptEngine
-                            .asInstanceOf[NashornScriptEngine]
+        if (_bindings.keySet   != bindings.keySet &&
+            _bindings.entrySet != bindings.entrySet ) {
 
-        ctx = engine.getContext
+          engine = ScriptMonad.factory
+                              .getScriptEngine
+                              .asInstanceOf[NashornScriptEngine]
 
-        _bindings = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
-                       .asInstanceOf[ScriptObjectMirror]
+          ctx = engine.getContext
+
+          _bindings = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
+                         .asInstanceOf[ScriptObjectMirror]
+
+          _bindings.asInstanceOf[JMap]
+                   .putAll(bindings)
+        }
        // ---------------------------------------------------------------------
-
-        _bindings.asInstanceOf[JMap]
-          .putAll(bindings)
 
         (ScriptMonad(b_prime), Option(result))
       }
