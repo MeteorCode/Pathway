@@ -4,15 +4,19 @@ package script
 import java.io.{BufferedReader, InputStreamReader}
 import java.util
 import javax.script._
-import jdk.nashorn.api.scripting.{ScriptObjectMirror, NashornScriptEngineFactory, NashornScriptEngine}
+
+import jdk.nashorn.api.scripting.{
+  NashornScriptEngineFactory,
+  NashornScriptEngine
+}
 
 import io.FileHandle
 
+import scala.language.postfixOps
 import scala.util.Try
 import scala.collection.JavaConverters.{
   mapAsJavaMapConverter,
-  mapAsScalaMapConverter,
-  asScalaSetConverter
+  mapAsScalaMapConverter
 }
 import scala.languageFeature.postfixOps
 
