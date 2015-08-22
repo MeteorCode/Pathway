@@ -2,6 +2,11 @@ sudo: false
 language: scala
 scala:  2.11.7
 jdk: oraclejdk8
+# Use JDK 8u45+ explicitly
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
 cache:
   directories:
     - $HOME/.ivy2/cache
