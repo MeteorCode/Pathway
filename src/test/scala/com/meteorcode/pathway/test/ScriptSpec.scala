@@ -61,6 +61,61 @@ extends PathwaySpec
           monad(evilJS).success.value._2.value shouldEqual 0.0
         }
       }
+
+      "instantiating Java objects" should {
+        // TODO: use reflection to get all class names in each namespace
+        "deny access to java.io.File" in {
+          val monad = ScriptMonad()
+          val ex = monad("""var File = Java.type("java.io.File");""")
+                      .failure.exception
+          ex shouldBe a [RuntimeException]
+          val cause = ex.getCause
+          cause shouldBe a [ClassNotFoundException]
+          cause.getMessage shouldEqual  "java.io.File"
+        }
+        "deny access to java.io.Console" in {
+          val monad = ScriptMonad()
+          val ex = monad("""var Console = Java.type("java.io.Console");""")
+            .failure.exception
+          ex shouldBe a [RuntimeException]
+          val cause = ex.getCause
+          cause shouldBe a [ClassNotFoundException]
+          cause.getMessage shouldEqual "java.io.Console"
+        }
+        "deny access to java.nio.Files" in {
+          val monad = ScriptMonad()
+          val ex = monad("""var Files = Java.type("java.nio.Files");""")
+            .failure.exception
+          ex shouldBe a [RuntimeException]
+          val cause = ex.getCause
+          cause shouldBe a [ClassNotFoundException]
+          cause.getMessage shouldEqual "java.nio.Files"
+        }
+        "deny access to java.nio.Paths" in {
+          val monad = ScriptMonad()
+          val ex = monad("""var Paths = Java.type("java.nio.Paths");""")
+            .failure.exception
+          ex shouldBe a [RuntimeException]
+          val cause = ex.getCause
+          cause shouldBe a [ClassNotFoundException]
+          cause.getMessage shouldEqual "java.nio.Paths"
+        }
+        "deny access to scala.io.Source" in {
+          val monad = ScriptMonad()
+          val ex = monad("""var Paths = Java.type("scala.io.Source");""")
+            .failure.exception
+          ex shouldBe a [RuntimeException]
+          val cause = ex.getCause
+          cause shouldBe a [ClassNotFoundException]
+          cause.getMessage shouldEqual "scala.io.Source"
+        }
+        "permit access to Pathway IO" in {
+          val monad = ScriptMonad()
+          monad("""var Handle = Java.type("com.meteorcode.pathway.io.FileHandle");""")
+            .success
+          // TODO: we should test that the FileHandle actually works
+        }
+      }
     }
 
 
