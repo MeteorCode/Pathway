@@ -52,7 +52,7 @@ class ScriptMonad(
 
   // can be a val when `ScriptObjectMirror` is de-broken
   private[this] var ctx: ScriptContext
-    = engine.getContext
+    = engine getContext
 
   private[this] def getBindings: JMap
     = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
@@ -74,38 +74,41 @@ class ScriptMonad(
     = apply( compile(script) )
 
   def apply(script: CompiledScript): Result
-    = Try {
-        script eval
-      } map { result =>
+    = Try { script eval } map { result ⇒
         val b_prime = Map[String,AnyRef]() ++ _bindings.asScala
-        // uncomment this after the Rapture happens and Oracle
-        // fixes `ScriptObjectMirror.remove()`
 
-//        _bindings.asInstanceOf[JMap]
-//                 .keySet
+        // only clear out the environment if the script evaluated was not pure
+        // this check saves us a lot of performance.
+        // TODO: can multiple Monads share the same engine if scripts are pure?
+        if (_bindings.keySet   != bindings.keySet &&
+            _bindings.entrySet != bindings.entrySet  ) {
+
+          // -- remove when `ScriptObjectMirror` is fixed ---------------------
+          engine = ScriptMonad.getEngine
+          // Resetting the ScriptEngine every time is a pretty nasty workaround
+          // that I would rather not have to do. Spinning up an engine takes
+          // between 6-11ms on a good machine, but the bigger concern is that
+          // we lose any JS code that was JIT compiled on that engine, which
+          // is a major performance penalty over long term execution. Pure JS
+          // shouldn't have this problem, though (see the above if-clause).
+          ctx = engine.getContext
+          _bindings = getBindings
+          // ------------------------------------------------------------------
+
+          // uncomment after the Rapture happens and Oracle -------------------
+          // fixes `ScriptObjectMirror.remove()` ------------------------------
+//        _bindings.keySet
 //                 .asScala
 //                 // select only bindings that didn't exist previously
 //                 .filterNot { bindings containsKey _ }
 //                 // and delete them
-//                 .foreach   { _bindings removeMember _ }
-//
-//        // reset to original bindings
-//        _bindings.asInstanceOf[JMap]
-//                 .putAll(bindings)
+//                 .foreach   { _bindings remove _ }
+          // ------------------------------------------------------------------
 
-        // -- remove when `ScriptObjectMirror` is fixed -----------------------
-        if (_bindings.keySet   != bindings.keySet &&
-            _bindings.entrySet != bindings.entrySet ) {
+          // reset to original bindings
+          _bindings putAll bindings
 
-          engine = ScriptMonad.getEngine
-
-          ctx = engine.getContext
-
-          _bindings = getBindings
-
-          _bindings.putAll(bindings)
         }
-       // ---------------------------------------------------------------------
 
         (ScriptMonad(b_prime), Option(result))
       }
@@ -137,7 +140,7 @@ class ScriptMonad(
   def set(name: String, value: AnyRef): Try[Value]
     = Try {
         Option( _bindings put (name, value) )
-      } map { result =>
+      } map { result ⇒
         // mirror changes in our map
         bindings put (name, value)
         result
@@ -169,7 +172,7 @@ class ScriptMonad(
   def remove(name: String): Try[Value]
     = Try { // try to remove the value from the script context
         Option( _bindings remove name )
-      } map { result =>
+      } map { result ⇒
         // mirror the changes in our map transactionally
         bindings remove name
         result
@@ -179,7 +182,7 @@ class ScriptMonad(
     = engine compile script
 
   def compile(file: FileHandle): Try[CompiledScript]
-    = file.read map { stream =>
+    = file.read map { stream ⇒
         val reader = new BufferedReader(new InputStreamReader(stream))
         engine compile reader
       }
