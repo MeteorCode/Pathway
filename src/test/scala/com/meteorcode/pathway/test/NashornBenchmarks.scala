@@ -13,7 +13,7 @@ import org.scalameter.api._
  * Created by hawk on 8/20/15.
  */
 object NashornBenchmarks
-extends PerformanceTest.Quickbenchmark {
+extends PerformanceTest.OfflineRegressionReport {
 
   val nothing = Gen.unit("unit")
   val nashornFactory = new NashornScriptEngineFactory

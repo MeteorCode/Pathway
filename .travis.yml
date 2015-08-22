@@ -11,6 +11,7 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
+    - tmp/
 script:
   - sbt compile
   - sbt clean coverage test

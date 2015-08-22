@@ -51,7 +51,6 @@ extends PathwaySpec
       }
     }
 
-
     "evaluating pathological JavaScript that abuses Bind from a String" should {
       "obey the monad laws by returning the same number multiple times" in {
         val evilJS = "var m = (m || (function(){return this.b++;})).bind({b:0}); m();"
