@@ -194,7 +194,7 @@ object ScriptMonad {
     = new NashornScriptEngineFactory
 
   private def getEngine: NashornScriptEngine
-    = factory.getScriptEngine
+    = factory.getScriptEngine(PathwayClassFilter)
              .asInstanceOf[NashornScriptEngine]
 
   /**

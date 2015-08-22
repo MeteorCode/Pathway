@@ -28,6 +28,7 @@ extends ClassFilter {
   //  - java.lang.System
   //    * scripts already have access to print streams on the script engine
   //    * we probably don't want to give them access to things like System.exit
+  // TODO: we might want to operate with a whitelist rather than a blacklist
 
   def exposeToScripts(className: String): Boolean
     = !denied.exists( className startsWith _ )
