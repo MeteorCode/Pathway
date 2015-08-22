@@ -50,13 +50,14 @@ class ScriptMonad(
   private[this] var ctx: ScriptContext
     = engine.getContext
 
-  // can be a val when `ScriptObjectMirror` is de-broken
-  private[this] var _bindings: ScriptObjectMirror
+  private[this] def getBindings: JMap
     = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
-         .asInstanceOf[ScriptObjectMirror] // I hate that I have to cast this.
 
-  _bindings.asInstanceOf[JMap]
-           .putAll(bindings)
+  // can be a val when `ScriptObjectMirror` is de-broken
+  private[this] var _bindings: JMap
+    = getBindings
+
+  _bindings.putAll(bindings)
 
   /**
    * Evaluate a script from a String.
@@ -92,17 +93,13 @@ class ScriptMonad(
         if (_bindings.keySet   != bindings.keySet &&
             _bindings.entrySet != bindings.entrySet ) {
 
-          engine = ScriptMonad.factory
-                              .getScriptEngine
-                              .asInstanceOf[NashornScriptEngine]
+          engine = ScriptMonad.getEngine
 
           ctx = engine.getContext
 
-          _bindings = ctx.getBindings(ScriptContext.ENGINE_SCOPE)
-                         .asInstanceOf[ScriptObjectMirror]
+          _bindings = getBindings
 
-          _bindings.asInstanceOf[JMap]
-                   .putAll(bindings)
+          _bindings.putAll(bindings)
         }
        // ---------------------------------------------------------------------
 
@@ -186,16 +183,17 @@ class ScriptMonad(
 }
 object ScriptMonad {
 
-  private val factory
+  private[this] val factory
     = new NashornScriptEngineFactory
+
+  private def getEngine: NashornScriptEngine
+    = factory.getScriptEngine
+             .asInstanceOf[NashornScriptEngine]
 
   /**
    * Construct a new ScriptContainer with the default [[ScriptEngine]].
    * @return a new ScriptContainer with the default [[ScriptEngine]]
    */
   def apply(bindings: Map[String,AnyRef] = Map()): ScriptMonad
-    = { val engine = factory.getScriptEngine
-                            .asInstanceOf[NashornScriptEngine]
-        new ScriptMonad(engine, bindings)
-      }
+    = new ScriptMonad(getEngine, bindings)
 }
