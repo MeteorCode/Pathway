@@ -267,8 +267,11 @@ abstract class FileHandle(protected val virtualPath: String,
   def delete: Boolean
 
   override lazy val toString: String
-    = this.getClass.getSimpleName + ": " + path
+    = s"${this.getClass.getSimpleName}: $path"
 
+  override lazy val hashCode: Int
+    = this.toString.hashCode
+    
   /**
    * Overriden equality method for FileHandles.
    *
