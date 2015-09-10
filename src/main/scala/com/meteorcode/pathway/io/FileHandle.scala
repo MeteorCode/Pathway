@@ -271,7 +271,7 @@ abstract class FileHandle(protected val virtualPath: String,
 
   override lazy val hashCode: Int
     = this.toString.hashCode
-    
+
   /**
    * Overriden equality method for FileHandles.
    *
@@ -281,11 +281,9 @@ abstract class FileHandle(protected val virtualPath: String,
    * @param other another object
    * @return true if other is a FileHandle of the same class and path as this
    */
-  override def equals(other: Any): Boolean = other match {
-    case handle: FileHandle   ⇒ (handle.path == path) &&
-                                 (handle.getClass == this.getClass)
-    case _                     ⇒ false
-  }
+  override def equals(other: Any): Boolean
+    = other.hashCode == this.hashCode
+
 
   /**
    * Assume that this FileHandle has a physical path and access it, throwing
