@@ -72,9 +72,7 @@ class ResourceManager (
       order = policy)
 
   private[this] val paths
-    = order(directories).foldRight(new PathTable){ (fh, tab) ⇒
-      walk(fh, tab)
-    }
+    = (order(directories) :\ new PathTable()){ (fh, tab) ⇒ walk(fh, tab) }
   paths.freeze()
 
   private[this] val writePaths = writeDir match {
@@ -105,7 +103,7 @@ class ResourceManager (
     = if (current.isDirectory) {
         val newfs = fs.fork()
         newfs put (current.path, current.assumePhysPath)
-        order(current.list.get).foldRight(newfs)((fh, tab) ⇒ walk(fh, tab))
+        (order(current.list.get) :\ newfs)((fh, tab) ⇒ walk(fh, tab))
       } else {
         fs put (current.path, current.assumePhysPath); fs
       }

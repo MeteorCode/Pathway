@@ -280,7 +280,7 @@ class ForkTableSpec extends WordSpec
 
             // basically, this is ensuring that the iterator iterates over all the mappings in
             // the parent's contents and my contents
-            fork.foldLeft(allContents)( (acc, kv) ⇒ acc - kv._1 ) shouldBe empty
+            (allContents /: fork)( (acc, kv) ⇒ acc - kv._1 ) shouldBe empty
         }
       }
     }

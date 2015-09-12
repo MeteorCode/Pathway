@@ -252,8 +252,8 @@ class ForkTable[K, V](
    * @param indentLevel the level to indent to
    * @return a String representing this table indented at the specified level
    */
-  def prettyPrint(indentLevel: Int): String = (" "*indentLevel) + this.keys.foldLeft(""){
-    (acc, key) ⇒     //TODO: make tail-recursive?
-      acc + "\n" + (" " * indentLevel) + s"$key =⇒ ${this.get(key).getOrElse("")}"
-    }
+  def prettyPrint(indentLevel: Int): String
+    = (" "*indentLevel) + ("" /: this.keys){ (acc, key) ⇒
+        acc + "\n" + (" " * indentLevel) + s"$key =⇒ ${this.get(key).getOrElse("")}"
+      }
 }
