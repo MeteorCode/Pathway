@@ -9,6 +9,7 @@ scala:
   # last maintainance release of the previous Scala version
   - 2.10.5
 matrix:
+  fast_finish: true
   allow_failures:
     # we only care if the build against the current Scala version failed
     - scala: 2.12.0-M2
