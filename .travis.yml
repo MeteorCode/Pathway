@@ -15,6 +15,7 @@ cache:
 script:
   - sbt compile
   - sbt clean coverage test
+  - sbt bench:test
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 env:
