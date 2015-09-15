@@ -20,6 +20,8 @@ val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
 
 gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD").lines.headOption.getOrElse("")
 
+lazy val Benchmark = config("bench") extend Test
+
 resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 
 libraryDependencies ++= Seq(
@@ -30,7 +32,7 @@ libraryDependencies ++= Seq(
   "org.scalacheck"    %% "scalacheck"     % "1.12.2+"   % "test",
   "org.scalatest"     %% "scalatest"      % "2.2.4+"    % "test",
   "org.mockito"       %  "mockito-all"    % "1.10.19+"  % "test",
-  "com.storm-enroute" %% "scalameter"     % "0.6"       % "test"
+  "com.storm-enroute" %% "scalameter"     % "0.6"       % "bench"
 )
 
 wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
@@ -38,7 +40,21 @@ wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
   Wart.Throw, Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.Var
 )
 
-testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
+//-- ScalaMeter performance testing settings ----------------------------------
+configs(Benchmark)
+
+val scalaMeter = new TestFramework("org.scalameter.ScalaMeterFramework")
+
+testFrameworks in Benchmark += scalaMeter
+
+logBuffered in Benchmark := false       // ScalaMeter demands these settings
+                                        // due to reasons
+parallelExecution in Benchmark := false
+
+inConfig(Benchmark)(Defaults.testSettings)
+
+testOptions in Benchmark += Tests.Argument(scalaMeter, "-silent")
+//-----------------------------------------------------------------------------
 
 seq(documentationSettings: _*)
 
