@@ -24,23 +24,25 @@ val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
 
 gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD").lines.headOption.getOrElse("")
 
+lazy val Benchmark = config("bench") extend Test
+
 resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 
 libraryDependencies ++= Seq(
-  "org.beanshell"               %  "bsh"            % "2+",
-  "org.slf4j"                   %  "slf4j-jdk14"    % "1.7+",
-  "me.hawkweisman"              %% "util"           % "0.0.3",
-  "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
   // --- LWJGL -----------------------------------------
   "org.lwjgl" % "lwjgl"           % lwjglVersion, // main lajiggle library
   "org.lwjgl" % "lwjgl-platform"  % lwjglVersion  // lajiggle natives
     classifier "natives-windows"
     classifier "natives-linux"
     classifier "natives-osx",
+  "me.hawkweisman"              %% "util"           % "0.0.3",
+  "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
+  "org.json4s"                  %%  "json4s-native" % "3.3.0.RC1",
   // --- test dependencies ------------------------------
-  "org.scalacheck"  %% "scalacheck"     % "1.12.2+"            % "test",
-  "org.scalatest"   %% "scalatest"      % "2.2.4+"             % "test",
-  "org.mockito"     %  "mockito-all"    % "1.10.19+"           % "test"
+  "org.scalacheck"    %% "scalacheck"     % "1.12.2+"   % "test",
+  "org.scalatest"     %% "scalatest"      % "2.2.4+"    % "test",
+  "org.mockito"       %  "mockito-all"    % "1.10.19+"  % "test",
+  "com.storm-enroute" %% "scalameter"     % "0.6"       % "bench"
 )
 
 wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
@@ -63,6 +65,24 @@ assembledMappings in assembly ~= { mapSets ⇒ mapSets.map {
 Project.inConfig(Test)(baseAssemblySettings)
 
 mainClass in assembly in Test := Some("com.meteorcode.pathway.test.TempoRedscreenTest")
+
+//-- ScalaMeter performance testing settings ----------------------------------
+configs(Benchmark)
+
+val scalaMeter = new TestFramework("org.scalameter.ScalaMeterFramework")
+
+testFrameworks in Benchmark += scalaMeter
+
+logBuffered in Benchmark := false       // ScalaMeter demands these settings
+                                        // due to reasons
+parallelExecution in Benchmark := false
+
+inConfig(Benchmark)(Defaults.testSettings)
+
+testOptions in Benchmark += Tests.Argument(scalaMeter, "-silent")
+//-----------------------------------------------------------------------------
+
+seq(documentationSettings: _*)
 
 assemblyJarName in assembly in Test := "pathway-assembly-test.jar"
 

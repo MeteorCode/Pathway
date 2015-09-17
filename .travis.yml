@@ -16,13 +16,20 @@ matrix:
     - scala: 2.10.5
 # we can only build against the Oracle JDK, because we need the latest Nashorn
 jdk: oraclejdk8
+# Use JDK 8u45+ explicitly
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
 cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
+    - tmp/
 script:
   - sbt compile
   - sbt clean coverage test
+  - sbt bench:test
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 env:
