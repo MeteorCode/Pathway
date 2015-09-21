@@ -10,8 +10,9 @@ import com.meteorcode.pathway.io.{ FilesystemFileHandle
                                  , ResourceManager }
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
-/**
+/** == Pathway Bootstrapper ==
  * Created by hawk on 9/21/15.
  */
 object Bootstrap {
