@@ -58,7 +58,7 @@ extends LazyLogging {
    *         is edited to include the new natives directory. False otherwise.
    */
   def unpackNatives(destLocation: nio.file.Path = defaultLocation,
-                    srcURL: URL = defaultSrcURL): Try[Boolean]
+                    srcURL: URL = defaultSrcURL): Try[Unit]
      //We cannot unpack if the target location is read only.
     = if(!destLocation.getFileSystem.isReadOnly) {
         logger info s"Unpacking natives from $srcURL to $destLocation"
@@ -147,9 +147,10 @@ extends LazyLogging {
 
       } else {
         // the target location was read-only
-        logger warn "Could not unpack natives, " +
+        val str = "Could not unpack natives, " +
           s"destination $destLocation was read-only!"
-        Success(false)
+        logger warn str
+        Failure(new IOException(str))
       }
 
   ///////////////////////////////////////////////////////////////////////////
