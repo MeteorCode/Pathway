@@ -10,6 +10,8 @@ import com.typesafe.scalalogging.LazyLogging
 
 import me.hawkweisman.util.TryWithFold
 
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.collection.JavaConverters._
 import scala.util.{Success, Failure, Try}
 import scala.util.control.NonFatal
@@ -34,7 +36,7 @@ extends LazyLogging {
           .getCodeSource
           .getLocation
 
-  private[this] val nativeExt: Option[String]
+  private[this] lazy val nativeExt: Option[String]
     = System.getProperty("os.name") match {
         case os if os contains "Mac" =>
           logger info s"Operating system is $os, unpacking .dylib libraries"
@@ -58,22 +60,24 @@ extends LazyLogging {
    *         is edited to include the new natives directory. False otherwise.
    */
   def unpackNatives(destLocation: nio.file.Path = defaultLocation,
-                    srcURL: URL = defaultSrcURL): Try[Unit]
+                    srcURL: URL = defaultSrcURL)
+                   (implicit ec: ExecutionContext): Future[Unit]
      //We cannot unpack if the target location is read only.
-    = if(!destLocation.getFileSystem.isReadOnly) {
+    = Future {
+      if (!destLocation.getFileSystem.isReadOnly) {
         logger info s"Unpacking natives from $srcURL to $destLocation"
         //Add destLocation/native to the classloader via an ugly hack
         UnpackerJavaCallouts.mangleClassloader(destLocation.resolve("native").toString)
 
         val zURI = URI.create("jar:" + srcURL.toURI.toString + "!/lwjgl-natives")
         logger info s"zURI is $zURI"
-        Try{
+        Try {
           Files.createDirectory(destLocation)
           Files.createDirectories(destLocation.resolve("native"))
           logger info s"Created local natives directory $destLocation"
         } recover {
-            case x: FileAlreadyExistsException =>
-              logger debug s"Local natives directory $destLocation already exists"
+          case x: FileAlreadyExistsException =>
+            logger debug s"Local natives directory $destLocation already exists"
         } flatMap { _ =>
           Try(FileSystems.newFileSystem(zURI, Map("create" -> "false").asJava))
             .recover {
@@ -83,65 +87,67 @@ extends LazyLogging {
           val top = Paths.get(zURI)
           Try(Files.walkFileTree(top,
             new FileVisitor[nio.file.Path] with LazyLogging {
-            import FileVisitResult._
 
-            override def preVisitDirectory(dir: nio.file.Path,
-                                           attrs: BasicFileAttributes): FileVisitResult
-              = { logger info s"Previsit dir $dir"
-                  if(dir.toString.compareTo(top.toString) != 0) {
-                    try {
-                      Files.createDirectory(
-                        destLocation.resolve("native")
-                                    .resolve(top.relativize(dir).toString)
-                      )
-                    } catch {
-                      case x: FileAlreadyExistsException =>
-                      case x if NonFatal(x) =>
-                        logger warn (s"An exception occurred before visiting $dir", x)
-                    }
+              import FileVisitResult._
+
+              override def preVisitDirectory(dir: nio.file.Path,
+                                             attrs: BasicFileAttributes): FileVisitResult
+              = {
+                logger info s"Previsit dir $dir"
+                if (dir.toString.compareTo(top.toString) != 0) {
+                  try {
+                    Files.createDirectory(
+                      destLocation.resolve("native")
+                        .resolve(top.relativize(dir).toString)
+                    )
+                  } catch {
+                    case x: FileAlreadyExistsException =>
+                    case NonFatal(x) =>
+                      logger warn(s"An exception occurred before visiting $dir", x)
                   }
-                    CONTINUE
                 }
+                CONTINUE
+              }
 
-            override def visitFileFailed(file: nio.file.Path,
-                                         exc: IOException): FileVisitResult
+              override def visitFileFailed(file: nio.file.Path,
+                                           exc: IOException): FileVisitResult
               = CONTINUE
 
-            override def postVisitDirectory(dir: nio.file.Path,
-                                            exc: IOException): FileVisitResult
+              override def postVisitDirectory(dir: nio.file.Path,
+                                              exc: IOException): FileVisitResult
               = CONTINUE
 
-            override def visitFile(file: nio.file.Path,
-                                   attrs: BasicFileAttributes): FileVisitResult
+              override def visitFile(file: nio.file.Path,
+                                     attrs: BasicFileAttributes): FileVisitResult
               = Try {
-                  logger trace s"Visiting: $file"
-                  nativeExt match {
-                    case Some(ext) if file.toString.endsWith(ext) =>
-                      Files.copy(
-                        Files.newInputStream(file),
-                        destLocation.resolve("native")
-                                    .resolve(top.relativize(file).toString)
-                      )
-                      logger debug s"Copied $file to natives directory"
-                    case None =>
-                      Files.copy(
-                        Files.newInputStream(file),
-                        destLocation.resolve("native")
-                                    .resolve(top.relativize(file).toString)
-                      )
-                      logger debug s"Copied $file to natives directory"
-                    case _ =>
-                  }
-                } recover {
-                  case x: FileAlreadyExistsException =>
-                    logger trace s"Natives file $file already exists, skipping"
-                  case x if NonFatal(x) =>
-                    logger warn (s"Exception while visiting $file!", x)
-                } fold (
-                  up => throw up,
-                  _  => CONTINUE
+                logger trace s"Visiting: $file"
+                nativeExt match {
+                  case Some(ext) if file.toString.endsWith(ext) =>
+                    Files.copy(
+                      Files.newInputStream(file),
+                      destLocation.resolve("native")
+                        .resolve(top.relativize(file).toString)
+                    )
+                    logger debug s"Copied $file to natives directory"
+                  case None =>
+                    Files.copy(
+                      Files.newInputStream(file),
+                      destLocation.resolve("native")
+                        .resolve(top.relativize(file).toString)
+                    )
+                    logger debug s"Copied $file to natives directory"
+                  case _ =>
+                }
+              } recover {
+                case x: FileAlreadyExistsException =>
+                  logger trace s"Natives file $file already exists, skipping"
+                case x if NonFatal(x) =>
+                  logger warn(s"Exception while visiting $file!", x)
+              } fold(
+                up => throw up,
+                _ => CONTINUE
                 )
-          })
+            })
           ) map { _ => true }
         }
 
@@ -152,16 +158,18 @@ extends LazyLogging {
         logger warn str
         Failure(new IOException(str))
       }
+    }
 
   ///////////////////////////////////////////////////////////////////////////
   // REMOVE BEFORE FLIGHT -- DO NOT RUN THIS IN PRODUCTION BUILDS PLEASE
   // Unpacker test method
   def main (args: Array[String]): Unit
-    = println(unpackNatives() match {
-        case Success(true)  => s"Natives unpacked to $defaultLocation"
-        case Success(false) => s"Natives not unpacked, target was read-only"
-        case Failure(why)   => s"Something went wrong!\n$why"
-      })
+    = { import scala.concurrent.ExecutionContext.Implicits.global
+        println(unpackNatives() onComplete {
+          case Success(_)   ⇒ s"Natives unpacked to $defaultLocation"
+          case Failure(why) ⇒ s"Something went wrong!\n$why"
+        })
+      }
   // REMOVE BEFORE FLIGHT
   /////////////////////////////////////////////////////////////////////////////
 }
