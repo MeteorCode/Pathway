@@ -23,11 +23,10 @@ protected object IOAccessToken
  * @author Hawk Weisman
  * @since v2.0.0
  */
-abstract class FileHandle(protected val virtualPath: String,
-                          protected[io] var manager: ResourceManager //,
-                          // todo: implement
-                          //protected val token: IOAccessToken
-                           ) {
+abstract class FileHandle(
+  protected val virtualPath: String
+, protected[io] var manager: Option[ResourceManager]
+) {
   // TODO: Implement
   //if (token != FileHandle.correctToken) {
   //// validate that the access token is from a valid source
@@ -74,15 +73,15 @@ abstract class FileHandle(protected val virtualPath: String,
    *         or an empty string if there is no extension.
    */
   def extension: String
-    = path.extension
-          .getOrElse[String]("")
+    = virtualPath.extension
+                 .getOrElse[String]("")
 
   /**
    * @return the name of this object, without the filename extension and path.
    */
   def name: String
-    = path.name
-          .getOrElse[String]("")
+    = virtualPath.name
+                 .getOrElse[String]("")
   /**
    * Returns the [[java.io.File]] backing this file handle.
    * @return an [[scala.Option Option]] containing the [[java.io.File]] that
@@ -116,9 +115,7 @@ abstract class FileHandle(protected val virtualPath: String,
     " just use FilterMonadic at call site for better performance",
     since = "v2.0.0")
   def list(suffix: String): Try[Seq[FileHandle]]
-    = list map ( _ filter (
-      _.path.endsWith(suffix))
-    )
+    = list map { _ filter { _.path endsWith suffix } }
 
   /** Returns a stream for reading this file as bytes.
     * @return a [[scala.util.Success Success]] containing an
@@ -224,9 +221,10 @@ abstract class FileHandle(protected val virtualPath: String,
    *         [[java.io.IOException IOException]] if the sibling cannot be accessed.
    */
   def sibling(siblingName: String): Try[FileHandle]
-    = manager.handle(path.replace(
-      if (extension == "") name else name + "." + extension, siblingName)
-    )
+    = manager.getOrElse(throw new IOException("FATAL: No resource manager!"))
+             .handle(path.replace( if (extension == "") name
+                                   else s"$name.$extension"
+                                 , siblingName) )
 
   /**
    * Return a FileHandle into the parent of this file.
@@ -236,9 +234,10 @@ abstract class FileHandle(protected val virtualPath: String,
    *         cannot be accessed.
    */
   def parent: Try[FileHandle]
-    = manager.handle(path.replace(
-      if (extension == "") "/" + name else "/" + name + "." + extension, "")
-    )
+    = manager.getOrElse(throw new IOException("FATAL: No resource manager!"))
+             .handle(path.replace( if (extension == "") s"/$name"
+                                   else s"/$name.$extension"
+                                 , ""))
 
   /**
    * Returns a FileHandle into the a child of this file with the specified name
@@ -249,7 +248,8 @@ abstract class FileHandle(protected val virtualPath: String,
    *         [[java.io.IOException IOException]] if the child cannot be accessed.
    */
   def child(childName: String): Try[FileHandle]
-    = manager.handle(path + "/" + childName)
+    = manager.getOrElse(throw new IOException("FATAL: No resource manager!"))
+             .handle(path + "/" + childName)
 
   /**
    * Returns the length of this file in bytes, or 0 if this FileHandle is a
