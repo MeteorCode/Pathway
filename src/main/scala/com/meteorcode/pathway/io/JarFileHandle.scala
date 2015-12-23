@@ -34,25 +34,25 @@ import scala.language.postfixOps
  * @see [[FileHandle]]
  * @see [[java.util.jar.JarEntry]]
  */
-class JarFileHandle protected[io] (
-  virtualPath: String,
-  private[this] val back: File,
-  manager: ResourceManager
-) extends FileHandle(virtualPath, manager) {
+class JarFileHandle protected[io](
+  virtualPath: String
+, private[this] val back: File
+, manager: ResourceManager
+) extends FileHandle(virtualPath, Some(manager)) {
 
-  protected[io] def this(fileHandle: FileHandle) = this(
-    fileHandle.path,
-    fileHandle.file
-        .getOrElse(throw new IOException(
-          "Could not create JarFileHandle from nonexistant file")),
-    fileHandle.manager)
+  protected[io] def this(fileHandle: FileHandle)
+    = this( fileHandle.path
+          , fileHandle.file
+              .getOrElse(throw new IOException(
+                "Could not create JarFileHandle from nonexistant file"))
+          , fileHandle.manager)
 
   protected[io] def this(virtualPath: String, fileHandle: FileHandle )
-   = this(virtualPath,
-     fileHandle.file
-      .getOrElse(throw new IOException(
-        "Could not create JarFileHandle from nonexistant file")),
-    fileHandle.manager)
+   = this( virtualPath
+         , fileHandle.file
+            .getOrElse(throw new IOException(
+              "Could not create JarFileHandle from nonexistant file"))
+         , fileHandle.manager)
 
   override protected[io] def file: Option[File] = Some(back)
 
@@ -89,15 +89,16 @@ class JarFileHandle protected[io] (
           }
           .map { entry ⇒
             new JarEntryFileHandle(
-              s"${this.path}${trailingSlash(entry.getName)}",
-              entry,
-              this
-            )
+                s"${this.path}${trailingSlash(entry.getName)}"
+              , entry
+              , this
+              )
           }
       }
 
   override def write(append: Boolean): Option[OutputStream] = None
 
   override def read: Try[InputStream]
-    = Failure(new IOException(s"Could not read from $path, file is a directory"))
+    = Failure(new IOException(
+        s"Could not read from $path, file is a directory"))
 }

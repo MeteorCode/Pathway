@@ -38,12 +38,11 @@ import scala.util.control.NonFatal
  * @since v2.0.0
  */
 class FilesystemFileHandle (
-  virtualPath: String,
-  realPath: String,
-  private[this] val back: File,
-  manager: ResourceManager//,
-  //token: IOAccessToken
-  ) extends FileHandle(virtualPath, manager) {
+  virtualPath: String
+, realPath: String
+, private[this] val back: File
+, manager: ResourceManager
+) extends FileHandle(virtualPath, Some(manager)) {
 
   require(realPath != "", "Physical path cannot be empty.")
 
