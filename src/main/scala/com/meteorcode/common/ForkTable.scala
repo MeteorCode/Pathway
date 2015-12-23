@@ -31,9 +31,10 @@ import scala.collection.{AbstractMap, DefaultMap, mutable}
  */
 
 class ForkTable[K, V](
-  protected var parent: Option[ForkTable[K,V]] = None,
-  protected var children: Seq[ForkTable[K,V]] = Nil
-  ) extends AbstractMap[K, V] with DefaultMap[K, V]{
+  protected var _parent: Option[ForkTable[K,V]] = None
+, protected var _children: Seq[ForkTable[K,V]] = Nil )
+extends AbstractMap[K, V]
+  with DefaultMap[K, V] {
 
   val whiteouts = mutable.Set[K]()
   val back = mutable.HashMap[K, V]()
@@ -62,35 +63,38 @@ class ForkTable[K, V](
   /**
    * @return true if this is the root-level, false if it is not
    */
-  def root: Boolean = parent.isEmpty
+  def isRoot: Boolean = _parent.isEmpty
+
   /**
    * @return true if this is a bottom-level leaf, false if it is not
    */
-  def leaf: Boolean = parent.isDefined && children.isEmpty
+  def isLeaf: Boolean = _parent.isDefined && _children.isEmpty
+
   /**
    * @return an [[scala.Option Option]] containing a reference to
    *         the parent table, or [[scala.None None]] if this is
    *         the root level of the tree
    */
-  def getParent: Option[ForkTable[K,V]] = parent
+  def parent: Option[ForkTable[K,V]] = _parent
 
   /**
    * @return a sequence of this level's child ForkTables.
    */
-  def getChildren: Seq[ForkTable[K,V]] = children
+  def children: Seq[ForkTable[K,V]] = _children
 
   private def removeChild(other: ForkTable[K, V]): Unit = {
-    this.children = children.filter({other != _})
+    _children = _children.filter({other != _})
   }
 
   private def addChild(other: ForkTable[K, V]): Unit = {
-    this.children = this.children :+ other
+    _children = _children :+ other
   }
 
   /**
    * @return the number of keys defined in this level plus all previous levels
    */
-  def chainSize: Int =  size + (parent map (_.chainSize) getOrElse 0) // TODO: make tail-recursive?
+  def chainSize: Int
+    = size + (_parent map (_.chainSize) getOrElse 0) // TODO: make tail-recursive?
 
   /**
    * Change the parent corresponding to this scope.
@@ -100,8 +104,8 @@ class ForkTable[K, V](
   @throws[IllegalArgumentException]("if the specified parent was invalid")
   def reparent(nParent: ForkTable[K, V]): Unit = {
     require(nParent != this, "Scope cannot mount itself as parent!")
-    parent.foreach{ _.removeChild(this) }
-    parent = Some(nParent)
+    _parent.foreach{ _.removeChild(this) }
+    _parent = Some(nParent)
     nParent.addChild(this)
   }
 
@@ -115,10 +119,10 @@ class ForkTable[K, V](
   @tailrec final override def get(key: K): Option[V] = whiteouts contains key match {
     case true  ⇒ None
     case false ⇒ back get key match {
-      case value: Some[V] ⇒ value
-      case None           ⇒ parent match {
-        case None         ⇒ None
-        case Some(thing)  ⇒ thing.get(key)
+      case value: Some[V] => value
+      case None           => _parent match {
+        case None         => None
+        case Some(thing)  => thing.get(key)
       }
     }
   }
@@ -141,13 +145,13 @@ class ForkTable[K, V](
   def remove(key: K): Option[V] = if (back contains key) {
     back remove key
   } else {
-    parent flatMap (_ get key) map {(v) ⇒ whiteouts += key; v}
+    _parent flatMap (_ get key) map {(v) ⇒ whiteouts += key; v}
   }
 
-  def freeze(): Unit = parent foreach { oldParent ⇒
-      this.parent = None
-      this.back ++= oldParent.iterator withFilter {
-        case((key,_)) ⇒ !back.contains(key) && !whiteouts.contains(key)
+  def freeze(): Unit = _parent foreach { oldParent ⇒
+      _parent = None
+      back ++= oldParent.iterator withFilter { case((key,_)) =>
+        !back.contains(key) && !whiteouts.contains(key)
       }
     }
 
@@ -157,11 +161,11 @@ class ForkTable[K, V](
 
   /** @return an Iterator over all of the (key, value) pairs in the tree.
     */
-  override def iterator: Iterator[(K,V)] = parent match {
+  override def iterator: Iterator[(K,V)] = _parent match {
     case None         ⇒ back.iterator // TODO: make tail-recursive?
-    case Some(parent) ⇒ back.iterator ++ parent.iterator.withFilter({
+    case Some(parent) ⇒ back.iterator ++ parent.iterator withFilter {
       case ((key,_))  ⇒ !back.contains(key) && !whiteouts.contains(key)
-    })
+    }
   }
 
   /**
@@ -180,9 +184,9 @@ class ForkTable[K, V](
     //
     // Trust me on this. I know LISP.
     //  ~ Hawk, 6/9/2015
-    case true                            ⇒ true
-    case false if whiteouts contains key ⇒ false
-    case false                           ⇒ parent match {
+    case true                            => true
+    case false if whiteouts contains key => false
+    case false                           => _parent match {
       case None        ⇒ false
       case Some(thing) ⇒ thing.chainContains(key)
     }
@@ -215,7 +219,7 @@ class ForkTable[K, V](
     case true  ⇒ true // this method could look much simpler were it not for `tailrec`
     case false ⇒ parent match {
       case None        ⇒ false
-      case Some(thing) ⇒ thing.chainExists(p)
+      case Some(thing) ⇒ thing chainExists p
     }
   }
 
@@ -236,8 +240,8 @@ class ForkTable[K, V](
    * @return a new child of this scope
    */
   def fork(): ForkTable[K, V] = {
-    val c = new ForkTable[K, V](parent=Some(this))
-    children = children :+ c
+    val c = new ForkTable[K, V](_parent=Some(this))
+    _children = _children :+ c
     c
   }
 
