@@ -45,10 +45,10 @@ class ForkTableSpec extends WordSpec
     "at the root level" should {
       def target = new ForkTable[Int, Int]
       "have no children" in {
-        target.getChildren shouldBe 'empty
+        target.children shouldBe 'empty
       }
       "have no parent" in {
-        target.getParent shouldBe None
+        target.parent shouldBe None
       }
       "be a root" in {
         target should be a 'root
@@ -79,8 +79,7 @@ class ForkTableSpec extends WordSpec
               aFork.put(key1, val1)
               anotherFork.put(key2, val2)
 
-              val children = target.getChildren
-              children should contain allOf(aFork, anotherFork)
+              target.children should contain allOf(aFork, anotherFork)
             }
         }
       }
@@ -139,7 +138,7 @@ class ForkTableSpec extends WordSpec
       "know its parent" in {
         val parent = new ForkTable[Int, Int]
         val fork = parent.fork()
-        fork.getParent shouldBe Some(parent)
+        fork.parent shouldBe Some(parent)
       }
       "not be a root" in {
         val target = new ForkTable[Int, Int].fork()
