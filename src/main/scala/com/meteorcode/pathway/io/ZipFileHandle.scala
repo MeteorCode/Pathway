@@ -67,19 +67,25 @@ class ZipFileHandle protected[io] (
   protected[io] def this(fileHandle: FileHandle)
     = this( fileHandle.path
           , fileHandle.file
-              .getOrElse(throw new IOException(
-                "Could not create ZipFileHandle from nonexistant file"))
+                      .getOrElse(throw new IOException(
+                        "Could not create ZipFileHandle from nonexistant file")
+                      )
           , fileHandle.manager
-              .getOrElse(throw new IOException(
-                "FATAL: could not create ZipFileHandle with no" + "ResourceManager."))
+                      .getOrElse(throw new IOException(
+                        "FATAL: could not create ZipFileHandle with no" + "ResourceManager."))
           )
 
   protected[io] def this(virtualPath: String, fileHandle: FileHandle)
     = this( virtualPath
           , fileHandle.file
-              .getOrElse(throw new IOException(
-                "Could not create ZipFileHandle from nonexistant file"))
-          , fileHandle.manager)
+                      .getOrElse(throw new IOException(
+                        "Could not create ZipFileHandle from nonexistant file")
+                      )
+          , fileHandle.manager
+                      .getOrElse(throw new IOException(
+                        "FATAL: could not create ZipFileHandle with no" + "ResourceManager.")
+                      )
+          )
 
   override protected[io] def file: Option[File] = Some(back)
 

@@ -72,8 +72,8 @@ class ResourceManager (
           , order = policy)
 
   private[this] val paths
-    = order(directories) foldRight(new PathTable()) { (fh, tab) ⇒
-        walk(fh, tab)
+    = order(directories).foldRight(new PathTable()) { (fh, table) =>
+        walk(fh, table)
       }
 
   paths.freeze()
@@ -102,11 +102,16 @@ class ResourceManager (
    * @param current the current FileHandle being walked
    * @param fs the current filesystem state
    */
-  private[this] def walk(current: FileHandle,  fs: PathTable): PathTable
+  private[this] def walk(current: FileHandle, fs: PathTable): PathTable
     = if (current.isDirectory) {
         val newfs = fs.fork()
         newfs put (current.path, current.assumePhysPath)
-        order(current.list.get) foldLeft(newfs) { (fh, tab) => walk(fh, tab) }
+        val children = current.list
+          .getOrElse(throw new IOException(
+            s"FATAL: Could not list children of $current!"))
+        order(children).foldRight(newfs) { (fh, table) =>
+          walk(fh, table)
+        }
       } else {
         fs put (current.path, current.assumePhysPath); fs
       }
@@ -187,17 +192,17 @@ class ResourceManager (
             case Some("jar") => // extension is a Jar
               Success(new JarFileHandle( virtualPath
                                        , new File(physicalPath)
-                                       , Some(this))
+                                       , this)
                                        )
             case Some("zip") => // extension is a Zip
               Success(new ZipFileHandle( virtualPath
                                        , new File(physicalPath)
-                                       , Some(this))
+                                       , this)
                                        )
             case _ => inArchiveRE findFirstIn physicalPath match {
               case Some(inArchiveRE(path, ".zip", name)) =>
                 val parent
-                  = new ZipFileHandle("/", new File(s"$path.zip"), Some(this))
+                  = new ZipFileHandle("/", new File(s"$path.zip"), this)
                 parent.assumeBack map { file ⇒
                   new ZipEntryFileHandle( virtualPath
                                         , new ZipFile(file).getEntry(name)
@@ -205,7 +210,7 @@ class ResourceManager (
                 }
               case Some(inArchiveRE(path, ".jar", name)) ⇒
                 val parent
-                  = new JarFileHandle("/", new File(s"$path.jar"), Some(this))
+                  = new JarFileHandle("/", new File(s"$path.jar"), this)
                 parent.assumeBack map { file ⇒
                   new JarEntryFileHandle( virtualPath
                                         , new JarFile(file).getJarEntry(name)

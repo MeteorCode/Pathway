@@ -56,6 +56,7 @@ class JarEntryFileHandle protected[io](
           , parent.manager
                   .getOrElse(throw new IOException(
                     "Could not create JarEntryFileHandle without"  + "ResourceManager.")
+                  )
           )
 
   override protected[io] lazy val physicalPath: Option[String]

@@ -55,9 +55,13 @@ class ZipEntryFileHandle protected[io] (
     = this(
       virtualPath, entry, parent,
       parent.file
-        .getOrElse(throw new IOException(
-          s"Could not create ZipEntryFileHandle from nonexistant file $parent")),
-      parent.manager)
+            .getOrElse(throw new IOException(
+              "Could not create ZipEntryFileHandle from nonexistant file" +
+              parent)),
+      parent.manager
+            .getOrElse(throw new IOException(
+              "Could not create ZipEntryFileHandle from nonexistant" +
+              "ResourceManager.")))
 
   override protected[io] lazy val physicalPath: Option[String]
     = parentZipfile.physicalPath map { s: String ⇒

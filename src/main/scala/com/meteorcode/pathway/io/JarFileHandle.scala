@@ -43,16 +43,28 @@ class JarFileHandle protected[io](
   protected[io] def this(fileHandle: FileHandle)
     = this( fileHandle.path
           , fileHandle.file
-              .getOrElse(throw new IOException(
-                "Could not create JarFileHandle from nonexistant file"))
-          , fileHandle.manager)
+                      .getOrElse(throw new IOException(
+                        "Could not create JarFileHandle from nonexistant file")
+                      )
+          , fileHandle.manager
+                      .getOrElse(throw new IOException(
+                        "Could not create JarFileHandle with nonexistant" +
+                        "ResourceManager.")
+                      )
+          )
 
   protected[io] def this(virtualPath: String, fileHandle: FileHandle )
-   = this( virtualPath
-         , fileHandle.file
-            .getOrElse(throw new IOException(
-              "Could not create JarFileHandle from nonexistant file"))
-         , fileHandle.manager)
+    = this( virtualPath
+          , fileHandle.file
+                      .getOrElse(throw new IOException(
+                        "Could not create JarFileHandle from nonexistant file")
+                      )
+          , fileHandle.manager
+                      .getOrElse(throw new IOException(
+                        "Could not create JarFileHandle with nonexistant" +
+                        "ResourceManager.")
+                      )
+          )
 
   override protected[io] def file: Option[File] = Some(back)
 
