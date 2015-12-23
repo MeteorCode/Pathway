@@ -391,7 +391,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         when(fakeFile.isDirectory).thenReturn(false)
         when(fakeFile.canWrite).thenReturn(false)
 
-        new FilesystemFileHandle("/write/fakepath", "/write/fakepath", fakeFile, manager).writable shouldBe false
+        new FilesystemFileHandle("/write/fakepath", "/write/fakepath", fakeFile, Some(manager)).writable shouldBe false
 
         verify(fakeFile, times(1)).isDirectory
         verify(fakeFile, times(1)).canWrite
@@ -407,7 +407,7 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
         when(fakeFile.exists).thenReturn(false)
 
         val exception = the [IOException] thrownBy {
-          new FilesystemFileHandle("/write/fakepath", "/write/fakepath", fakeFile, manager).writable
+          new FilesystemFileHandle("/write/fakepath", "/write/fakepath", fakeFile, Some(manager)).writable
         }
         exception should have message
           "Could not create FileHandle FilesystemFileHandle: /write/fakepath, an exception occured."
@@ -424,9 +424,9 @@ class IOSpec extends PathwaySpec with OptionValues with TryValues {
     "ordering paths alphabetically" should {
       "apply the directories in alphabetical order" taggedAs FilesystemTest in {
         val directories = Seq[FileHandle](
-          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/a", null),
-          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/b", null),
-          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/c", null)
+          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/a", None),
+          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/b", None),
+          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/c", None)
         )
 
         val target = new ResourceManager(directories, order = LoadPolicies.alphabetic)
