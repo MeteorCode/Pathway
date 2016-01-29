@@ -71,7 +71,7 @@ class ForkTableSpec extends WordSpec
         forAll {
           (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
             // we are not testing for hash collisions here
-            whenever(key1 != key2 && val1 != val2 ) {
+            whenever(val1 != val2 ) {
               val target = new ForkTable[Int, Int]
               val aFork = target.fork()
               val anotherFork = target.fork()
@@ -80,7 +80,8 @@ class ForkTableSpec extends WordSpec
               aFork.put(key1, val1)
               anotherFork.put(key2, val2)
 
-              target.children should contain allOf (aFork, anotherFork)
+              target.children should contain (aFork)
+              target.children should contain (anotherFork)
             }
         }
       }
