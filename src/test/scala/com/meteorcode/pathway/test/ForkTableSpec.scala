@@ -70,7 +70,8 @@ class ForkTableSpec extends WordSpec
       "know its children" in {
         forAll {
           (key1: Int, val1: Int, key2: Int, val2: Int) ⇒
-            whenever(key1 != key2) { // we are not testing for hash collisions here
+            // we are not testing for hash collisions here
+            whenever(key1 != key2 && val1 != val2 ) {
               val target = new ForkTable[Int, Int]
               val aFork = target.fork()
               val anotherFork = target.fork()
@@ -79,7 +80,7 @@ class ForkTableSpec extends WordSpec
               aFork.put(key1, val1)
               anotherFork.put(key2, val2)
 
-              target.children should contain allOf(aFork, anotherFork)
+              target.children should contain allOf (aFork, anotherFork)
             }
         }
       }
@@ -279,7 +280,9 @@ class ForkTableSpec extends WordSpec
 
             // basically, this is ensuring that the iterator iterates over all the mappings in
             // the parent's contents and my contents
-            (allContents /: fork)( (acc, kv) ⇒ acc - kv._1 ) shouldBe empty
+            allContents.foldLeft(fork){
+              (acc: ForkTable[Int,Int], kv: (Int, Int)) ⇒ acc.remove(kv._1); acc
+            } shouldBe empty
         }
       }
     }
