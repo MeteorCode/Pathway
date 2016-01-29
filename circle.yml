@@ -4,6 +4,8 @@ machine:
   java:
     version: oraclejdk8
 dependencies:
+  pre: 
+    - sudo apt-get update; sudo apt-get install oracle-java8-installer
   cache_directories:
     - "~/.ivy2"
     - "~/.sbt"
