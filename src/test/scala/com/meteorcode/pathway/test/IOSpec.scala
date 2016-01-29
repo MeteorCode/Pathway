@@ -427,9 +427,15 @@ extends WordSpec
     "ordering paths alphabetically" should {
       "apply the directories in alphabetical order" taggedAs FilesystemTest in {
         val directories = Seq[FileHandle](
-          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/a", None),
-          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/b", None),
-          new FilesystemFileHandle("", "./target/scala-2.11/test-classes/loadOrder/c", None)
+          new FilesystemFileHandle(""
+            , "./target/scala-2.11/test-classes/test-filesystem/loadOrder/a"
+            , None),
+          new FilesystemFileHandle(""
+            , "./target/scala-2.11/test-classes/test-filesystem/loadOrder/b"
+            , None),
+          new FilesystemFileHandle(""
+            , "./target/scala-2.11/test-classes/test-filesystem/loadOrder/c"
+            , None)
         )
 
         val target = new ResourceManager(directories, order = LoadPolicies.alphabetic)
