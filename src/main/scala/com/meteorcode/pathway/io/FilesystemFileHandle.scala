@@ -104,8 +104,7 @@ class FilesystemFileHandle (
 
   @throws[IOException]("if something unexpected went wrong")
   override def writable: Boolean // TODO: should this be Try[Boolean]?
-    = manager.map(_.isPathWritable(this.path))
-             .getOrElse(false) && // is the path writable at fs level?
+    = manager.exists(_ isPathWritable this.path) && // is the path writable at fs level?
       !isDirectory && // directories are not writable
       (back.canWrite || // file exists and is writable, or...
         (Try(back.createNewFile()) match { // try to create the file
