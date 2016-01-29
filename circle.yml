@@ -1,0 +1,9 @@
+machine:
+  environment:
+    SBT_VERSION: 0.13.7
+  java:
+    version: oraclejdk8
+dependencies:
+  cache_directories:
+    - "~/.ivy2"
+    - "~/.sbt"
