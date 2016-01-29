@@ -23,7 +23,10 @@ import scala.io.Source
  *
  * Created by hawk on 5/30/15.
  */
-class IOSpec extends PathwaySpec with OptionValues with TryValues {
+class IOSpec
+extends PathwaySpec
+  with OptionValues
+  with TryValues {
 
   var manager: ResourceManager = null
 

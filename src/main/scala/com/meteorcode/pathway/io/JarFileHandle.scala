@@ -37,8 +37,8 @@ import scala.language.postfixOps
 class JarFileHandle protected[io](
   virtualPath: String
 , private[this] val back: File
-, manager: ResourceManager
-) extends FileHandle(virtualPath, Some(manager)) {
+, manager: Option[ResourceManager]
+) extends FileHandle(virtualPath, manager) {
 
   protected[io] def this(fileHandle: FileHandle)
     = this( fileHandle.path
@@ -47,10 +47,6 @@ class JarFileHandle protected[io](
                         "Could not create JarFileHandle from nonexistant file")
                       )
           , fileHandle.manager
-                      .getOrElse(throw new IOException(
-                        "Could not create JarFileHandle with nonexistant" +
-                        "ResourceManager.")
-                      )
           )
 
   protected[io] def this(virtualPath: String, fileHandle: FileHandle )
@@ -60,10 +56,6 @@ class JarFileHandle protected[io](
                         "Could not create JarFileHandle from nonexistant file")
                       )
           , fileHandle.manager
-                      .getOrElse(throw new IOException(
-                        "Could not create JarFileHandle with nonexistant" +
-                        "ResourceManager.")
-                      )
           )
 
   override protected[io] def file: Option[File] = Some(back)

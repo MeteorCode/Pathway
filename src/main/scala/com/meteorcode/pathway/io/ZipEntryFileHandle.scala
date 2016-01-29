@@ -45,23 +45,19 @@ class ZipEntryFileHandle protected[io] (
     private[this] val entry: ZipEntry,
     private[this] val parentZipfile: ZipFileHandle,
     private[this] val back: File,
-    manager: ResourceManager
+    manager: Option[ResourceManager]
 ) extends ZipFileHandle(virtualPath, back, manager) {
 
   protected[io] def this(
     virtualPath: String,
     entry: ZipEntry,
     parent: ZipFileHandle)
-    = this(
-      virtualPath, entry, parent,
+    = this( virtualPath, entry, parent,
       parent.file
             .getOrElse(throw new IOException(
               "Could not create ZipEntryFileHandle from nonexistant file" +
               parent)),
-      parent.manager
-            .getOrElse(throw new IOException(
-              "Could not create ZipEntryFileHandle from nonexistant" +
-              "ResourceManager.")))
+      parent.manager)
 
   override protected[io] lazy val physicalPath: Option[String]
     = parentZipfile.physicalPath map { s: String ⇒

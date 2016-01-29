@@ -41,7 +41,7 @@ class JarEntryFileHandle protected[io](
 , private[this] val entry: JarEntry
 , private[this] val parentJarfile: JarFileHandle
 , private[this] val back: File
-, manager: ResourceManager
+, manager: Option[ResourceManager]
 ) extends JarFileHandle(virtualPath, back, manager) {
 
   protected[io] def this(virtualPath: String,
@@ -53,11 +53,7 @@ class JarEntryFileHandle protected[io](
                   .getOrElse(throw new IOException(
                     s"Could not create JarEntryFileHandle from nonexistant"
                     + s" file $parent"))
-          , parent.manager
-                  .getOrElse(throw new IOException(
-                    "Could not create JarEntryFileHandle without"  + "ResourceManager.")
-                  )
-          )
+          , parent.manager )
 
   override protected[io] lazy val physicalPath: Option[String]
     = parentJarfile.physicalPath map { s: String ⇒

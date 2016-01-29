@@ -78,20 +78,20 @@ class FilesystemFileHandle (
   override def list: Try[Seq[FileHandle]]
     = Try(if (isDirectory) {
         back.list map {
-          case isArchiveRE(name, ".jar") ⇒ new JarFileHandle(
-              "/"
-            , new File(s"$assumePhysPath/$name.jar")
-            , getManager)
-          case isArchiveRE(name, ".zip") ⇒ new ZipFileHandle(
-              "/"
-            , new File(s"$assumePhysPath/$name.zip")
-            , getManager)
-          case item ⇒ new FilesystemFileHandle(
-              s"$path/$item"
-            , s"$assumePhysPath/$item"
-            , getManager)
+          case isArchiveRE(name, ".jar") ⇒
+            new JarFileHandle( "/"
+                             , new File(s"$assumePhysPath/$name.jar")
+                             , manager)
+          case isArchiveRE(name, ".zip") ⇒
+            new ZipFileHandle( "/"
+                             , new File(s"$assumePhysPath/$name.zip")
+                             , manager)
+          case item ⇒
+            new FilesystemFileHandle( s"$path/$item"
+                                    , s"$assumePhysPath/$item"
+                                    , manager)
         }
-      } else { Nil })
+      } else { Seq() })
 
   override lazy val physicalPath: Some[String]
     = Some(realPath.replace('/', File.separatorChar))

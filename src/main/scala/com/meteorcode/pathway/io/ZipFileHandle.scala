@@ -35,8 +35,8 @@ import scala.util.{Failure, Try}
 class ZipFileHandle protected[io] (
   virtualPath: String
 , private[this] val back: File
-, manager: ResourceManager
-) extends FileHandle(virtualPath, Some(manager)) {
+, manager: Option[ResourceManager]
+) extends FileHandle(virtualPath, manager) {
   /*
   Let's take a moment to discuss how Java's Zip API is Not My Favourite Thing.
 
@@ -71,8 +71,6 @@ class ZipFileHandle protected[io] (
                         "Could not create ZipFileHandle from nonexistant file")
                       )
           , fileHandle.manager
-                      .getOrElse(throw new IOException(
-                        "FATAL: could not create ZipFileHandle with no" + "ResourceManager."))
           )
 
   protected[io] def this(virtualPath: String, fileHandle: FileHandle)
@@ -82,9 +80,6 @@ class ZipFileHandle protected[io] (
                         "Could not create ZipFileHandle from nonexistant file")
                       )
           , fileHandle.manager
-                      .getOrElse(throw new IOException(
-                        "FATAL: could not create ZipFileHandle with no" + "ResourceManager.")
-                      )
           )
 
   override protected[io] def file: Option[File] = Some(back)

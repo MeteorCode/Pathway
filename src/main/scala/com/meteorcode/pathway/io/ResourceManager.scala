@@ -196,17 +196,17 @@ class ResourceManager (
             case Some("jar") => // extension is a Jar
               Success(new JarFileHandle( virtualPath
                                        , new File(physicalPath)
-                                       , this)
+                                       , Some(this) )
                                        )
             case Some("zip") => // extension is a Zip
               Success(new ZipFileHandle( virtualPath
                                        , new File(physicalPath)
-                                       , this)
+                                       , Some(this) )
                                        )
             case _ => inArchiveRE findFirstIn physicalPath match {
               case Some(inArchiveRE(path, ".zip", name)) =>
                 val parent
-                  = new ZipFileHandle("/", new File(s"$path.zip"), this)
+                  = new ZipFileHandle("/", new File(s"$path.zip"), Some(this))
                 parent.assumeBack map { file ⇒
                   new ZipEntryFileHandle( virtualPath
                                         , new ZipFile(file).getEntry(name)
@@ -214,7 +214,7 @@ class ResourceManager (
                 }
               case Some(inArchiveRE(path, ".jar", name)) ⇒
                 val parent
-                  = new JarFileHandle("/", new File(s"$path.jar"), this)
+                  = new JarFileHandle("/", new File(s"$path.jar"), Some(this))
                 parent.assumeBack map { file ⇒
                   new JarEntryFileHandle( virtualPath
                                         , new JarFile(file).getJarEntry(name)
@@ -223,7 +223,7 @@ class ResourceManager (
               case _ =>
                 Success(new FilesystemFileHandle( virtualPath
                                                 , physicalPath
-                                                , this ))
+                                                , Some(this) ))
             }
           }
         }
