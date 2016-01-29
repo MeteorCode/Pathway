@@ -106,9 +106,13 @@ class ResourceManager (
     = if (current.isDirectory) {
         val newfs = fs.fork()
         newfs put (current.path, current.assumePhysPath)
-        val children = current.list
-          .getOrElse(throw new IOException(
-            s"FATAL: Could not list children of $current!"))
+        val children = current.list match {
+          case Success(l)   => l
+          case Failure(why) =>
+            throw new IOException( "FATAL: could not list children " +
+                                  s"of $current:\n$why")
+        }
+
         order(children).foldRight(newfs) { (fh, table) =>
           walk(fh, table)
         }
