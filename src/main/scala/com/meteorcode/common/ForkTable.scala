@@ -37,7 +37,7 @@ extends AbstractMap[K, V]
   with DefaultMap[K, V] {
 
   val whiteouts = mutable.Set[K]()
-  val back = mutable.HashMap[K, V]()
+  val back = new mutable.HashMap[K, V]()
 
   /**
    * Inserts a key-value pair from the map.
@@ -260,4 +260,6 @@ extends AbstractMap[K, V]
     = (" "*indentLevel) + ("" /: this.keys){ (acc, key) ⇒
         acc + "\n" + (" " * indentLevel) + s"$key =⇒ ${this.get(key).getOrElse("")}"
       }
+
+
 }
