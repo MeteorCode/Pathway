@@ -32,12 +32,11 @@ import scala.util.{Failure, Try}
  * @see [[FileHandle]]
  * @since v2.0.0
  */
-class ZipFileHandle protected[io] (virtualPath: String,
-                     private[this] val back: File,
-                     manager: ResourceManager//,
-                     //token: IOAccessToken
-                      ) extends FileHandle(virtualPath, manager//, token
-) {
+class ZipFileHandle protected[io] (
+  virtualPath: String
+, private[this] val back: File
+, manager: Option[ResourceManager]
+) extends FileHandle(virtualPath, manager) {
   /*
   Let's take a moment to discuss how Java's Zip API is Not My Favourite Thing.
 
@@ -65,19 +64,23 @@ class ZipFileHandle protected[io] (virtualPath: String,
   In short, I hate java.util.zip.
   */
 
-  protected[io] def this(fileHandle: FileHandle) = this(
-    fileHandle.path,
-    fileHandle.file
-      .getOrElse(throw new IOException(
-        "Could not create ZipFileHandle from nonexistant file")),
-    fileHandle.manager)
+  protected[io] def this(fileHandle: FileHandle)
+    = this( fileHandle.path
+          , fileHandle.file
+                      .getOrElse(throw new IOException(
+                        "Could not create ZipFileHandle from nonexistant file")
+                      )
+          , fileHandle.manager
+          )
 
-  protected[io] def this(virtualPath: String, fileHandle: FileHandle ) = this(
-    virtualPath,
-    fileHandle.file
-      .getOrElse(throw new IOException(
-        "Could not create ZipFileHandle from nonexistant file")),
-    fileHandle.manager)
+  protected[io] def this(virtualPath: String, fileHandle: FileHandle)
+    = this( virtualPath
+          , fileHandle.file
+                      .getOrElse(throw new IOException(
+                        "Could not create ZipFileHandle from nonexistant file")
+                      )
+          , fileHandle.manager
+          )
 
   override protected[io] def file: Option[File] = Some(back)
 
@@ -114,10 +117,10 @@ class ZipFileHandle protected[io] (virtualPath: String,
           }
           .map { entry ⇒
             new ZipEntryFileHandle(
-              s"${this.path}${trailingSlash(entry.getName)}",
-              entry,
-              this
-            )
+                s"${this.path}${trailingSlash(entry.getName)}"
+              , entry
+              , this
+              )
           }
       }
 

@@ -38,19 +38,29 @@ import scala.util.control.NonFatal
  * @since v2.0.0
  */
 class FilesystemFileHandle (
-  virtualPath: String,
-  realPath: String,
-  private[this] val back: File,
-  manager: ResourceManager//,
-  //token: IOAccessToken
-  ) extends FileHandle(virtualPath, manager) {
+  virtualPath: String
+, realPath: String
+, private[this] val back: File
+, manager: Option[ResourceManager]
+) extends FileHandle(virtualPath, manager) {
 
   require(realPath != "", "Physical path cannot be empty.")
 
   def this(virtualPath: String, realPath: String, manager: ResourceManager)
+    = this (virtualPath, realPath, new File(realPath), Some(manager))
+
+  def this( virtualPath: String, realPath: String
+          , manager: Option[ResourceManager])
     = this (virtualPath, realPath, new File(realPath), manager)
 
   override val file = Some(back)
+
+  @inline
+  @throws[IOException]
+  private[this] def getManager
+    = this.manager
+          .getOrElse(throw new IOException(
+            "FATAL: ResourceManager instance required!"))
 
   override def read: Try[InputStream]
     = if (!exists || isDirectory) {
@@ -68,20 +78,20 @@ class FilesystemFileHandle (
   override def list: Try[Seq[FileHandle]]
     = Try(if (isDirectory) {
         back.list map {
-          case isArchiveRE(name, ".jar") ⇒ new JarFileHandle(
-            "/",
-            new File(s"$assumePhysPath/$name.jar"),
-            manager)
-          case isArchiveRE(name, ".zip") ⇒ new ZipFileHandle(
-            "/",
-            new File(s"$assumePhysPath/$name.zip"),
-            manager)
-          case item ⇒ new FilesystemFileHandle(
-            s"$path/$item",
-            s"$assumePhysPath/$item",
-            manager)
+          case isArchiveRE(name, ".jar") ⇒
+            new JarFileHandle( "/"
+                             , new File(s"$assumePhysPath/$name.jar")
+                             , manager)
+          case isArchiveRE(name, ".zip") ⇒
+            new ZipFileHandle( "/"
+                             , new File(s"$assumePhysPath/$name.zip")
+                             , manager)
+          case item ⇒
+            new FilesystemFileHandle( s"$path/$item"
+                                    , s"$assumePhysPath/$item"
+                                    , manager)
         }
-      } else { Nil })
+      } else { Seq() })
 
   override lazy val physicalPath: Some[String]
     = Some(realPath.replace('/', File.separatorChar))
@@ -94,7 +104,7 @@ class FilesystemFileHandle (
 
   @throws[IOException]("if something unexpected went wrong")
   override def writable: Boolean // TODO: should this be Try[Boolean]?
-    = manager.isPathWritable(this.path) && // is the path writable at fs level?
+    = manager.exists(_ isPathWritable this.path) && // is the path writable at fs level?
       !isDirectory && // directories are not writable
       (back.canWrite || // file exists and is writable, or...
         (Try(back.createNewFile()) match { // try to create the file
