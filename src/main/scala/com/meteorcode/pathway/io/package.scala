@@ -51,7 +51,7 @@ package object io {
     lazy val withoutTrailingSlash: String
       = if (path endsWith "/") { path dropRight 1 } else { path }
 
-    lazy val lastPathEntry: Option[String]
+    lazy val parent: Option[String]
       = path split '/' dropRight 1 lastOption
   }
 

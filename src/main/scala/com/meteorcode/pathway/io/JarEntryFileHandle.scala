@@ -88,10 +88,10 @@ class JarEntryFileHandle protected[io](
         Try(
           Collections.list(new JarFile(back).entries).asScala
             .withFilter { je: JarEntry ⇒
-              je.getName.lastPathEntry contains (entry.getName dropRight 1)
+              je.getName.parent contains (entry.getName dropRight 1)
             } map { je: JarEntry ⇒
                new JarEntryFileHandle(
-                  s"${this.path}/${je.getName.lastPathEntry getOrElse ""}"
+                  s"${this.path}/${je.getName split '/' last}"
                 , je
                 , parentJarfile)
               })

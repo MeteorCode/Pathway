@@ -90,8 +90,7 @@ class JarFileHandle protected[io](
          _.asScala
           .withFilter { entry ⇒
             subdirRE findFirstIn entry.getName isDefined
-          }
-          .map { entry ⇒
+          } map { entry ⇒
             new JarEntryFileHandle(
                 s"${this.path}${entry.getName withoutTrailingSlash}"
               , entry
