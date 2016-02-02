@@ -33,7 +33,7 @@ object Bootstrap {
                      new FilesystemFileHandle( f.getName
                                              , f.getAbsolutePath
                                              , f
-                                             , null // ugh
+                                             , None
                                              )
                    }
       }
