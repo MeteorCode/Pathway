@@ -18,8 +18,6 @@ import scala.collection.JavaConverters.{
   mapAsJavaMapConverter,
   mapAsScalaMapConverter
 }
-import scala.languageFeature.postfixOps
-
 /**
  * A ScriptContainer wraps a script interpreter and a set of variable bindings.
  *

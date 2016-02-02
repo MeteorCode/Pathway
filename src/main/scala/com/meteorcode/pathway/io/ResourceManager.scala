@@ -11,8 +11,8 @@ import me.hawkweisman.util.TryWithFold
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
+import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
-import scala.languageFeature.postfixOps
 
 /**
  * ==Pathway ResourceManager==
@@ -40,7 +40,6 @@ import scala.languageFeature.postfixOps
  *                 The write directory's virtual path will be set to `/write/`.
  * @param order A [[LoadOrderPolicy]] representing the game's load-order
  *              policy. Alphabetic load ordering is used by default.
- *
  * @author Hawk Weisman
  * @since v2.0.0
  * @see [[FileHandle]]
@@ -100,6 +99,7 @@ class ResourceManager (
   }
   /**
    * Recursively walk the filesystem down from each FileHandle in a list
+ *
    * @param current the current FileHandle being walked
    * @param fs the current filesystem state
    */
@@ -126,6 +126,7 @@ class ResourceManager (
    *
    * TODO: make this a method on Strings instead (eta-expansion) for
    * code-prettiness reasons
+ *
    * @param virtualPath a path in the virtual filesystem
    * @return true if that path can be written to, false if it cannot
    */
