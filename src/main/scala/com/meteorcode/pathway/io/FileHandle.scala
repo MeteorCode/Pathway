@@ -270,7 +270,7 @@ abstract class FileHandle(
     = s"${this.getClass.getSimpleName}: $path"
 
   override lazy val hashCode: Int
-    = this.toString.hashCode
+    = this.toString.hashCode + 10
 
   /**
    * Overriden equality method for FileHandles.
