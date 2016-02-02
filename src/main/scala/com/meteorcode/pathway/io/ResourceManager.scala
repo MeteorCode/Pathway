@@ -12,6 +12,7 @@ import com.typesafe.scalalogging.LazyLogging
 
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
+import scala.languageFeature.postfixOps
 
 /**
  * ==Pathway ResourceManager==
@@ -156,7 +157,7 @@ class ResourceManager (
           ))
 
   private[this] def getPhysicalPath(virtualPath: String): Try[String]
-    = writePaths.get(trailingSlash(virtualPath)) match {
+    = writePaths.get(virtualPath withoutTrailingSlash) match {
         case Some(s: String) ⇒ Success(s)
         // If the path is not in the tree, handle write attempts.
         case None if isPathWritable(virtualPath) =>

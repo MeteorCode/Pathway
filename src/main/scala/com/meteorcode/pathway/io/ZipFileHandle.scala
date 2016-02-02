@@ -117,7 +117,7 @@ class ZipFileHandle protected[io] (
           }
           .map { entry ⇒
             new ZipEntryFileHandle(
-                s"${this.path}${trailingSlash(entry.getName)}"
+                s"${this.path}${entry.getName withoutTrailingSlash}"
               , entry
               , this
               )

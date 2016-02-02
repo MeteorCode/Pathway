@@ -35,13 +35,20 @@ package object io {
 
   protected[io] implicit class Path(val path: String) {
 
-    def extension: Option[String]
+    @inline def extension: Option[String]
       = path.split('.').drop(1)
             .lastOption
 
-    def name: Option[String]
+    @inline def name: Option[String]
       = path.split('/').lastOption
             .flatMap( _.split('.').headOption )
+
+    /**
+      * Removes the trailing slash from a path.
+      * @return the path with any trailing slashes removed.
+      */
+    @inline def withoutTrailingSlash: String
+      = if (path endsWith "/") path dropRight 1 else path
   }
 
   // Regex for determining if a path is inside an archive
@@ -52,11 +59,5 @@ package object io {
   // Regex for extracting subdirectories
   protected[io] val subdirRE    = """^[^\/]+\/*$""".r
 
-  /**
-   * Removes the trailing slash from a path.
-   * @param  name a String represnting a path
-   * @return the pathw ith any trailing slashes removed.
-   */
-  protected[io] def trailingSlash(name: String)
-    = if (name endsWith "/") name dropRight 1 else name
+
 }
