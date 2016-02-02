@@ -22,7 +22,7 @@ trait PathNormalizations {
     = new AbstractStringUniformity {
 
         def normalized(s: String): String
-          = if (s endsWith "/") s dropRight 1 else s
+          = trailingSlash(s)
 
         override def toString: String = "trailingSlashNormed"
       }
