@@ -42,10 +42,10 @@ libraryDependencies ++= Seq(
 , "org.json4s"                  %% "json4s-native"  % "3.3.0.RC1"
 , "org.scalactic"               %% "scalactic"      % scalatestVersion
   // --- test dependencies ------------------------------
-, "org.scalacheck"    %% "scalacheck"     % "1.12.2+"         % "test"
-, "org.scalatest"     %% "scalatest"      % scalatestVersion  % "test"
-, "org.mockito"       %  "mockito-all"    % "1.10.19+"        % "test"
-, "com.storm-enroute" %% "scalameter"     % "0.6"             % "bench"
+, "org.scalacheck"    %% "scalacheck"  % "1.12.2+"         % "test"
+, "org.scalatest"     %% "scalatest"   % scalatestVersion  % "test"
+, "org.mockito"       %  "mockito-all" % "1.10.19+"        % "test"
+, "com.storm-enroute" %% "scalameter"  % "0.6"             % "bench"
 )
 
 wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
@@ -85,7 +85,7 @@ inConfig(Benchmark)(Defaults.testSettings)
 testOptions in Benchmark += Tests.Argument(scalaMeter, "-silent")
 //-----------------------------------------------------------------------------
 
-seq(documentationSettings: _*)
+Seq(documentationSettings: _*)
 
 assemblyJarName in assembly in Test := "pathway-assembly-test.jar"
 
@@ -103,7 +103,7 @@ assembledMappings in assembly in Test ~= { mapSets ⇒ mapSets.map {
 }
 }
 
-seq(documentationSettings: _*)
+Seq(documentationSettings: _*)
 
 val externalJavadocMap = Map()
 
@@ -151,7 +151,7 @@ lazy val documentationSettings = Seq(
     }
     // Define external documentation paths
     (externalJavadocMap map {
-      case (name, javadocURL) ⇒ findJar(name) → url(javadocURL)
+      case (n, javadocURL) ⇒ findJar(n) → url(javadocURL)
     }) + (file(rtJar) → url(javaApiUrl))
   },
   // Override the task to fix the links to JavaDoc
