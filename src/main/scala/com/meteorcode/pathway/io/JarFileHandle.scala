@@ -93,7 +93,7 @@ class JarFileHandle protected[io](
           }
           .map { entry ⇒
             new JarEntryFileHandle(
-                s"${this.path}${trailingSlash(entry.getName)}"
+                s"${this.path}${entry.getName withoutTrailingSlash}"
               , entry
               , this
               )

@@ -85,22 +85,16 @@ class JarEntryFileHandle protected[io](
 
   override lazy val list: Try[Seq[FileHandle]]
     = if (isDirectory) {
-        Try(Collections
-          .list(new JarFile(back).entries)
-          .asScala
-          .withFilter { je: JarEntry ⇒
-            je.getName
-              .split("/")
-              .dropRight(1)
-              .lastOption
-              .contains(entry.getName
-                             .dropRight(1)) }
-         .map { je: JarEntry ⇒
-           new JarEntryFileHandle(
-              s"${this.path}/${je.getName.split("/").lastOption.getOrElse("")}"
-            , je
-            , parentJarfile)
-          })
+        Try(
+          Collections.list(new JarFile(back).entries).asScala
+            .withFilter { je: JarEntry ⇒
+              je.getName.lastPathEntry contains (entry.getName dropRight 1)
+            } map { je: JarEntry ⇒
+               new JarEntryFileHandle(
+                  s"${this.path}/${je.getName.lastPathEntry getOrElse ""}"
+                , je
+                , parentJarfile)
+              })
       } else {
         Success(Seq[FileHandle]())
       }
