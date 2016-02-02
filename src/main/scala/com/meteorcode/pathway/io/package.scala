@@ -45,14 +45,18 @@ package object io {
 
     /**
       * Removes the trailing slash from a path.
- *
+      *
       * @return the path with any trailing slashes removed.
       */
     lazy val withoutTrailingSlash: String
       = if (path endsWith "/") { path dropRight 1 } else { path }
 
+    /**
+      * The name of the parent path element of this path (i.e., the directory
+      * one level above the object this path points to.
+      */
     lazy val parent: Option[String]
-      = path split '/' dropRight 1 lastOption
+      = withoutTrailingSlash split '/' dropRight 1 lastOption
   }
 
   // Regex for determining if a path is inside an archive
