@@ -1,5 +1,7 @@
 package com.meteorcode.pathway
 
+import scala.language.postfixOps
+
 /**
  * ==Pathway I/O==
  *
@@ -36,19 +38,21 @@ package object io {
   protected[io] implicit class Path(val path: String) {
 
     @inline def extension: Option[String]
-      = path.split('.').drop(1)
-            .lastOption
+      = path split '.'  drop 1 lastOption
 
     @inline def name: Option[String]
-      = path.split('/').lastOption
-            .flatMap( _.split('.').headOption )
+      = lastPathEntry flatMap {  _ split '.' headOption  }
 
     /**
       * Removes the trailing slash from a path.
+ *
       * @return the path with any trailing slashes removed.
       */
     @inline def withoutTrailingSlash: String
       = if (path endsWith "/") path dropRight 1 else path
+
+    @inline def lastPathEntry: Option[String]
+      = path split "/" dropRight 1 lastOption
   }
 
   // Regex for determining if a path is inside an archive

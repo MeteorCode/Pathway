@@ -104,7 +104,7 @@ class ResourceManager (
    * @param fs the current filesystem state
    */
   private[this] def walk(current: FileHandle, fs: PathTable): PathTable
-    = if (current.isDirectory) {
+    = if (current isDirectory) {
         val newfs = fs.fork()
         newfs put (current.path, current.assumePhysPath)
         val children = current.list match {
@@ -131,7 +131,7 @@ class ResourceManager (
    * @return true if that path can be written to, false if it cannot
    */
   def isPathWritable(virtualPath: String): Boolean
-    = if (writeDir.isDefined) virtualPath.contains("write/") else false
+    = if (writeDir isDefined) virtualPath contains "write/" else false
 
   /**
    * Request that the ResourceManager handle the file at a given path.
