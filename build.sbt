@@ -20,6 +20,8 @@ val nativesDir = "lwjgl-natives" // the directory within the jar file for native
 
 val projectVersion = "2.0.0" // current release version
 
+val scalatestVersion = "2.2.6"
+
 val gitHeadCommitSha = settingKey[String]("current git commit short SHA")
 
 gitHeadCommitSha in ThisBuild := Process("git rev-parse --short HEAD").lines.headOption.getOrElse("")
@@ -30,19 +32,20 @@ resolvers += "Hawk's Bintray Repo" at "https://dl.bintray.com/hawkw/maven"
 
 libraryDependencies ++= Seq(
   // --- LWJGL -----------------------------------------
-  "org.lwjgl" % "lwjgl"           % lwjglVersion, // main lajiggle library
-  "org.lwjgl" % "lwjgl-platform"  % lwjglVersion  // lajiggle natives
+  "org.lwjgl" % "lwjgl"          % lwjglVersion // main lajiggle library
+, "org.lwjgl" % "lwjgl-platform" % lwjglVersion // lajiggle natives
     classifier "natives-windows"
     classifier "natives-linux"
-    classifier "natives-osx",
-  "me.hawkweisman"              %% "util"           % "0.0.3",
-  "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0",
-  "org.json4s"                  %%  "json4s-native" % "3.3.0.RC1",
+    classifier "natives-osx"
+, "me.hawkweisman"              %% "util"           % "0.0.3"
+, "com.typesafe.scala-logging"  %% "scala-logging"  % "3.1.0"
+, "org.json4s"                  %% "json4s-native"  % "3.3.0.RC1"
+, "org.scalactic"               %% "scalactic"      % scalatestVersion
   // --- test dependencies ------------------------------
-  "org.scalacheck"    %% "scalacheck"     % "1.12.2+"   % "test",
-  "org.scalatest"     %% "scalatest"      % "2.2.4+"    % "test",
-  "org.mockito"       %  "mockito-all"    % "1.10.19+"  % "test",
-  "com.storm-enroute" %% "scalameter"     % "0.6"       % "bench"
+, "org.scalacheck"    %% "scalacheck"     % "1.12.2+"         % "test"
+, "org.scalatest"     %% "scalatest"      % scalatestVersion  % "test"
+, "org.mockito"       %  "mockito-all"    % "1.10.19+"        % "test"
+, "com.storm-enroute" %% "scalameter"     % "0.6"             % "bench"
 )
 
 wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
