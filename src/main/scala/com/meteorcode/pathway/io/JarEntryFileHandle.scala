@@ -6,6 +6,7 @@ import java.util.jar.{JarEntry, JarFile}
 import java.util.zip.ZipException
 
 import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
 
@@ -64,7 +65,7 @@ class JarEntryFileHandle protected[io](
       }
     }
 
-  override lazy val isDirectory: Boolean = entry.isDirectory
+  override lazy val isDirectory: Boolean = entry isDirectory
 
   override def read: Try[InputStream] = this match {
     case _ if this.isDirectory ⇒ Failure(new IOException(

@@ -5,6 +5,7 @@ import java.util.Collections
 import java.util.zip.{ZipEntry, ZipException, ZipFile}
 
 import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.language.postfixOps
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
@@ -26,6 +27,7 @@ import scala.util.{Failure, Success, Try}
  * So don't do that.
  *
  * To reiterate, do NOT call the constructor for this
+ *
  * @param entry  the [[java.util.zip.ZipEntry]] representing the file
  * @param parentZipfile a reference to the the [[java.util.zip.ZipFile]]
  *                      containing the ZipEntry - this is necessary so that
@@ -89,21 +91,17 @@ class ZipEntryFileHandle protected[io] (
 
   override lazy val list: Try[Seq[FileHandle]]
     = if (isDirectory) {
-        Try(Collections
-          .list(new ZipFile(back).entries)
-          .asScala
-          .withFilter { ze: ZipEntry ⇒
-            ze.getName
-              .split("/")
-              .dropRight(1)
-              .lastOption
-            .contains(entry.getName
-                           .dropRight(1))
-          }.map { ze: ZipEntry ⇒
-            new ZipEntryFileHandle(
-              s"${this.path}/${ze.getName.split("/").last}",
-              ze,
-              parentZipfile)
+        Try(
+          Collections.list(new ZipFile(back).entries)
+            .asScala
+            .withFilter { ze: ZipEntry ⇒
+              ze.getName.parent contains (entry.getName dropRight 1)
+            } map { ze: ZipEntry ⇒
+              new ZipEntryFileHandle(
+                s"${this.path}/${ze.getName split '/' last}"
+              , ze
+              , parentZipfile
+              )
             })
       } else {
         Success(Seq[FileHandle]())
